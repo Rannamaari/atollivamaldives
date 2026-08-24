@@ -1,0 +1,118 @@
+.blog-offer {
+    max-width: 1120px;
+    margin: 0 auto 90px;
+    padding: 28px;
+    display: grid;
+    grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+    gap: 28px;
+    border-radius: 28px;
+    background: linear-gradient(135deg, #09213a, #0e5960);
+    color: #f5fbfb;
+    overflow: hidden;
+}
+
+.blog-offer__media {
+    min-height: 280px;
+}
+
+.blog-offer__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 22px;
+}
+
+.blog-offer__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 10px 6px;
+}
+
+.blog-offer__eyebrow {
+    margin: 0 0 14px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: #aee8e3;
+}
+
+.blog-offer__content h2 {
+    margin: 0 0 16px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(38px, 5vw, 60px);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+}
+
+.blog-offer__content p {
+    margin: 0;
+    max-width: 560px;
+    font-size: 15px;
+    line-height: 1.9;
+    color: rgba(233, 243, 244, 0.9);
+}
+
+.blog-offer__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 18px;
+    width: max-content;
+    margin-top: 28px;
+    padding: 14px 20px;
+    border-radius: 999px;
+    border: 1px solid rgba(110, 213, 204, 0.38);
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    transition: transform 0.22s ease, background-color 0.22s ease, border-color 0.22s ease;
+}
+
+.blog-offer__cta:hover,
+.blog-offer__cta:focus-visible {
+    transform: translateY(-1px);
+    background: rgba(110, 213, 204, 0.14);
+    border-color: rgba(110, 213, 204, 0.56);
+    outline: none;
+}
+
+@media (max-width: 900px) {
+    .blog-offer {
+        margin: 0 24px 70px;
+        grid-template-columns: 1fr;
+        gap: 22px;
+    }
+
+    .blog-offer__media {
+        min-height: 240px;
+    }
+}
+
+@media (max-width: 639px) {
+    .blog-offer {
+        margin: 0 20px 58px;
+        padding: 18px;
+        border-radius: 22px;
+    }
+
+    .blog-offer__media {
+        min-height: 200px;
+    }
+
+    .blog-offer__media img {
+        border-radius: 16px;
+    }
+
+    .blog-offer__content h2 {
+        font-size: clamp(32px, 11vw, 44px);
+    }
+
+    .blog-offer__content p {
+        font-size: 14px;
+        line-height: 1.8;
+    }
+}

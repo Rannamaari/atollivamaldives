@@ -1,0 +1,132 @@
+.why-book {
+    background: #071426;
+    padding: 60px 20px;
+}
+
+.why-book__inner {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.why-book__header {
+    max-width: 760px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.why-book__heading {
+    margin: 0;
+    font-family: Inter, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.34em;
+    line-height: 1.6;
+    text-transform: uppercase;
+    color: #ffffff;
+}
+
+.why-book__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 48px 44px;
+    margin-top: 48px;
+}
+
+.why-book__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.why-book__item--featured {
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+.why-book__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    color: #c8d1db;
+    transition: color 0.25s ease;
+}
+
+.why-book__icon-svg {
+    width: 40px;
+    height: 40px;
+}
+
+.why-book__item:hover .why-book__icon,
+.why-book__item:focus-within .why-book__icon {
+    color: #58d6d2;
+}
+
+.why-book__title {
+    max-width: 24rem;
+    margin: 20px 0 0;
+    font-family: Inter, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    line-height: 1.7;
+    text-transform: uppercase;
+    color: #ffffff;
+}
+
+.why-book__description {
+    max-width: 24rem;
+    margin: 16px 0 0;
+    font-family: Inter, sans-serif;
+    font-size: 15px;
+    line-height: 1.9;
+    color: #d7dee8;
+}
+
+.why-book__item--featured .why-book__description {
+    max-width: 33rem;
+}
+
+@media (min-width: 640px) {
+    .why-book {
+        padding: 64px 32px;
+    }
+
+    .why-book__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 56px 48px;
+        margin-top: 56px;
+    }
+
+    .why-book__item--featured {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (min-width: 1024px) {
+    .why-book {
+        padding: 92px 40px 96px;
+    }
+
+    .why-book__grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 64px 64px;
+        margin-top: 64px;
+    }
+
+    .why-book__heading {
+        font-size: 14px;
+    }
+
+    .why-book__icon {
+        width: 60px;
+        height: 60px;
+    }
+
+    .why-book__icon-svg {
+        width: 42px;
+        height: 42px;
+    }
+}

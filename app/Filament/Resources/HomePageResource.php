@@ -1,0 +1,95 @@
+<?php
+
+namespace App\Filament\Resources;
+
+use App\Filament\Resources\HomePageResource\Pages;
+use App\Models\HomePage;
+use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
+
+class HomePageResource extends Resource
+{
+    protected static ?string $model = HomePage::class;
+    protected static ?string $navigationIcon = 'heroicon-o-photo';
+    protected static ?string $navigationGroup = 'Content';
+    protected static ?string $navigationLabel = 'Homepage Heroes';
+    protected static ?string $modelLabel = 'homepage hero';
+    protected static ?string $pluralModelLabel = 'homepage heroes';
+
+    public static function form(Form $form): Form
+    {
+        return $form->schema([
+            Forms\Components\Section::make('Hero content')->columns(2)->schema([
+                Forms\Components\TextInput::make('name')
+                    ->required()
+                    ->maxLength(255)
+                    ->helperText('Internal label for identifying this homepage variant in admin.'),
+                Forms\Components\Toggle::make('is_active')
+                    ->default(true)
+                    ->helperText('Only active heroes are eligible for random display on the live homepage.'),
+                Forms\Components\TextInput::make('kicker')
+                    ->required()
+                    ->maxLength(255)
+                    ->columnSpanFull(),
+                Forms\Components\TextInput::make('heading_line_one')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('heading_line_two')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('heading_emphasis')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\Textarea::make('description')
+                    ->required()
+                    ->rows(4)
+                    ->columnSpanFull(),
+            ]),
+            Forms\Components\Section::make('Hero image')->schema([
+                Forms\Components\FileUpload::make('hero_image')
+                    ->image()
+                    ->disk('public')
+                    ->directory('home-pages')
+                    ->imageEditor()
+                    ->helperText('Upload a wide homepage banner image.'),
+            ]),
+        ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->defaultSort('updated_at', 'desc')
+            ->columns([
+                Tables\Columns\ImageColumn::make('hero_image')->label('Image'),
+                Tables\Columns\TextColumn::make('name')->searchable(),
+                Tables\Columns\TextColumn::make('kicker')->limit(30),
+                Tables\Columns\IconColumn::make('is_active')->boolean()->label('Active'),
+                Tables\Columns\TextColumn::make('updated_at')->since(),
+            ])
+            ->filters([
+                Tables\Filters\TernaryFilter::make('is_active')->label('Active'),
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListHomePages::route('/'),
+            'create' => Pages\CreateHomePage::route('/create'),
+            'edit' => Pages\EditHomePage::route('/{record}/edit'),
+        ];
+    }
+}

@@ -1,0 +1,3 @@
+@extends('layouts.app')
+@section('title','Blog — Micro Travel')
+@section('content')@include('partials.site-nav', ['whatsAppText' => 'Hello Micro Travel, I would like help planning a Maldives holiday.'])<section class="listing-page"><p class="kicker">THE BLOG</p><h1>Stories from <em>the islands.</em></h1><div class="posts">@foreach($posts as $post)<article><a href="{{ route('blog.show',$post) }}"><img src="{{ str_starts_with($post->featured_image ?? '','http')?$post->featured_image:asset('storage/'.$post->featured_image) }}" alt=""><p class="kicker">{{ strtoupper($post->category) }}</p><h3>{{ $post->title }}</h3><p>{{ $post->excerpt }}</p><span>READ POST →</span></a></article>@endforeach</div>{{ $posts->links() }}</section>@include('partials.site-footer')@endsection
