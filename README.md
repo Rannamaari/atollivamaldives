@@ -87,6 +87,8 @@ Go to **Customers → Travel inquiries**. Update each lead from New to Contacted
 - Run `php artisan storage:link` after deployment.
 - Use a queue worker if email notifications are added later.
 - The included demo photographs use remote Unsplash URLs. Replace them through the admin panel before launch.
+- For DigitalOcean managed MySQL, use the database hostname, add the Droplet or VPC as a trusted source, and configure SSL options in `.env`.
+- A deployment checklist for this project is available in `DEPLOY_DIGITALOCEAN.md`.
 
 ## Recommended next additions
 
