@@ -11,25 +11,34 @@
     </script>
     @php
         $brandTitle = 'Atolliva Maldives';
-        $brandTagline = 'YOUR MALDIVES, THOUGHTFULLY PLANNED';
-        $pageTitle = trim($__env->yieldContent('title', $brandTitle));
-        $pageDescription = trim($__env->yieldContent('description', $brandTagline));
-        $shareImage = $__env->yieldContent('share_image', asset('logo/Atolliva Maldives Logo Transparent.png'));
+        $defaultTitle = 'Atolliva Maldives | Your Maldives, Thoughtfully Planned';
+        $defaultDescription = 'Discover handpicked Maldives resorts, guesthouses, liveaboards and personalised holiday packages with local travel experts.';
+        $defaultShareImage = asset('logo/AtollivaMaldives.png');
+        $pageTitle = trim($__env->yieldContent('title', $defaultTitle));
+        $pageDescription = trim($__env->yieldContent('description', $defaultDescription));
+        $shareImage = trim($__env->yieldContent('share_image', $defaultShareImage));
+        $canonicalUrl = trim($__env->yieldContent('canonical', url()->current()));
     @endphp
     <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
     <title>{{ $pageTitle }}</title>
     <meta name="description" content="{{ $pageDescription }}">
+    <link rel="canonical" href="{{ $canonicalUrl }}">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="{{ $brandTitle }}">
     <meta property="og:title" content="{{ $pageTitle }}">
     <meta property="og:description" content="{{ $pageDescription }}">
-    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:url" content="{{ $canonicalUrl }}">
     <meta property="og:image" content="{{ $shareImage }}">
+    <meta property="og:image:secure_url" content="{{ $shareImage }}">
+    <meta property="og:image:width" content="1731">
+    <meta property="og:image:height" content="909">
+    <meta property="og:image:type" content="image/png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ $pageTitle }}">
     <meta name="twitter:description" content="{{ $pageDescription }}">
     <meta name="twitter:image" content="{{ $shareImage }}">
     <link rel="icon" type="image/png" href="{{ asset('logo/favicon.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('logo/favicon.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     @php($cssVersion = fn (string $path) => asset($path).'?v='.filemtime(public_path($path)))
