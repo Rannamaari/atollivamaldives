@@ -13,10 +13,15 @@ use Filament\Tables\Table;
 class HomePageResource extends Resource
 {
     protected static ?string $model = HomePage::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-photo';
+
     protected static ?string $navigationGroup = 'Content';
+
     protected static ?string $navigationLabel = 'Homepage Heroes';
+
     protected static ?string $modelLabel = 'homepage hero';
+
     protected static ?string $pluralModelLabel = 'homepage heroes';
 
     public static function form(Form $form): Form
@@ -48,6 +53,77 @@ class HomePageResource extends Resource
                     ->rows(4)
                     ->columnSpanFull(),
             ]),
+            Forms\Components\Section::make('Explore Maldives section')
+                ->description('Manage the homepage product-card heading, text, and images here.')
+                ->columns(2)
+                ->schema([
+                    Forms\Components\TextInput::make('explore_kicker')
+                        ->required()
+                        ->maxLength(255),
+                    Forms\Components\TextInput::make('explore_heading_line_one')
+                        ->required()
+                        ->maxLength(255),
+                    Forms\Components\TextInput::make('explore_heading_emphasis')
+                        ->required()
+                        ->maxLength(255)
+                        ->columnSpanFull(),
+                    Forms\Components\Fieldset::make('Resorts card')
+                        ->columns(1)
+                        ->schema([
+                            Forms\Components\FileUpload::make('resorts_card_image')
+                                ->label('Card image')
+                                ->image()
+                                ->disk('public')
+                                ->directory('home-pages/cards')
+                                ->imageEditor(),
+                            Forms\Components\Textarea::make('resorts_card_copy')
+                                ->label('Card text')
+                                ->rows(3)
+                                ->placeholder('Private island escapes, overwater villas, and handpicked luxury stays.'),
+                        ]),
+                    Forms\Components\Fieldset::make('Guest houses card')
+                        ->columns(1)
+                        ->schema([
+                            Forms\Components\FileUpload::make('guesthouses_card_image')
+                                ->label('Card image')
+                                ->image()
+                                ->disk('public')
+                                ->directory('home-pages/cards')
+                                ->imageEditor(),
+                            Forms\Components\Textarea::make('guesthouses_card_copy')
+                                ->label('Card text')
+                                ->rows(3)
+                                ->placeholder('Local island stays for travellers seeking culture, value, and beach life.'),
+                        ]),
+                    Forms\Components\Fieldset::make('City hotels card')
+                        ->columns(1)
+                        ->schema([
+                            Forms\Components\FileUpload::make('city_hotels_card_image')
+                                ->label('Card image')
+                                ->image()
+                                ->disk('public')
+                                ->directory('home-pages/cards')
+                                ->imageEditor(),
+                            Forms\Components\Textarea::make('city_hotels_card_copy')
+                                ->label('Card text')
+                                ->rows(3)
+                                ->placeholder('Convenient Malé and airport-area stays for stopovers and short visits.'),
+                        ]),
+                    Forms\Components\Fieldset::make('Liveaboards card')
+                        ->columns(1)
+                        ->schema([
+                            Forms\Components\FileUpload::make('liveaboards_card_image')
+                                ->label('Card image')
+                                ->image()
+                                ->disk('public')
+                                ->directory('home-pages/cards')
+                                ->imageEditor(),
+                            Forms\Components\Textarea::make('liveaboards_card_copy')
+                                ->label('Card text')
+                                ->rows(3)
+                                ->placeholder('Ocean journeys designed around diving, surfing, and private charters.'),
+                        ]),
+                ]),
             Forms\Components\Section::make('Hero image')->schema([
                 Forms\Components\FileUpload::make('hero_image')
                     ->image()
@@ -66,6 +142,7 @@ class HomePageResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('hero_image')->label('Image'),
                 Tables\Columns\TextColumn::make('name')->searchable(),
+                Tables\Columns\TextColumn::make('explore_heading_line_one')->label('Explore section')->limit(20),
                 Tables\Columns\TextColumn::make('kicker')->limit(30),
                 Tables\Columns\IconColumn::make('is_active')->boolean()->label('Active'),
                 Tables\Columns\TextColumn::make('updated_at')->since(),

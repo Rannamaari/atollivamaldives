@@ -3,7 +3,7 @@
         [
             'icon' => 'heroicon-o-map-pin',
             'title' => 'WE ARE MALDIVES-BASED',
-            'description' => 'As a local travel agency, Micro Travel offers firsthand knowledge and dependable assistance throughout your journey. We are based in the Maldives and are always within easy reach whenever you need support.',
+            'description' => 'As a local travel agency, Atolliva Maldives offers firsthand knowledge and dependable assistance throughout your journey. We are based in the Maldives and are always within easy reach whenever you need support.',
         ],
         [
             'icon' => 'heroicon-o-building-office-2',
@@ -33,7 +33,7 @@
         [
             'icon' => 'heroicon-o-heart',
             'title' => 'YOUR JOURNEY, PERSONALLY PLANNED',
-            'description' => 'Every traveller is different. Whether you are planning a honeymoon, family holiday, diving adventure or luxury escape, Micro Travel will help you create a Maldives experience designed around you.',
+            'description' => 'Every traveller is different. Whether you are planning a honeymoon, family holiday, diving adventure or luxury escape, Atolliva Maldives will help you create a Maldives experience designed around you.',
             'featured' => true,
         ],
     ];
@@ -43,7 +43,7 @@
     <div class="why-book__inner">
         <div class="why-book__header">
             <h2 id="why-book-with-micro-travel" class="why-book__heading">
-                WHY BOOK WITH MICRO TRAVEL?
+                WHY BOOK WITH ATOLLIVA MALDIVES?
             </h2>
         </div>
 

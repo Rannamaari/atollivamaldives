@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\BlogOfferResource\Pages;
+use App\Models\BlogCategory;
 use App\Models\BlogOffer;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -13,10 +14,15 @@ use Filament\Tables\Table;
 class BlogOfferResource extends Resource
 {
     protected static ?string $model = BlogOffer::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-megaphone';
+
     protected static ?string $navigationGroup = 'Content';
+
     protected static ?string $navigationLabel = 'Blog Offers';
+
     protected static ?string $modelLabel = 'Blog offer';
+
     protected static ?string $pluralModelLabel = 'Blog offers';
 
     public static function form(Form $form): Form
@@ -47,6 +53,14 @@ class BlogOfferResource extends Resource
                     Forms\Components\TextInput::make('button_url')
                         ->placeholder('https://example.com or /stays')
                         ->helperText('You can link to a stay, liveaboards page, package, or WhatsApp URL.'),
+                    Forms\Components\Select::make('target_categories')
+                        ->label('Show for categories')
+                        ->multiple()
+                        ->options(fn () => BlogCategory::query()->where('active', true)->orderBy('sort_order')->pluck('name', 'name'))
+                        ->searchable()
+                        ->preload()
+                        ->helperText('Leave empty to allow this offer on any blog post. Select one or more categories to target it to matching posts.')
+                        ->columnSpanFull(),
                 ]),
             Forms\Components\Section::make('Visibility')
                 ->columns(2)
@@ -68,6 +82,11 @@ class BlogOfferResource extends Resource
                 Tables\Columns\ImageColumn::make('image')->label('Image'),
                 Tables\Columns\TextColumn::make('title')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('eyebrow')->toggleable(),
+                Tables\Columns\TextColumn::make('target_categories')
+                    ->badge()
+                    ->separator(', ')
+                    ->label('Categories')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('button_text')->label('CTA'),
                 Tables\Columns\TextColumn::make('sort_order')->sortable(),
                 Tables\Columns\IconColumn::make('active')->boolean(),

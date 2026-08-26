@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000">
+  <defs>
+    <linearGradient id="city" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0c2033"/>
+      <stop offset="60%" stop-color="#184a61"/>
+      <stop offset="100%" stop-color="#5ea7bb"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#city)"/>
+  <rect y="680" width="1600" height="320" fill="#d6e8ea"/>
+  <path d="M170 320h250v360H170zM470 250h220v430H470zM740 180h260v500H740zM1050 280h180v400h-180zM1270 360h150v320h-150z" fill="#143743"/>
+  <g fill="#8fd3dd">
+    <path d="M220 380h40v40h-40zM300 380h40v40h-40zM220 450h40v40h-40zM300 450h40v40h-40z"/>
+    <path d="M530 320h34v34h-34zM600 320h34v34h-34zM530 390h34v34h-34zM600 390h34v34h-34z"/>
+    <path d="M810 250h40v40h-40zM890 250h40v40h-40zM810 330h40v40h-40zM890 330h40v40h-40zM810 410h40v40h-40zM890 410h40v40h-40z"/>
+  </g>
+  <text x="120" y="140" fill="#ffffff" font-family="Inter, Arial, sans-serif" font-size="42" letter-spacing="10">ATOLLIVA MALDIVES</text>
+  <text x="120" y="210" fill="#e2f4f8" font-family="Georgia, serif" font-size="92">City Hotel Placeholder</text>
+</svg>

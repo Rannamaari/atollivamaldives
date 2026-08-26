@@ -14,6 +14,7 @@ class BlogOffer extends Model
         'image',
         'button_text',
         'button_url',
+        'target_categories',
         'active',
         'sort_order',
     ];
@@ -22,7 +23,13 @@ class BlogOffer extends Model
     {
         return [
             'active' => 'boolean',
+            'target_categories' => 'array',
         ];
+    }
+
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
     }
 
     public function scopeActive(Builder $query): Builder

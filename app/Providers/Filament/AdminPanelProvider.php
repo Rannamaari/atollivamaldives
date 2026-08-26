@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Providers\Filament;
+
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -20,10 +22,10 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        return $panel->default()->id('admin')->path('admin')->login()->brandName('Micro Travel')->colors(['primary'=>Color::Teal])
-            ->discoverResources(in:app_path('Filament/Resources'),for:'App\\Filament\\Resources')
-            ->pages([Pages\Dashboard::class])->widgets([Widgets\AccountWidget::class,Widgets\FilamentInfoWidget::class])
-            ->middleware([EncryptCookies::class,AddQueuedCookiesToResponse::class,StartSession::class,AuthenticateSession::class,ShareErrorsFromSession::class,VerifyCsrfToken::class,SubstituteBindings::class,DisableBladeIconComponents::class,DispatchServingFilamentEvent::class])
+        return $panel->default()->id('admin')->path('admin')->login()->brandName('Atolliva Maldives')->colors(['primary' => Color::Teal])
+            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
+            ->pages([Pages\Dashboard::class])->widgets([Widgets\AccountWidget::class, Widgets\FilamentInfoWidget::class])
+            ->middleware([EncryptCookies::class, AddQueuedCookiesToResponse::class, StartSession::class, AuthenticateSession::class, ShareErrorsFromSession::class, VerifyCsrfToken::class, SubstituteBindings::class, DisableBladeIconComponents::class, DispatchServingFilamentEvent::class])
             ->authMiddleware([Authenticate::class]);
     }
 }

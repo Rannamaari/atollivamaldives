@@ -1,10 +1,10 @@
-# Micro Travel — Laravel + Filament
+# Atolliva Maldives — Laravel + Filament
 
-This is the Laravel edition of the Micro Travel Maldives website. It keeps the premium public design and adds a practical administration system.
+This is the Laravel edition of the Atolliva Maldives website. It keeps the premium public design and adds a practical administration system.
 
 ## Included
 
-- Responsive Micro Travel homepage
+- Responsive Atolliva Maldives homepage
 - Resort, guesthouse and liveaboard listings
 - Property detail pages and filters
 - Multiple property images and amenities
@@ -56,7 +56,7 @@ Open the website at `http://127.0.0.1:8000` and the backend at `http://127.0.0.1
 
 ## Initial administrator
 
-- Email: `admin@microtravel.mv`
+- Email: `admin@atollivamaldives.com`
 - Password: `ChangeMe123!`
 
 **Change this password immediately after the first login.** For production, it is better to remove the seeded password and create the administrator interactively:

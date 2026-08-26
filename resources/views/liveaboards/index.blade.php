@@ -1,9 +1,9 @@
 @extends('layouts.app')
-@section('title','Maldives liveaboards — Micro Travel')
-@section('description', strip_tags($page->intro ?: 'Discover liveaboard charters and voyages across the Maldives with Micro Travel.'))
+@section('title','Maldives Liveaboards — Atolliva Maldives')
+@section('description', strip_tags($page->intro ?: 'Discover liveaboard charters and voyages across the Maldives with Atolliva Maldives.'))
 @section('content')
 <div class="liveaboards-page">
-    @include('partials.site-nav', ['whatsAppText' => 'Hello Micro Travel, I would like help planning a Maldives liveaboard journey.'])
+    @include('partials.site-nav', ['whatsAppText' => 'Hello Atolliva Maldives, I would like help planning a Maldives liveaboard journey.'])
 
     <section class="liveaboards-hero" style="background-image:url('{{ $page->hero_image_url }}')">
         <div class="liveaboards-hero__shade"></div>
@@ -90,7 +90,9 @@
                 <label>Your name<input name="name" required value="{{ old('name') }}"></label>
                 <label>Email address<input type="email" name="email" value="{{ old('email') }}"></label>
                 <label>WhatsApp number<input name="phone" required value="{{ old('phone') }}"></label>
-                <label>Preferred date<input type="date" name="travel_date" value="{{ old('travel_date') }}"></label>
+                <label>Nationality<select name="nationality"><option value="">Select country</option>@foreach(config('countries.all', []) as $country)<option value="{{ $country }}" @selected(old('nationality') === $country)>{{ $country }}</option>@endforeach</select></label>
+                <label>Arrival date<input type="date" name="arrival_date" value="{{ old('arrival_date') }}"></label>
+                <label>Departure date<input type="date" name="departure_date" value="{{ old('departure_date') }}"></label>
                 <label>Travellers<input type="number" name="travellers" min="1" value="{{ old('travellers', 2) }}"></label>
                 <label>Approximate budget<input name="budget" placeholder="e.g. USD 8,000" value="{{ old('budget') }}"></label>
                 <label class="wide">What kind of trip would you like?<textarea name="message" rows="5" placeholder="Private charter, diving route, family trip, celebration at sea...">{{ old('message') }}</textarea></label>

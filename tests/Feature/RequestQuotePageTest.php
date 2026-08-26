@@ -1,0 +1,22 @@
+<?php
+
+namespace Tests\Feature;
+
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class RequestQuotePageTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_request_quote_page_loads_with_expected_fields(): void
+    {
+        $response = $this->get(route('request-quote'));
+
+        $response->assertStatus(200);
+        $response->assertSee('REQUEST A QUOTE');
+        $response->assertSee('Preferred property type');
+        $response->assertSee('Children ages');
+        $response->assertSee('REQUEST QUOTE');
+    }
+}

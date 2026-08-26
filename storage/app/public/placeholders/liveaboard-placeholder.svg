@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000">
+  <defs>
+    <linearGradient id="sea" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a2137"/>
+      <stop offset="55%" stop-color="#0d5b72"/>
+      <stop offset="100%" stop-color="#5fd3d3"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#sea)"/>
+  <path d="M0 720c163-28 294-72 441-69 157 2 257 64 415 64 161 0 286-60 444-69 122-7 193 15 300 40v314H0Z" fill="#77d7d0"/>
+  <path d="M260 600h730l135 84H395z" fill="#102f45"/>
+  <path d="M580 450h225v150H580z" fill="#fff" opacity=".95"/>
+  <path d="M690 270h34v180h-34z" fill="#fff"/>
+  <path d="M724 290l120 85H724z" fill="#ecf7f9"/>
+  <circle cx="1210" cy="210" r="88" fill="#f8d58a" opacity=".92"/>
+  <text x="120" y="140" fill="#ffffff" font-family="Inter, Arial, sans-serif" font-size="42" letter-spacing="10">ATOLLIVA MALDIVES</text>
+  <text x="120" y="210" fill="#e7f7f6" font-family="Georgia, serif" font-size="92">Liveaboard Placeholder</text>
+</svg>

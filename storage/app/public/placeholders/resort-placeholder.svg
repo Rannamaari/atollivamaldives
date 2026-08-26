@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b2638"/>
+      <stop offset="55%" stop-color="#11606b"/>
+      <stop offset="100%" stop-color="#63bfc1"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#sky)"/>
+  <rect y="620" width="1600" height="380" fill="#f5efe4"/>
+  <path d="M0 650C180 590 350 560 520 585c169 25 281 89 430 76 136-12 266-91 407-96 89-3 170 16 243 50v385H0Z" fill="#91d7d0" opacity=".7"/>
+  <path d="M270 580h1060v170H270z" fill="#f8fbfb" opacity=".95"/>
+  <path d="M320 550h220l55 30H265z" fill="#12363c"/>
+  <path d="M1030 550h250l55 30H975z" fill="#12363c"/>
+  <path d="M380 400h260v180H380zM960 380h190v200H960z" fill="#173f49" opacity=".92"/>
+  <path d="M740 500h160v80H740z" fill="#cce9ea"/>
+  <text x="140" y="140" fill="#ffffff" font-family="Inter, Arial, sans-serif" font-size="42" letter-spacing="10">ATOLLIVA MALDIVES</text>
+  <text x="140" y="210" fill="#dceff0" font-family="Georgia, serif" font-size="92">Resort Placeholder</text>
+</svg>
