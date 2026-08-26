@@ -22,6 +22,7 @@
 .search-field__control--button{width:100%;justify-content:space-between;padding:0;border:0;background:transparent;text-align:left;cursor:pointer}
 .search-field__summary{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:15px;color:#12363c}
 .guests-popover{position:absolute;top:calc(100% + 16px);left:0;right:auto;z-index:20;display:grid;gap:18px;width:min(360px,calc(100vw - 40px));padding:24px;border:1px solid rgba(19,54,60,.12);border-radius:22px;background:#fff;box-shadow:0 26px 54px rgba(7,27,38,.18)}
+.guests-popover[hidden]{display:none!important}
 .guests-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:20px}
 .guests-row strong{display:block;font-size:14px;color:#12363c}
 .guests-row span{display:block;margin-top:4px;font-size:12px;color:#7c8e91}

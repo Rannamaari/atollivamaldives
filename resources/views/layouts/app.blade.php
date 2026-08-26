@@ -96,6 +96,10 @@ document.querySelectorAll('.finder--premium').forEach((finder) => {
     if (guestSection && guestToggle && guestPopover) {
         const limits = { adults: 1, children: 0, rooms: 1 };
 
+        guestToggle.setAttribute('aria-expanded', 'false');
+        guestPopover.hidden = true;
+        guestSection.classList.remove('is-open');
+
         guestToggle.addEventListener('click', () => {
             const isOpen = guestToggle.getAttribute('aria-expanded') === 'true';
             guestToggle.setAttribute('aria-expanded', String(!isOpen));
