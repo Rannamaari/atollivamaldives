@@ -1,0 +1,222 @@
+.about-page {
+    background: #f7f8f3;
+    color: #12363c;
+}
+
+.about-hero {
+    position: relative;
+    min-height: 68vh;
+    padding: 180px 5vw 110px;
+    display: flex;
+    align-items: flex-end;
+    color: #fff;
+    background:
+        radial-gradient(circle at top right, rgba(78, 191, 204, 0.3), transparent 34%),
+        linear-gradient(140deg, #071426 0%, #0d2843 48%, #0f6167 100%);
+}
+
+.about-hero__backdrop {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(180deg, rgba(7, 20, 38, 0.18), rgba(7, 20, 38, 0.52)),
+        repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 28px);
+}
+
+.about-hero__inner,
+.about-story__inner,
+.about-highlights__inner,
+.about-contact__inner {
+    position: relative;
+    width: min(1320px, 100%);
+    margin: 0 auto;
+}
+
+.about-hero__kicker,
+.about-page .kicker {
+    margin: 0 0 18px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: #aee8e3;
+}
+
+.about-page .kicker {
+    color: #0e5960;
+}
+
+.about-hero h1,
+.about-story h2,
+.about-card h2,
+.about-contact h2 {
+    margin: 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 500;
+    line-height: 0.95;
+    letter-spacing: -0.05em;
+}
+
+.about-hero h1 {
+    font-size: clamp(58px, 8.2vw, 118px);
+}
+
+.about-hero__intro {
+    max-width: 720px;
+    margin: 28px 0 0;
+    font-size: 16px;
+    line-height: 1.9;
+    color: rgba(236, 245, 246, 0.92);
+}
+
+.about-story,
+.about-highlights,
+.about-contact {
+    padding: 96px 32px;
+}
+
+.about-story__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 72px;
+    align-items: start;
+}
+
+.about-story__heading h2,
+.about-card h2,
+.about-contact h2 {
+    font-size: clamp(42px, 5vw, 74px);
+}
+
+.about-story__content {
+    display: grid;
+    gap: 22px;
+}
+
+.about-story__content p,
+.about-card p,
+.about-contact__copy p,
+.about-contact__card p {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.9;
+    color: #52686d;
+}
+
+.about-story__signature {
+    color: #12363c;
+}
+
+.about-highlights__inner {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px;
+}
+
+.about-card,
+.about-contact__card {
+    padding: 34px;
+    border-radius: 30px;
+    background: #ffffff;
+    box-shadow: 0 20px 50px rgba(12, 31, 41, 0.06);
+}
+
+.about-contact {
+    padding-top: 0;
+    padding-bottom: 120px;
+}
+
+.about-contact__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 34px;
+    align-items: stretch;
+}
+
+.about-contact__copy p {
+    max-width: 680px;
+}
+
+.about-contact__label {
+    margin-bottom: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #0e5960;
+}
+
+.about-contact__address {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    line-height: 1.15;
+    color: #12363c;
+}
+
+.about-contact__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 26px;
+    padding: 16px 22px;
+    border-radius: 999px;
+    background: #0e5960;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    transition: transform 0.22s ease, background 0.22s ease;
+}
+
+.about-contact__cta:hover,
+.about-contact__cta:focus-visible {
+    background: #12363c;
+    transform: translateY(-1px);
+    outline: none;
+}
+
+@media (max-width: 1024px) {
+    .about-story__inner,
+    .about-contact__inner {
+        grid-template-columns: 1fr;
+        gap: 32px;
+    }
+
+    .about-highlights__inner {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .about-hero {
+        min-height: 62vh;
+        padding: 148px 20px 76px;
+    }
+
+    .about-story,
+    .about-highlights,
+    .about-contact {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .about-story,
+    .about-highlights {
+        padding-top: 72px;
+        padding-bottom: 72px;
+    }
+
+    .about-contact {
+        padding-bottom: 88px;
+    }
+
+    .about-card,
+    .about-contact__card {
+        padding: 26px;
+        border-radius: 24px;
+    }
+
+    .about-contact__address {
+        font-size: 30px;
+    }
+}

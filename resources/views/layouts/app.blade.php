@@ -53,6 +53,7 @@
     <link rel="stylesheet" href="{{ $cssVersion('css/liveaboards.css') }}">
     <link rel="stylesheet" href="{{ $cssVersion('css/blog-offer.css') }}">
     <link rel="stylesheet" href="{{ $cssVersion('css/faq.css') }}">
+    <link rel="stylesheet" href="{{ $cssVersion('css/about.css') }}">
     <link rel="stylesheet" href="{{ $cssVersion('css/forms.css') }}">
     @yield('head')
 </head>

@@ -77,7 +77,7 @@
             <a href="{{ route('request-quote') }}">Request Quote</a>
             <a href="{{ route('blog.index') }}">Blog</a>
             <a href="{{ route('faq') }}">FAQ</a>
-            <a href="{{ route('home') }}#about">About Us</a>
+            <a href="{{ route('about') }}">About Us</a>
             <a href="{{ route('home') }}#experiences">Experiences</a>
         </div>
 

@@ -11,6 +11,9 @@
 </script>
 @endsection
 @section('content')
+@php
+    $faqWhatsAppUrl = 'https://wa.me/'.env('MICRO_TRAVEL_WHATSAPP','9609996210').'?text='.urlencode('Hello Atolliva Maldives, I have been reading your FAQ page and would like personalised help planning my Maldives trip.');
+@endphp
 @include('partials.site-nav', ['whatsAppText' => 'Hello Atolliva Maldives, I would like help planning my Maldives holiday.'])
 
 <main class="faq-page">
@@ -79,5 +82,61 @@
     </section>
 </main>
 
+<div class="quote-whatsapp-prompt" data-faq-whatsapp-prompt hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="faq-whatsapp-title">
+    <div class="quote-whatsapp-prompt__backdrop" data-faq-whatsapp-close></div>
+    <div class="quote-whatsapp-prompt__panel">
+        <button class="quote-whatsapp-prompt__close" type="button" data-faq-whatsapp-close aria-label="Close WhatsApp prompt">×</button>
+        <p class="quote-whatsapp-prompt__kicker">NEED PERSONALISED HELP?</p>
+        <h2 id="faq-whatsapp-title">Why not ask us directly on WhatsApp?</h2>
+        <p>If you have been browsing the FAQ and want advice tailored to your travel plans, we can help you much faster in a direct conversation.</p>
+        <div class="quote-whatsapp-prompt__actions">
+            <a href="{{ $faqWhatsAppUrl }}" target="_blank" rel="noopener">Message on WhatsApp ↗</a>
+            <button type="button" data-faq-whatsapp-close>Keep reading</button>
+        </div>
+    </div>
+</div>
+
 @include('partials.site-footer')
+<script>
+(() => {
+    const prompt = document.querySelector('[data-faq-whatsapp-prompt]');
+    if (!prompt || window.sessionStorage.getItem('faq-whatsapp-prompt-dismissed') === '1') {
+        return;
+    }
+
+    let promptTimer = null;
+
+    const closePrompt = () => {
+        prompt.hidden = true;
+        prompt.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('quote-whatsapp-prompt-open');
+        window.sessionStorage.setItem('faq-whatsapp-prompt-dismissed', '1');
+        if (promptTimer) {
+            window.clearTimeout(promptTimer);
+        }
+    };
+
+    const openPrompt = () => {
+        if (document.hidden) {
+            return;
+        }
+
+        prompt.hidden = false;
+        prompt.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('quote-whatsapp-prompt-open');
+    };
+
+    promptTimer = window.setTimeout(openPrompt, 30000);
+
+    prompt.querySelectorAll('[data-faq-whatsapp-close]').forEach((element) => {
+        element.addEventListener('click', closePrompt);
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !prompt.hidden) {
+            closePrompt();
+        }
+    });
+})();
+</script>
 @endsection

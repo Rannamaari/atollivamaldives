@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccommodationController;
+use App\Http\Controllers\AboutController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\HomeController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\RequestQuoteController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
+Route::get('/about-us', AboutController::class)->name('about');
 Route::get('/faq', FaqController::class)->name('faq');
 Route::get('/liveaboards', LiveaboardController::class)->name('liveaboards.index');
 Route::get('/resorts', [AccommodationController::class, 'index'])->defaults('type', 'resort')->name('resorts.index');

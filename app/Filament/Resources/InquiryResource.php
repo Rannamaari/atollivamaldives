@@ -37,7 +37,7 @@ class InquiryResource extends Resource
                 Forms\Components\Select::make('room_id')->relationship('room', 'name')->searchable()->preload(),
                 Forms\Components\Select::make('travel_type')->options(['resort' => 'Resort', 'guesthouse' => 'Guest Houses', 'liveaboard' => 'Liveaboards', 'city_hotel' => 'City Hotels', 'package' => 'Packages']),
                 Forms\Components\Select::make('nationality')->options(array_combine(config('countries.all', []), config('countries.all', [])))->searchable(),
-                Forms\Components\TextInput::make('preferred_atoll'),
+                Forms\Components\TextInput::make('preferred_atoll')->label('Preferred location / airport distance'),
                 Forms\Components\TextInput::make('transfer_preference'),
                 Forms\Components\DatePicker::make('check_in'),
                 Forms\Components\DatePicker::make('check_out')->afterOrEqual('check_in'),

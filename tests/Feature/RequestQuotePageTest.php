@@ -16,6 +16,7 @@ class RequestQuotePageTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('REQUEST A QUOTE');
         $response->assertSee('Preferred property type');
+        $response->assertSee('Preferred location / distance from Malé airport');
         $response->assertSee('Children ages');
         $response->assertSee('REQUEST QUOTE');
     }
