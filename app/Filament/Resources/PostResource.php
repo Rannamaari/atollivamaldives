@@ -7,6 +7,7 @@ use App\Models\BlogCategory;
 use App\Models\BlogOffer;
 use App\Models\Post;
 use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -39,7 +40,25 @@ class PostResource extends Resource
                     ->preload()
                     ->helperText('Optional. Choose a specific offer for this post. If left blank, the website will try category-matched offers first, then general offers.'),
                 Forms\Components\Textarea::make('excerpt'),
-                Forms\Components\RichEditor::make('body')->required()->columnSpanFull(), Forms\Components\FileUpload::make('featured_image')->image()->directory('blog')->disk('public'), Forms\Components\TextInput::make('author')->default('Atolliva Maldives'),
+                Forms\Components\RichEditor::make('body')->required()->columnSpanFull(),
+                FileUpload::make('featured_image')
+                    ->image()
+                    ->disk('public')
+                    ->directory('blog')
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                    ->helperText('Upload a JPG, PNG, or WebP image. Older externally linked images will be cleared automatically before replacing them.')
+                    ->afterStateHydrated(function (FileUpload $component, mixed $state): void {
+                        if (! is_string($state)) {
+                            return;
+                        }
+
+                        // Older seeded posts used remote image URLs, but Filament's file upload
+                        // field expects a local stored path when editing records.
+                        if (str_starts_with($state, 'http://') || str_starts_with($state, 'https://')) {
+                            $component->state(null);
+                        }
+                    }),
+                Forms\Components\TextInput::make('author')->default('Atolliva Maldives'),
             ])->columns(2),
             Forms\Components\Section::make('Publishing')->columns(3)->schema([Forms\Components\Toggle::make('published'), Forms\Components\Toggle::make('featured'), Forms\Components\DateTimePicker::make('published_at')]),
             Forms\Components\Section::make('SEO')->collapsed()->schema([Forms\Components\TextInput::make('seo_title'), Forms\Components\Textarea::make('seo_description')]),
