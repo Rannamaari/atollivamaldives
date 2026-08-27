@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             FacilitySeeder::class,
             MealPlanSeeder::class,
             AccommodationInventorySeeder::class,
+            EmailTemplateSeeder::class,
         ]);
 
         foreach ([
