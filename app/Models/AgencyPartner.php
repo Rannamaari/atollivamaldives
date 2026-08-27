@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class AgencyPartner extends Model
@@ -82,6 +83,11 @@ class AgencyPartner extends Model
     public function activityEvents(): HasMany
     {
         return $this->hasMany(ActivityEvent::class);
+    }
+
+    public function collections(): BelongsToMany
+    {
+        return $this->belongsToMany(PartnerCollection::class, 'agency_partner_partner_collection');
     }
 
     public function assignedUser(): BelongsTo

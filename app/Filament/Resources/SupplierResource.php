@@ -12,6 +12,7 @@ use App\Filament\RelationManagers\OperationsHub\OperationsTasksRelationManager;
 use App\Filament\Resources\SupplierResource\Pages;
 use App\Filament\Resources\SupplierResource\RelationManagers\RateRequestsRelationManager;
 use App\Filament\Resources\SupplierResource\RelationManagers\SupplierContactsRelationManager;
+use App\Models\PartnerCollection;
 use App\Models\Supplier;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -72,6 +73,18 @@ class SupplierResource extends Resource
                 ->schema([
                     Forms\Components\Select::make('assigned_to')->relationship('assignedUser', 'name')->searchable()->preload(),
                     Forms\Components\Toggle::make('is_active')->default(true),
+                    Forms\Components\Select::make('collections')
+                        ->label('Folders / lists')
+                        ->relationship(
+                            name: 'collections',
+                            titleAttribute: 'name',
+                            modifyQueryUsing: fn ($query) => $query->whereIn('scope', ['suppliers', 'both'])->where('is_active', true)
+                        )
+                        ->multiple()
+                        ->preload()
+                        ->searchable()
+                        ->native(false)
+                        ->helperText('Use collections like "Priority Resorts" or "Guest Houses to Contact".'),
                     Forms\Components\Textarea::make('internal_notes')->columnSpanFull(),
                 ]),
             Forms\Components\Section::make('Advanced tracking and contracting')
@@ -125,6 +138,11 @@ class SupplierResource extends Resource
                     ->sortable(query: fn ($query, string $direction) => $query->orderByRaw("coalesce(nullif(trading_name, ''), legal_name) {$direction}")),
                 Tables\Columns\TextColumn::make('legal_name')->toggleable(),
                 Tables\Columns\TextColumn::make('supplier_type')->badge()->formatStateUsing(fn ($state) => $state?->label() ?? SupplierType::tryFrom((string) $state)?->label() ?? $state),
+                Tables\Columns\TextColumn::make('collections.name')
+                    ->label('Folders')
+                    ->badge()
+                    ->separator(', ')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('partnership_status')->badge()->formatStateUsing(fn ($state) => $state?->label() ?? SupplierPartnershipStatus::tryFrom((string) $state)?->label() ?? $state),
                 Tables\Columns\TextColumn::make('assignedUser.name')->label('Assigned'),
                 Tables\Columns\TextColumn::make('next_follow_up_at')->dateTime()->sortable(),
@@ -134,6 +152,16 @@ class SupplierResource extends Resource
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('supplier_type')->options(SupplierType::options()),
+                Tables\Filters\SelectFilter::make('collection')
+                    ->label('Folder / list')
+                    ->options(fn () => PartnerCollection::query()->whereIn('scope', ['suppliers', 'both'])->where('is_active', true)->orderBy('name')->pluck('name', 'id')->all())
+                    ->query(function ($query, array $data): void {
+                        if (blank($data['value'] ?? null)) {
+                            return;
+                        }
+
+                        $query->whereHas('collections', fn ($collectionQuery) => $collectionQuery->whereKey($data['value']));
+                    }),
                 Tables\Filters\SelectFilter::make('partnership_status')->options(SupplierPartnershipStatus::options()),
                 Tables\Filters\SelectFilter::make('assigned_to')->relationship('assignedUser', 'name'),
                 Tables\Filters\TernaryFilter::make('is_active'),
@@ -156,6 +184,40 @@ class SupplierResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('assignCollection')
+                        ->label('Move to folder / list')
+                        ->icon('heroicon-o-folder-plus')
+                        ->form([
+                            Forms\Components\Select::make('partner_collection_id')
+                                ->label('Folder / list')
+                                ->options(fn () => PartnerCollection::query()->whereIn('scope', ['suppliers', 'both'])->where('is_active', true)->orderBy('name')->pluck('name', 'id')->all())
+                                ->required()
+                                ->searchable()
+                                ->native(false),
+                        ])
+                        ->action(function ($records, array $data): void {
+                            $collection = PartnerCollection::findOrFail($data['partner_collection_id']);
+
+                            foreach ($records as $record) {
+                                $record->collections()->syncWithoutDetaching([$collection->id]);
+                            }
+                        }),
+                    Tables\Actions\BulkAction::make('removeCollection')
+                        ->label('Remove from folder / list')
+                        ->icon('heroicon-o-folder-minus')
+                        ->form([
+                            Forms\Components\Select::make('partner_collection_id')
+                                ->label('Folder / list')
+                                ->options(fn () => PartnerCollection::query()->whereIn('scope', ['suppliers', 'both'])->where('is_active', true)->orderBy('name')->pluck('name', 'id')->all())
+                                ->required()
+                                ->searchable()
+                                ->native(false),
+                        ])
+                        ->action(function ($records, array $data): void {
+                            foreach ($records as $record) {
+                                $record->collections()->detach($data['partner_collection_id']);
+                            }
+                        }),
                     Tables\Actions\DeleteBulkAction::make()->requiresConfirmation(),
                 ]),
             ]);

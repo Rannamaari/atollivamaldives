@@ -12,6 +12,7 @@ use App\Filament\RelationManagers\OperationsHub\OperationsTasksRelationManager;
 use App\Filament\Resources\AgencyPartnerResource\Pages;
 use App\Filament\Resources\AgencyPartnerResource\RelationManagers\AgencyContactsRelationManager;
 use App\Models\AgencyPartner;
+use App\Models\PartnerCollection;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -61,6 +62,18 @@ class AgencyPartnerResource extends Resource
                     Forms\Components\DateTimePicker::make('last_contacted_at'),
                     Forms\Components\DateTimePicker::make('next_follow_up_at'),
                     Forms\Components\Select::make('assigned_to')->relationship('assignedUser', 'name')->searchable()->preload(),
+                    Forms\Components\Select::make('collections')
+                        ->label('Folders / lists')
+                        ->relationship(
+                            name: 'collections',
+                            titleAttribute: 'name',
+                            modifyQueryUsing: fn ($query) => $query->whereIn('scope', ['agency_partners', 'both'])->where('is_active', true)
+                        )
+                        ->multiple()
+                        ->preload()
+                        ->searchable()
+                        ->native(false)
+                        ->helperText('Use collections like "Halal Travel Agencies" or "Priority Partners".'),
                     Forms\Components\Select::make('risk_level')
                         ->options(AgencyRiskLevel::options())
                         ->required()
@@ -98,6 +111,11 @@ class AgencyPartnerResource extends Resource
                     })
                     ->sortable(query: fn ($query, string $direction) => $query->orderByRaw("coalesce(nullif(trading_name, ''), legal_company_name) {$direction}")),
                 Tables\Columns\TextColumn::make('country')->sortable(),
+                Tables\Columns\TextColumn::make('collections.name')
+                    ->label('Folders')
+                    ->badge()
+                    ->separator(', ')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('partnership_status')->badge()->formatStateUsing(fn ($state) => $state?->label() ?? AgencyPartnershipStatus::tryFrom((string) $state)?->label() ?? $state),
                 Tables\Columns\TextColumn::make('risk_level')->badge()->formatStateUsing(fn ($state) => $state?->label() ?? AgencyRiskLevel::tryFrom((string) $state)?->label() ?? $state),
                 Tables\Columns\TextColumn::make('assignedUser.name')->label('Assigned'),
@@ -105,6 +123,16 @@ class AgencyPartnerResource extends Resource
                 Tables\Columns\IconColumn::make('is_active')->boolean(),
             ])
             ->filters([
+                Tables\Filters\SelectFilter::make('collection')
+                    ->label('Folder / list')
+                    ->options(fn () => PartnerCollection::query()->whereIn('scope', ['agency_partners', 'both'])->where('is_active', true)->orderBy('name')->pluck('name', 'id')->all())
+                    ->query(function ($query, array $data): void {
+                        if (blank($data['value'] ?? null)) {
+                            return;
+                        }
+
+                        $query->whereHas('collections', fn ($collectionQuery) => $collectionQuery->whereKey($data['value']));
+                    }),
                 Tables\Filters\SelectFilter::make('partnership_status')->options(AgencyPartnershipStatus::options()),
                 Tables\Filters\SelectFilter::make('risk_level')->options(AgencyRiskLevel::options()),
                 Tables\Filters\SelectFilter::make('assigned_to')->relationship('assignedUser', 'name'),
@@ -121,6 +149,44 @@ class AgencyPartnerResource extends Resource
                         ->label('Add Communication')
                         ->icon('heroicon-o-phone')
                         ->url(fn (AgencyPartner $record) => Pages\EditAgencyPartner::getUrl(['record' => $record]).'#log-communication'),
+                ]),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('assignCollection')
+                        ->label('Move to folder / list')
+                        ->icon('heroicon-o-folder-plus')
+                        ->form([
+                            Forms\Components\Select::make('partner_collection_id')
+                                ->label('Folder / list')
+                                ->options(fn () => PartnerCollection::query()->whereIn('scope', ['agency_partners', 'both'])->where('is_active', true)->orderBy('name')->pluck('name', 'id')->all())
+                                ->required()
+                                ->searchable()
+                                ->native(false),
+                        ])
+                        ->action(function ($records, array $data): void {
+                            $collection = PartnerCollection::findOrFail($data['partner_collection_id']);
+
+                            foreach ($records as $record) {
+                                $record->collections()->syncWithoutDetaching([$collection->id]);
+                            }
+                        }),
+                    Tables\Actions\BulkAction::make('removeCollection')
+                        ->label('Remove from folder / list')
+                        ->icon('heroicon-o-folder-minus')
+                        ->form([
+                            Forms\Components\Select::make('partner_collection_id')
+                                ->label('Folder / list')
+                                ->options(fn () => PartnerCollection::query()->whereIn('scope', ['agency_partners', 'both'])->where('is_active', true)->orderBy('name')->pluck('name', 'id')->all())
+                                ->required()
+                                ->searchable()
+                                ->native(false),
+                        ])
+                        ->action(function ($records, array $data): void {
+                            foreach ($records as $record) {
+                                $record->collections()->detach($data['partner_collection_id']);
+                            }
+                        }),
                 ]),
             ]);
     }
