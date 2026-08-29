@@ -11,6 +11,9 @@ class RequestQuotePageTest extends TestCase
 
     public function test_request_quote_page_loads_with_expected_fields(): void
     {
+        config()->set('services.recaptcha.enabled', true);
+        config()->set('services.recaptcha.site_key', 'test-site-key');
+
         $response = $this->get(route('request-quote'));
 
         $response->assertStatus(200);
@@ -19,5 +22,6 @@ class RequestQuotePageTest extends TestCase
         $response->assertSee('Preferred location / distance from Malé airport');
         $response->assertSee('Children ages');
         $response->assertSee('REQUEST QUOTE');
+        $response->assertSee('This site is protected by reCAPTCHA', false);
     }
 }
