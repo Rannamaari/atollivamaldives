@@ -43,6 +43,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     @php($cssVersion = fn (string $path) => asset($path).'?v='.filemtime(public_path($path)))
     @php($hasViteBuild = file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
+    @php($recaptchaEnabled = config('services.recaptcha.enabled') && filled(config('services.recaptcha.site_key')))
     @if($hasViteBuild)
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endif
@@ -55,11 +56,16 @@
     <link rel="stylesheet" href="{{ $cssVersion('css/faq.css') }}">
     <link rel="stylesheet" href="{{ $cssVersion('css/about.css') }}">
     <link rel="stylesheet" href="{{ $cssVersion('css/forms.css') }}">
+    @if($recaptchaEnabled)
+        <script async src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
+    @endif
     @yield('head')
 </head>
 <body>
 @yield('content')
 <script>
+const recaptchaSiteKey = @json($recaptchaEnabled ? config('services.recaptcha.site_key') : null);
+
 const navToggle = document.querySelector('[data-menu]');
 const navMenu = document.querySelector('[data-nav]');
 
@@ -162,6 +168,57 @@ document.querySelectorAll('.finder--premium').forEach((finder) => {
 
     Object.keys(guestInputs).forEach(syncStepperValue);
     updateSummary();
+});
+
+document.querySelectorAll('form[data-recaptcha-form]').forEach((form) => {
+    if (!recaptchaSiteKey) {
+        return;
+    }
+
+    let submitting = false;
+    const runWhenRecaptchaReady = (callback, attempts = 30) => {
+        if (typeof window.grecaptcha !== 'undefined') {
+            window.grecaptcha.ready(callback);
+            return;
+        }
+
+        if (attempts <= 0) {
+            callback();
+            return;
+        }
+
+        window.setTimeout(() => runWhenRecaptchaReady(callback, attempts - 1), 150);
+    };
+
+    form.addEventListener('submit', (event) => {
+        if (submitting) {
+            return;
+        }
+
+        event.preventDefault();
+
+        const actionInput = form.querySelector('[data-recaptcha-action]');
+        const tokenInput = form.querySelector('[data-recaptcha-token]');
+        const action = actionInput?.value || 'inquiry_submit';
+
+        runWhenRecaptchaReady(() => {
+            if (typeof window.grecaptcha === 'undefined') {
+                form.submit();
+                return;
+            }
+
+            window.grecaptcha.execute(recaptchaSiteKey, { action }).then((token) => {
+                if (!tokenInput) {
+                    form.submit();
+                    return;
+                }
+
+                tokenInput.value = token;
+                submitting = true;
+                form.submit();
+            });
+        });
+    });
 });
 </script>
 <script type="text/javascript">

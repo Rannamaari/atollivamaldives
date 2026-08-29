@@ -80,12 +80,16 @@
             <h2>Tell us about your<br><em>ideal voyage.</em></h2>
             <p>{{ $page->contact_text }}</p>
         </div>
-        <form method="post" action="{{ route('inquiries.store') }}">
+        <form method="post" action="{{ route('inquiries.store') }}" data-recaptcha-form>
             @csrf
             @if(session('success'))
                 <p class="success">{{ session('success') }}</p>
             @endif
+            @error('form')
+                <p class="success" style="background:#fff3f0;color:#8a2f1e;">{{ $message }}</p>
+            @enderror
             <input type="hidden" name="travel_type" value="liveaboard">
+            @include('partials.recaptcha-fields', ['action' => 'liveaboard_inquiry_submit'])
             <div class="form-grid">
                 <label>Your name<input name="name" required value="{{ old('name') }}"></label>
                 <label>Email address<input type="email" name="email" value="{{ old('email') }}"></label>

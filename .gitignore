@@ -4,6 +4,7 @@
 /public/hot
 /public/storage
 /storage/*.key
+/storage/app/private
 /storage/app/public/accommodations
 /storage/app/public/home-pages/cards
 /storage/app/public/livewire-tmp

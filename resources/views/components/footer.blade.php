@@ -1,7 +1,7 @@
 @php
     $whatsAppNumber = env('MICRO_TRAVEL_WHATSAPP', '9609996210');
     $whatsAppUrl = 'https://wa.me/'.$whatsAppNumber.'?text='.urlencode('Hello Atolliva Maldives, I would like help planning a Maldives holiday.');
-    $contactEmail = env('MICRO_TRAVEL_CONTACT_EMAIL', 'admin@atollivamaldives.com');
+    $contactEmail = env('MICRO_TRAVEL_CONTACT_EMAIL', 'hello@atollivamaldives.com');
     $socialLinks = [
         ['label' => 'Facebook', 'href' => '#', 'icon' => 'facebook'],
         ['label' => 'X', 'href' => '#', 'icon' => 'x'],

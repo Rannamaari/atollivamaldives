@@ -173,11 +173,15 @@
         <h2>Tell us your<br><em>travel plans.</em></h2>
         <p>Share your dates and preferences for {{ $accommodation->name }}, and our team will check availability and the latest selling rates for you.</p>
     </div>
-    <form method="post" action="{{ route('inquiries.store') }}">
+    <form method="post" action="{{ route('inquiries.store') }}" data-recaptcha-form>
         @csrf
         @if(session('success'))
             <p class="success">{{ session('success') }}</p>
         @endif
+        @error('form')
+            <p class="success" style="background:#fff3f0;color:#8a2f1e;">{{ $message }}</p>
+        @enderror
+        @include('partials.recaptcha-fields', ['action' => 'property_inquiry_submit'])
         <div class="form-grid">
             <label>Your name<input name="name" required value="{{ old('name') }}"></label>
             <label>WhatsApp number<input name="phone" required value="{{ old('phone') }}"></label>

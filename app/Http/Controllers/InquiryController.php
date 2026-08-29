@@ -4,14 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\Inquiry;
+use App\Services\ReCaptchaVerifier;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class InquiryController extends Controller
 {
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, ReCaptchaVerifier $reCaptchaVerifier): RedirectResponse
     {
         $data = $request->validate([
             'name' => 'nullable|string|max:100|required_without:first_name',
@@ -41,7 +43,20 @@ class InquiryController extends Controller
             'meal_plan' => 'nullable|string|max:255',
             'message' => 'nullable|string|max:3000',
             'source' => 'nullable|string|max:100',
+            'website' => 'nullable|string|size:0',
+            'recaptcha_token' => $reCaptchaVerifier->enabled() ? 'required|string' : 'nullable|string',
+            'recaptcha_action' => 'nullable|string|max:100',
         ]);
+
+        $recaptchaAction = $data['recaptcha_action'] ?? 'inquiry_submit';
+
+        if (! $reCaptchaVerifier->verify($data['recaptcha_token'] ?? '', $recaptchaAction, $request->ip())) {
+            throw ValidationException::withMessages([
+                'form' => 'We could not verify this submission. Please try again or message us on WhatsApp.',
+            ]);
+        }
+
+        unset($data['website'], $data['recaptcha_token'], $data['recaptcha_action']);
 
         if (blank($data['name'] ?? null)) {
             $data['name'] = trim(collect([$data['first_name'] ?? null, $data['last_name'] ?? null])->filter()->implode(' '));

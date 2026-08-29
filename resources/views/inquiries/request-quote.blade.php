@@ -21,12 +21,16 @@
             <h2>Your journey,<br><em>thoughtfully shaped.</em></h2>
             <p>Use this form when you want recommendations rather than one specific property. Our team can shortlist options that fit your dates, interests, and budget.</p>
         </div>
-        <form method="post" action="{{ route('inquiries.store') }}">
+        <form method="post" action="{{ route('inquiries.store') }}" data-recaptcha-form>
             @csrf
             @if(session('success'))
                 <p class="success">{{ session('success') }}</p>
             @endif
+            @error('form')
+                <p class="success" style="background:#fff3f0;color:#8a2f1e;">{{ $message }}</p>
+            @enderror
             <input type="hidden" name="source" value="request_quote">
+            @include('partials.recaptcha-fields', ['action' => 'request_quote_submit'])
             <div class="form-grid">
                 <label>Your name<input name="name" required value="{{ old('name', trim(collect([old('first_name'), old('last_name')])->filter()->implode(' '))) }}" placeholder="How should we address you?"></label>
                 <label>Email address<input type="email" name="email" value="{{ old('email') }}"></label>
