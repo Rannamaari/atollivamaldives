@@ -6,6 +6,7 @@ use App\Filament\Resources\LiveaboardPageResource\Pages;
 use App\Models\LiveaboardPage;
 use App\Support\OptimizedImageUpload;
 use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -28,7 +29,13 @@ class LiveaboardPageResource extends Resource
                     maxWidth: 2200,
                     maxHeight: 1600,
                     quality: 82,
-                )->columnSpanFull(),
+                )
+                    ->afterStateHydrated(function (FileUpload $component, mixed $state): void {
+                        if (is_string($state) && (str_starts_with($state, 'http://') || str_starts_with($state, 'https://'))) {
+                            $component->state(null);
+                        }
+                    })
+                    ->columnSpanFull(),
                 Forms\Components\TextInput::make('eyebrow')->required()->maxLength(255),
                 Forms\Components\TextInput::make('title')->required()->maxLength(255),
                 Forms\Components\Textarea::make('intro')->rows(3)->columnSpanFull(),
@@ -57,7 +64,7 @@ class LiveaboardPageResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('hero_image')->label('Hero'),
+                Tables\Columns\ImageColumn::make('hero_image')->label('Hero')->getStateUsing(fn (LiveaboardPage $record): string => $record->hero_image_url),
                 Tables\Columns\TextColumn::make('title')->limit(50),
                 Tables\Columns\TextColumn::make('updated_at')->since()->label('Last updated'),
             ])

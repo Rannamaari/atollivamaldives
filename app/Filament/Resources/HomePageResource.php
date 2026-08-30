@@ -6,6 +6,7 @@ use App\Filament\Resources\HomePageResource\Pages;
 use App\Models\HomePage;
 use App\Support\OptimizedImageUpload;
 use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -77,7 +78,11 @@ class HomePageResource extends Resource
                                 maxWidth: 1400,
                                 maxHeight: 1000,
                                 quality: 80,
-                            ),
+                            )->afterStateHydrated(function (FileUpload $component, mixed $state): void {
+                                if (is_string($state) && (str_starts_with($state, 'http://') || str_starts_with($state, 'https://'))) {
+                                    $component->state(null);
+                                }
+                            }),
                             Forms\Components\Textarea::make('resorts_card_copy')
                                 ->label('Card text')
                                 ->rows(3)
@@ -92,7 +97,11 @@ class HomePageResource extends Resource
                                 maxWidth: 1400,
                                 maxHeight: 1000,
                                 quality: 80,
-                            ),
+                            )->afterStateHydrated(function (FileUpload $component, mixed $state): void {
+                                if (is_string($state) && (str_starts_with($state, 'http://') || str_starts_with($state, 'https://'))) {
+                                    $component->state(null);
+                                }
+                            }),
                             Forms\Components\Textarea::make('guesthouses_card_copy')
                                 ->label('Card text')
                                 ->rows(3)
@@ -107,7 +116,11 @@ class HomePageResource extends Resource
                                 maxWidth: 1400,
                                 maxHeight: 1000,
                                 quality: 80,
-                            ),
+                            )->afterStateHydrated(function (FileUpload $component, mixed $state): void {
+                                if (is_string($state) && (str_starts_with($state, 'http://') || str_starts_with($state, 'https://'))) {
+                                    $component->state(null);
+                                }
+                            }),
                             Forms\Components\Textarea::make('city_hotels_card_copy')
                                 ->label('Card text')
                                 ->rows(3)
@@ -122,7 +135,11 @@ class HomePageResource extends Resource
                                 maxWidth: 1400,
                                 maxHeight: 1000,
                                 quality: 80,
-                            ),
+                            )->afterStateHydrated(function (FileUpload $component, mixed $state): void {
+                                if (is_string($state) && (str_starts_with($state, 'http://') || str_starts_with($state, 'https://'))) {
+                                    $component->state(null);
+                                }
+                            }),
                             Forms\Components\Textarea::make('liveaboards_card_copy')
                                 ->label('Card text')
                                 ->rows(3)
@@ -136,7 +153,13 @@ class HomePageResource extends Resource
                     maxWidth: 2200,
                     maxHeight: 1600,
                     quality: 82,
-                )->helperText('Upload a wide homepage banner image. It will be optimized automatically.'),
+                )
+                    ->afterStateHydrated(function (FileUpload $component, mixed $state): void {
+                        if (is_string($state) && (str_starts_with($state, 'http://') || str_starts_with($state, 'https://'))) {
+                            $component->state(null);
+                        }
+                    })
+                    ->helperText('Upload a wide homepage banner image. It will be optimized automatically.'),
             ]),
         ]);
     }
@@ -146,7 +169,7 @@ class HomePageResource extends Resource
         return $table
             ->defaultSort('updated_at', 'desc')
             ->columns([
-                Tables\Columns\ImageColumn::make('hero_image')->label('Image'),
+                Tables\Columns\ImageColumn::make('hero_image')->label('Image')->getStateUsing(fn (HomePage $record): string => $record->hero_image_url),
                 Tables\Columns\TextColumn::make('name')->searchable(),
                 Tables\Columns\TextColumn::make('explore_heading_line_one')->label('Explore section')->limit(20),
                 Tables\Columns\TextColumn::make('kicker')->limit(30),

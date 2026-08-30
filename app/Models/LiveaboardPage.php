@@ -39,7 +39,9 @@ class LiveaboardPage extends Model
     public function getHeroImageUrlAttribute(): string
     {
         return $this->hero_image
-            ? asset('storage/'.$this->hero_image)
+            ? (str_starts_with((string) $this->hero_image, 'http')
+                ? (string) $this->hero_image
+                : asset('storage/'.ltrim((string) $this->hero_image, '/')))
             : 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1800&q=85';
     }
 }

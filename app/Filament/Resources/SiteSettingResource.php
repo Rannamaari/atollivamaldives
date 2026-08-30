@@ -6,6 +6,7 @@ use App\Filament\Resources\SiteSettingResource\Pages;
 use App\Models\SiteSetting;
 use App\Support\OptimizedImageUpload;
 use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -31,7 +32,13 @@ class SiteSettingResource extends Resource
                     maxWidth: 2200,
                     maxHeight: 1600,
                     quality: 82,
-                )->helperText('Upload the homepage hero banner image. Recommended: wide landscape image.'),
+                )
+                    ->afterStateHydrated(function (FileUpload $component, mixed $state): void {
+                        if (is_string($state) && (str_starts_with($state, 'http://') || str_starts_with($state, 'https://'))) {
+                            $component->state(null);
+                        }
+                    })
+                    ->helperText('Upload the homepage hero banner image. Recommended: wide landscape image.'),
             ]),
             Forms\Components\Section::make('SEO defaults')->columns(2)->schema([
                 Forms\Components\TextInput::make('site_name')
@@ -49,7 +56,11 @@ class SiteSettingResource extends Resource
                     maxWidth: 1600,
                     maxHeight: 1600,
                     quality: 82,
-                ),
+                )->afterStateHydrated(function (FileUpload $component, mixed $state): void {
+                    if (is_string($state) && (str_starts_with($state, 'http://') || str_starts_with($state, 'https://'))) {
+                        $component->state(null);
+                    }
+                }),
                 Forms\Components\Toggle::make('default_robots_index')->default(true),
                 Forms\Components\Toggle::make('default_robots_follow')->default(true),
             ]),
@@ -60,7 +71,11 @@ class SiteSettingResource extends Resource
                     maxWidth: 1200,
                     maxHeight: 1200,
                     quality: 86,
-                ),
+                )->afterStateHydrated(function (FileUpload $component, mixed $state): void {
+                    if (is_string($state) && (str_starts_with($state, 'http://') || str_starts_with($state, 'https://'))) {
+                        $component->state(null);
+                    }
+                }),
                 Forms\Components\Textarea::make('company_description')
                     ->rows(4),
                 Forms\Components\TextInput::make('business_email')
@@ -93,7 +108,7 @@ class SiteSettingResource extends Resource
     public static function table(Table $table): Table
     {
         return $table->columns([
-            Tables\Columns\ImageColumn::make('hero_image')->label('Hero image'),
+            Tables\Columns\ImageColumn::make('hero_image')->label('Hero image')->getStateUsing(fn (SiteSetting $record): string => $record->hero_image_url),
             Tables\Columns\TextColumn::make('site_name')->label('Site name'),
             Tables\Columns\TextColumn::make('updated_at')->since()->label('Last updated'),
         ])->actions([

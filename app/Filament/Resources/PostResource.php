@@ -13,6 +13,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 
 class PostResource extends Resource
@@ -42,6 +43,19 @@ class PostResource extends Resource
                     ->helperText('Optional. Choose a specific offer for this post. If left blank, the website will try category-matched offers first, then general offers.'),
                 Forms\Components\Textarea::make('excerpt'),
                 Forms\Components\RichEditor::make('body')->required()->columnSpanFull(),
+                Forms\Components\Placeholder::make('legacy_featured_image_preview')
+                    ->label('Current featured image')
+                    ->content(function (?Post $record): ?HtmlString {
+                        if (! $record || ! filled($record->featured_image) || ! str_starts_with((string) $record->featured_image, 'http')) {
+                            return null;
+                        }
+
+                        return new HtmlString(
+                            '<img src="' . e($record->featured_image) . '" alt="Current featured image" style="max-width: 18rem; border-radius: 1rem; border: 1px solid rgba(15, 23, 42, 0.12);" />'
+                        );
+                    })
+                    ->visible(fn (?Post $record): bool => $record !== null && filled($record->featured_image) && str_starts_with((string) $record->featured_image, 'http'))
+                    ->columnSpanFull(),
                 OptimizedImageUpload::make(
                     FileUpload::make('featured_image'),
                     'blog',
@@ -70,7 +84,7 @@ class PostResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->columns([Tables\Columns\ImageColumn::make('featured_image'), Tables\Columns\TextColumn::make('title')->searchable()->sortable(), Tables\Columns\TextColumn::make('category')->badge(), Tables\Columns\TextColumn::make('published_at')->dateTime()->sortable(), Tables\Columns\IconColumn::make('published')->boolean()])->actions([Tables\Actions\EditAction::make()])->bulkActions([Tables\Actions\DeleteBulkAction::make()]);
+        return $table->columns([Tables\Columns\ImageColumn::make('featured_image')->getStateUsing(fn (Post $record): string => $record->seoImageUrl()), Tables\Columns\TextColumn::make('title')->searchable()->sortable(), Tables\Columns\TextColumn::make('category')->badge(), Tables\Columns\TextColumn::make('published_at')->dateTime()->sortable(), Tables\Columns\IconColumn::make('published')->boolean()])->actions([Tables\Actions\EditAction::make()])->bulkActions([Tables\Actions\DeleteBulkAction::make()]);
     }
 
     public static function getPages(): array

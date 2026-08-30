@@ -36,4 +36,15 @@ class BlogOffer extends Model
     {
         return $query->where('active', true);
     }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        if (! filled($this->image)) {
+            return null;
+        }
+
+        return str_starts_with((string) $this->image, 'http')
+            ? (string) $this->image
+            : asset('storage/'.ltrim((string) $this->image, '/'));
+    }
 }

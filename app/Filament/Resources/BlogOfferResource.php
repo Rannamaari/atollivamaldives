@@ -7,10 +7,12 @@ use App\Models\BlogCategory;
 use App\Models\BlogOffer;
 use App\Support\OptimizedImageUpload;
 use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\HtmlString;
 
 class BlogOfferResource extends Resource
 {
@@ -47,7 +49,26 @@ class BlogOfferResource extends Resource
                         maxWidth: 1600,
                         maxHeight: 1200,
                         quality: 82,
-                    )->columnSpanFull(),
+                    )
+                        ->afterStateHydrated(function (FileUpload $component, mixed $state): void {
+                            if (is_string($state) && (str_starts_with($state, 'http://') || str_starts_with($state, 'https://'))) {
+                                $component->state(null);
+                            }
+                        })
+                        ->columnSpanFull(),
+                    Forms\Components\Placeholder::make('legacy_image_preview')
+                        ->label('Current image')
+                        ->content(function (?BlogOffer $record): ?HtmlString {
+                            if (! $record || ! filled($record->image_url) || ! str_starts_with((string) $record->image, 'http')) {
+                                return null;
+                            }
+
+                            return new HtmlString(
+                                '<img src="' . e($record->image_url) . '" alt="Current offer image" style="max-width: 18rem; border-radius: 1rem; border: 1px solid rgba(15, 23, 42, 0.12);" />'
+                            );
+                        })
+                        ->visible(fn (?BlogOffer $record): bool => $record !== null && filled($record->image) && str_starts_with((string) $record->image, 'http'))
+                        ->columnSpanFull(),
                     Forms\Components\TextInput::make('button_text')
                         ->default('Explore offer')
                         ->required()
@@ -81,7 +102,7 @@ class BlogOfferResource extends Resource
         return $table
             ->defaultSort('sort_order')
             ->columns([
-                Tables\Columns\ImageColumn::make('image')->label('Image'),
+                Tables\Columns\ImageColumn::make('image')->label('Image')->getStateUsing(fn (BlogOffer $record): ?string => $record->image_url),
                 Tables\Columns\TextColumn::make('title')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('eyebrow')->toggleable(),
                 Tables\Columns\TextColumn::make('target_categories')

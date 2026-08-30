@@ -54,21 +54,21 @@ class SiteSetting extends Model
     public function getHeroImageUrlAttribute(): string
     {
         return $this->hero_image
-            ? asset('storage/' . $this->hero_image)
+            ? $this->storageImageUrl($this->hero_image)
             : 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=2200&q=90';
     }
 
     public function getDefaultOgImageUrlAttribute(): string
     {
         return $this->default_og_image
-            ? asset('storage/'.$this->default_og_image)
+            ? $this->storageImageUrl($this->default_og_image)
             : asset('logo/optimized/atolliva-share.png');
     }
 
     public function getBusinessLogoUrlAttribute(): string
     {
         return $this->business_logo
-            ? asset('storage/'.$this->business_logo)
+            ? $this->storageImageUrl($this->business_logo)
             : asset('logo/optimized/atolliva-logo.png');
     }
 
@@ -124,5 +124,16 @@ class SiteSetting extends Model
                 'rate' => (float) ($this->quotation_green_tax_default_rate ?? 12),
             ],
         ];
+    }
+
+    protected function storageImageUrl(?string $path): ?string
+    {
+        if (! filled($path)) {
+            return null;
+        }
+
+        return str_starts_with((string) $path, 'http')
+            ? (string) $path
+            : asset('storage/'.ltrim((string) $path, '/'));
     }
 }
