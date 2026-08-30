@@ -72,7 +72,7 @@ class CommunicationDraftFactory
             'direction' => CommunicationDirection::Outbound,
             'channel' => CommunicationChannel::EmailDraft,
             'status' => CommunicationStatus::Draft,
-            'recipient' => $contact?->email,
+            'recipient' => $contact?->email ?: $agencyPartner?->email,
             'subject' => $content['subject'],
             'body' => $content['body'],
             'drafted_at' => now(),

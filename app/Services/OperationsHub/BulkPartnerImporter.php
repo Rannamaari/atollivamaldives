@@ -114,6 +114,7 @@ class BulkPartnerImporter
                         'trading_name' => $this->nullable($row['trading_name'] ?? null),
                         'city' => $this->nullable($row['city'] ?? null),
                         'website' => $this->nullable($row['website'] ?? null),
+                        'email' => $this->extractAgencyEmail($row),
                         'target_customer_segment' => $this->nullable($row['target_customer_segment'] ?? null),
                         'source_markets' => $this->nullable($row['source_markets'] ?? null),
                         'preferred_products' => $this->nullable($row['preferred_products'] ?? null),
@@ -126,10 +127,12 @@ class BulkPartnerImporter
                     $agency->save();
                     $summary[$isExisting ? 'updated' : 'created']++;
 
-                    if (filled($row['contact_person'] ?? null) || filled($row['contact_email'] ?? null)) {
+                    $contactEmail = $this->extractAgencyContactEmail($row);
+
+                    if (filled($row['contact_person'] ?? null) || filled($contactEmail) || filled($agency->email)) {
                         $contact = AgencyContact::query()->firstOrNew([
                             'agency_partner_id' => $agency->id,
-                            'email' => $this->nullable($row['contact_email'] ?? null),
+                            'email' => $contactEmail ?: $agency->email,
                             'full_name' => trim((string) ($row['contact_person'] ?? 'Partnership Team')) ?: 'Partnership Team',
                         ]);
 
@@ -169,6 +172,29 @@ class BulkPartnerImporter
         $csv->setHeaderOffset(0);
 
         return iterator_to_array($csv->getRecords());
+    }
+
+    protected function extractAgencyEmail(array $row): ?string
+    {
+        return $this->nullable(
+            $row['email']
+            ?? $row['agency_email']
+            ?? $row['general_email']
+            ?? $row['company_email']
+            ?? $row['main_email']
+            ?? $row['contact_email']
+            ?? null
+        );
+    }
+
+    protected function extractAgencyContactEmail(array $row): ?string
+    {
+        return $this->nullable(
+            $row['contact_email']
+            ?? $row['email']
+            ?? $row['agency_email']
+            ?? null
+        );
     }
 
     protected function nullable(mixed $value): ?string

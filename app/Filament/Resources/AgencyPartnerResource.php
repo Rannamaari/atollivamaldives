@@ -43,6 +43,7 @@ class AgencyPartnerResource extends Resource
                     Forms\Components\TextInput::make('country')->default('Maldives')->required(),
                     Forms\Components\TextInput::make('city'),
                     Forms\Components\TextInput::make('website')->url(),
+                    Forms\Components\TextInput::make('email')->email()->label('Main email'),
                     Forms\Components\TextInput::make('licence_number'),
                     Forms\Components\TextInput::make('target_customer_segment'),
                     Forms\Components\Textarea::make('source_markets'),
@@ -100,6 +101,7 @@ class AgencyPartnerResource extends Resource
                                     ->where('trading_name', 'like', "%{$search}%")
                                     ->orWhere('legal_company_name', 'like', "%{$search}%")
                                     ->orWhere('country', 'like', "%{$search}%")
+                                    ->orWhere('email', 'like', "%{$search}%")
                                     ->orWhere('website', 'like', "%{$search}%")
                                     ->orWhereHas('contacts', function ($contactQuery) use ($search): void {
                                         $contactQuery
@@ -111,6 +113,7 @@ class AgencyPartnerResource extends Resource
                     })
                     ->sortable(query: fn ($query, string $direction) => $query->orderByRaw("coalesce(nullif(trading_name, ''), legal_company_name) {$direction}")),
                 Tables\Columns\TextColumn::make('country')->sortable(),
+                Tables\Columns\TextColumn::make('email')->label('Email')->toggleable(),
                 Tables\Columns\TextColumn::make('collections.name')
                     ->label('Folders')
                     ->badge()

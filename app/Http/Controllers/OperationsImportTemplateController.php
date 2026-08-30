@@ -14,8 +14,8 @@ class OperationsImportTemplateController extends Controller
                 ['Baros Maldives', 'Baros', 'resort', 'Maldives', 'Kaafu', 'Baros', 'https://www.baros.com', 'info@example.com', 'sales@example.com', 'reservations@example.com', 'contracting@example.com', '+9600000000', '+9600000000', 'Reservations Team', 'Reservations', 'reservations@example.com', '+9600000001', 'Optional notes'],
             ],
             'agency-partners' => [
-                ['company_name', 'trading_name', 'country', 'city', 'website', 'contact_person', 'contact_designation', 'contact_email', 'contact_phone', 'whatsapp', 'target_customer_segment', 'source_markets', 'preferred_products', 'notes'],
-                ['Blue Ocean Travel LLC', 'Blue Ocean Travel', 'United Arab Emirates', 'Dubai', 'https://example.com', 'Jane Smith', 'Product Manager', 'jane@example.com', '+971500000000', '+971500000000', 'Luxury leisure travellers', 'UAE, GCC', 'Resorts, Liveaboards', 'Optional notes'],
+                ['company_name', 'trading_name', 'country', 'city', 'website', 'email', 'contact_person', 'contact_designation', 'contact_email', 'contact_phone', 'whatsapp', 'target_customer_segment', 'source_markets', 'preferred_products', 'notes'],
+                ['Blue Ocean Travel LLC', 'Blue Ocean Travel', 'United Arab Emirates', 'Dubai', 'https://example.com', 'contracting@example.com', 'Jane Smith', 'Product Manager', 'jane@example.com', '+971500000000', '+971500000000', 'Luxury leisure travellers', 'UAE, GCC', 'Resorts, Liveaboards', 'Optional notes'],
             ],
         ];
 

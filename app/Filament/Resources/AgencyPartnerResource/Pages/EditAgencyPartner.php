@@ -30,7 +30,7 @@ class EditAgencyPartner extends EditRecord
                 ->form([
                     Forms\Components\TextInput::make('recipient')
                         ->label('To email')
-                        ->default(fn () => $this->record->contacts()->where('is_primary', true)->value('email')),
+                        ->default(fn () => $this->record->email ?: $this->record->contacts()->where('is_primary', true)->value('email')),
                     Forms\Components\Select::make('agency_contact_id')
                         ->label('Agency contact')
                         ->options($this->record->contacts()->orderByDesc('is_primary')->orderBy('full_name')->pluck('full_name', 'id'))
@@ -68,7 +68,7 @@ class EditAgencyPartner extends EditRecord
                             'partnership_request' => $data['partnership_request'] ?? null,
                         ],
                         overrides: [
-                            'recipient' => $data['recipient'] ?? $contact?->email,
+                            'recipient' => $data['recipient'] ?? $contact?->email ?? $this->record->email,
                         ],
                     );
 

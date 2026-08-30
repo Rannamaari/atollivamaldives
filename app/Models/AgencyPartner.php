@@ -18,7 +18,7 @@ class AgencyPartner extends Model
 {
     use HasFactory, TracksUserstamps;
 
-    protected $fillable = ['legal_company_name', 'trading_name', 'country', 'city', 'website', 'licence_number', 'target_customer_segment', 'source_markets', 'estimated_booking_volume', 'preferred_products', 'preferred_currency', 'commercial_arrangement', 'payment_terms', 'agreement_status', 'partnership_status', 'first_contacted_at', 'last_contacted_at', 'next_follow_up_at', 'assigned_to', 'risk_level', 'internal_notes', 'is_active', 'created_by', 'updated_by'];
+    protected $fillable = ['legal_company_name', 'trading_name', 'country', 'city', 'website', 'email', 'licence_number', 'target_customer_segment', 'source_markets', 'estimated_booking_volume', 'preferred_products', 'preferred_currency', 'commercial_arrangement', 'payment_terms', 'agreement_status', 'partnership_status', 'first_contacted_at', 'last_contacted_at', 'next_follow_up_at', 'assigned_to', 'risk_level', 'internal_notes', 'is_active', 'created_by', 'updated_by'];
 
     protected function casts(): array
     {
