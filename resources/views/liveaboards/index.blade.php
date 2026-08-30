@@ -1,6 +1,4 @@
 @extends('layouts.app')
-@section('title','Maldives Liveaboards — Atolliva Maldives')
-@section('description', strip_tags($page->intro ?: 'Discover liveaboard charters and voyages across the Maldives with Atolliva Maldives.'))
 @section('content')
 <div class="liveaboards-page">
     @include('partials.site-nav', ['whatsAppText' => 'Hello Atolliva Maldives, I would like help planning a Maldives liveaboard journey.'])
@@ -37,11 +35,11 @@
         <div class="liveaboards-gallery__grid">
             @forelse($page->gallery_images ?? [] as $image)
                 <figure class="liveaboards-gallery__item">
-                    <img src="{{ asset('storage/'.$image) }}" alt="Liveaboard Maldives gallery image">
+                    <img src="{{ asset('storage/'.$image) }}" alt="Liveaboard Maldives gallery image" loading="lazy" decoding="async">
                 </figure>
             @empty
                 <figure class="liveaboards-gallery__item liveaboards-gallery__item--wide">
-                    <img src="{{ $page->hero_image_url }}" alt="Liveaboard Maldives hero image">
+                    <img src="{{ $page->hero_image_url }}" alt="Liveaboard Maldives hero image" decoding="async" fetchpriority="high">
                 </figure>
             @endforelse
         </div>
@@ -56,9 +54,9 @@
             @forelse($liveaboards as $liveaboard)
                 @php($image = str_starts_with($liveaboard->cover_image,'http') ? $liveaboard->cover_image : asset('storage/'.$liveaboard->cover_image))
                 <article class="liveaboards-fleet__card">
-                    <a href="{{ route('accommodations.show',$liveaboard) }}">
+                    <a href="{{ $liveaboard->publicUrl() }}">
                         <div class="liveaboards-fleet__photo">
-                            <img src="{{ $image }}" alt="{{ $liveaboard->name }}">
+                            <img src="{{ $image }}" alt="{{ $liveaboard->name }}" loading="lazy" decoding="async">
                         </div>
                         <div class="liveaboards-fleet__meta">
                             <span>{{ $liveaboard->atoll }}</span>

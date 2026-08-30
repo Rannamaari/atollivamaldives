@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\IslandResource\Pages;
 use App\Models\Island;
+use App\Support\OptimizedImageUpload;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -53,12 +54,13 @@ class IslandResource extends Resource
                         ->numeric(),
                     Forms\Components\TextInput::make('longitude')
                         ->numeric(),
-                    Forms\Components\FileUpload::make('featured_image')
-                        ->image()
-                        ->disk('public')
-                        ->directory('destinations/islands')
-                        ->imageEditor()
-                        ->columnSpanFull(),
+                    OptimizedImageUpload::make(
+                        Forms\Components\FileUpload::make('featured_image'),
+                        'destinations/islands',
+                        maxWidth: 1800,
+                        maxHeight: 1200,
+                        quality: 82,
+                    )->columnSpanFull(),
                     Forms\Components\Textarea::make('description')
                         ->rows(5)
                         ->columnSpanFull(),

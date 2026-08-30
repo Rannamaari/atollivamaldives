@@ -6,6 +6,7 @@ use App\Enums\AccommodationType;
 use App\Filament\Resources\LiveaboardResource\Pages;
 use App\Models\Accommodation;
 use App\Models\Facility;
+use App\Support\OptimizedImageUpload;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Form;
@@ -68,24 +69,29 @@ class LiveaboardResource extends Resource
                     'trip' => 'Per trip',
                     'person' => 'Per person',
                 ])->default('trip'),
-                FileUpload::make('featured_image')
-                    ->image()
-                    ->directory('accommodations/featured')
-                    ->disk('public')
-                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                OptimizedImageUpload::make(
+                    FileUpload::make('featured_image'),
+                    'accommodations/featured',
+                    maxWidth: 2000,
+                    maxHeight: 1400,
+                    quality: 82,
+                )
                     ->afterStateHydrated(function (FileUpload $component, mixed $state): void {
                         if (is_string($state) && str_starts_with($state, 'placeholders/')) {
                             $component->state(null);
                         }
                     })
+                    ->helperText('Images are automatically resized and compressed for faster loading.')
                     ->columnSpanFull(),
-                FileUpload::make('images')
-                    ->image()
+                OptimizedImageUpload::make(
+                    FileUpload::make('images'),
+                    'accommodations',
+                    maxWidth: 2000,
+                    maxHeight: 1400,
+                    quality: 82,
+                )
                     ->multiple()
                     ->reorderable()
-                    ->directory('accommodations')
-                    ->disk('public')
-                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                     ->afterStateHydrated(function (FileUpload $component, mixed $state): void {
                         if (! is_array($state)) {
                             return;
@@ -100,6 +106,7 @@ class LiveaboardResource extends Resource
                             )
                         );
                     })
+                    ->helperText('Gallery uploads are automatically optimized and saved as lighter web images.')
                     ->columnSpanFull(),
                 Forms\Components\TextInput::make('rating')->numeric()->minValue(0)->maxValue(5),
                 Forms\Components\Select::make('facilities')

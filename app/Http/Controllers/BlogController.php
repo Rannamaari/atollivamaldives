@@ -4,20 +4,49 @@ namespace App\Http\Controllers;
 
 use App\Models\BlogOffer;
 use App\Models\Post;
+use App\Support\Seo\SeoManager;
 use Illuminate\View\View;
 
 class BlogController extends Controller
 {
-    public function index(): View
+    public function index(SeoManager $seoManager): View
     {
-        return view('blog.index', ['posts' => Post::published()->latest('published_at')->paginate(12)]);
+        return view('blog.index', [
+            'posts' => Post::published()->latest('published_at')->paginate(12),
+            'seo' => $seoManager->forListing(
+                title: 'Maldives Travel Blog & Guides | Atolliva Maldives',
+                description: 'Read Maldives travel guides, resort advice, local island ideas, liveaboard inspiration and holiday planning tips from Atolliva Maldives.',
+                canonical: route('blog.index'),
+                breadcrumbs: [
+                    ['name' => 'Home', 'url' => route('home')],
+                    ['name' => 'Blog', 'url' => route('blog.index')],
+                ],
+            )->toArray(),
+        ]);
     }
 
-    public function show(Post $post): View
+    public function show(Post $post, SeoManager $seoManager): View
     {
         abort_unless($post->published, 404);
 
         $post->loadMissing('blogOffer');
+        $relatedPosts = Post::published()
+            ->whereKeyNot($post->getKey())
+            ->when(filled($post->category), fn ($query) => $query->where('category', $post->category))
+            ->latest('published_at')
+            ->take(3)
+            ->get();
+
+        if ($relatedPosts->count() < 3) {
+            $relatedPosts = $relatedPosts->concat(
+                Post::published()
+                    ->whereKeyNot($post->getKey())
+                    ->whereNotIn('id', $relatedPosts->pluck('id'))
+                    ->latest('published_at')
+                    ->take(3 - $relatedPosts->count())
+                    ->get()
+            );
+        }
 
         $specifiedOffer = $post->blogOffer;
 
@@ -38,6 +67,11 @@ class BlogController extends Controller
             $offer = $pool->isEmpty() ? null : $pool[($post->id - 1) % $pool->count()];
         }
 
-        return view('blog.show', compact('post', 'offer'));
+        return view('blog.show', [
+            'post' => $post,
+            'offer' => $offer,
+            'relatedPosts' => $relatedPosts,
+            'seo' => $seoManager->forPost($post)->toArray(),
+        ]);
     }
 }

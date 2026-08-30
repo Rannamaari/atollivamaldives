@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\LiveaboardPageResource\Pages;
 use App\Models\LiveaboardPage;
+use App\Support\OptimizedImageUpload;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -21,25 +22,28 @@ class LiveaboardPageResource extends Resource
     {
         return $form->schema([
             Forms\Components\Section::make('Hero')->columns(2)->schema([
-                Forms\Components\FileUpload::make('hero_image')
-                    ->image()
-                    ->disk('public')
-                    ->directory('liveaboards/hero')
-                    ->imageEditor()
-                    ->columnSpanFull(),
+                OptimizedImageUpload::make(
+                    Forms\Components\FileUpload::make('hero_image'),
+                    'liveaboards/hero',
+                    maxWidth: 2200,
+                    maxHeight: 1600,
+                    quality: 82,
+                )->columnSpanFull(),
                 Forms\Components\TextInput::make('eyebrow')->required()->maxLength(255),
                 Forms\Components\TextInput::make('title')->required()->maxLength(255),
                 Forms\Components\Textarea::make('intro')->rows(3)->columnSpanFull(),
                 Forms\Components\RichEditor::make('body')->columnSpanFull(),
             ]),
             Forms\Components\Section::make('Gallery')->schema([
-                Forms\Components\FileUpload::make('gallery_images')
-                    ->image()
+                OptimizedImageUpload::make(
+                    Forms\Components\FileUpload::make('gallery_images'),
+                    'liveaboards/gallery',
+                    maxWidth: 2000,
+                    maxHeight: 1400,
+                    quality: 82,
+                )
                     ->multiple()
                     ->reorderable()
-                    ->disk('public')
-                    ->directory('liveaboards/gallery')
-                    ->imageEditor()
                     ->helperText('Upload and reorder the liveaboard gallery images shown on the page.'),
             ]),
             Forms\Components\Section::make('Contact section')->schema([

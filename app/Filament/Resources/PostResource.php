@@ -6,6 +6,7 @@ use App\Filament\Resources\PostResource\Pages;
 use App\Models\BlogCategory;
 use App\Models\BlogOffer;
 use App\Models\Post;
+use App\Support\OptimizedImageUpload;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Form;
@@ -41,12 +42,14 @@ class PostResource extends Resource
                     ->helperText('Optional. Choose a specific offer for this post. If left blank, the website will try category-matched offers first, then general offers.'),
                 Forms\Components\Textarea::make('excerpt'),
                 Forms\Components\RichEditor::make('body')->required()->columnSpanFull(),
-                FileUpload::make('featured_image')
-                    ->image()
-                    ->disk('public')
-                    ->directory('blog')
-                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-                    ->helperText('Upload a JPG, PNG, or WebP image. Older externally linked images will be cleared automatically before replacing them.')
+                OptimizedImageUpload::make(
+                    FileUpload::make('featured_image'),
+                    'blog',
+                    maxWidth: 1800,
+                    maxHeight: 1200,
+                    quality: 82,
+                )
+                    ->helperText('Upload a JPG, PNG, or WebP image. It will be automatically resized and compressed for the website.')
                     ->afterStateHydrated(function (FileUpload $component, mixed $state): void {
                         if (! is_string($state)) {
                             return;

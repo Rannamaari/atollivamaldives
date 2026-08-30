@@ -1,28 +1,46 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-B70MG0Y2NC"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'G-B70MG0Y2NC');
-    </script>
     @php
-        $brandTitle = 'Atolliva Maldives';
-        $defaultTitle = 'Atolliva Maldives | Your Maldives, Thoughtfully Planned';
-        $defaultDescription = 'Discover handpicked Maldives resorts, guesthouses, liveaboards and personalised holiday packages with local travel experts.';
-        $defaultShareImage = asset('logo/AtollivaMaldives.png');
-        $pageTitle = trim($__env->yieldContent('title', $defaultTitle));
-        $pageDescription = trim($__env->yieldContent('description', $defaultDescription));
-        $shareImage = trim($__env->yieldContent('share_image', $defaultShareImage));
-        $canonicalUrl = trim($__env->yieldContent('canonical', url()->current()));
+        $settings = $siteSettings ?? \App\Models\SiteSetting::current();
+        $analyticsId = $settings->google_analytics_id ?: config('services.analytics.google_analytics_id');
+        $tagManagerId = $settings->google_tag_manager_id ?: config('services.analytics.google_tag_manager_id');
+        $seoDefaults = $seo ?? app(\App\Support\Seo\SeoManager::class)->defaults()->toArray();
+        $decodeMeta = static fn (?string $value): string => html_entity_decode(trim((string) $value), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $pageTitle = $decodeMeta($__env->yieldContent('title', $seoDefaults['title']));
+        $pageDescription = $decodeMeta($__env->yieldContent('description', $seoDefaults['description']));
+        $shareImage = trim($__env->yieldContent('share_image', $seoDefaults['og_image']));
+        $canonicalUrl = trim($__env->yieldContent('canonical', $seoDefaults['canonical']));
+        $robots = trim($__env->yieldContent('robots', $seoDefaults['robots']));
+        $brandTitle = $seoDefaults['site_name'];
+        $schemaBlocks = $seoDefaults['schema'] ?? [];
+        $searchConsoleVerification = $seoDefaults['search_console_verification'] ?? null;
     @endphp
+    @if($tagManagerId)
+        <script>
+            (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+            })(window,document,'script','dataLayer',@json($tagManagerId));
+        </script>
+    @elseif($analyticsId)
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ $analyticsId }}"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', @json($analyticsId));
+        </script>
+    @endif
     <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
     <title>{{ $pageTitle }}</title>
     <meta name="description" content="{{ $pageDescription }}">
     <link rel="canonical" href="{{ $canonicalUrl }}">
+    <meta name="robots" content="{{ $robots }}">
+    @if($searchConsoleVerification)
+        <meta name="google-site-verification" content="{{ $searchConsoleVerification }}">
+    @endif
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="{{ $brandTitle }}">
     <meta property="og:title" content="{{ $pageTitle }}">
@@ -37,8 +55,8 @@
     <meta name="twitter:title" content="{{ $pageTitle }}">
     <meta name="twitter:description" content="{{ $pageDescription }}">
     <meta name="twitter:image" content="{{ $shareImage }}">
-    <link rel="icon" type="image/png" href="{{ asset('logo/favicon.png') }}">
-    <link rel="apple-touch-icon" href="{{ asset('logo/favicon.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('logo/optimized/favicon.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('logo/optimized/favicon.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     @php($cssVersion = fn (string $path) => asset($path).'?v='.filemtime(public_path($path)))
@@ -60,8 +78,17 @@
         <script async src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
     @endif
     @yield('head')
+    @foreach($schemaBlocks as $schema)
+        @if(is_array($schema) && $schema !== [])
+            <script type="application/ld+json">{!! json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+        @endif
+    @endforeach
 </head>
 <body>
+@if($tagManagerId)
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ $tagManagerId }}"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+@endif
 @yield('content')
 <script>
 const recaptchaSiteKey = @json($recaptchaEnabled ? config('services.recaptcha.site_key') : null);
@@ -224,12 +251,31 @@ document.querySelectorAll('form[data-recaptcha-form]').forEach((form) => {
 <script type="text/javascript">
 var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
 (function() {
-    var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
-    s1.async = true;
-    s1.src = 'https://embed.tawk.to/6a8ebf1410a50a3444253078/1k0upkqdv';
-    s1.charset = 'UTF-8';
-    s1.setAttribute('crossorigin', '*');
-    s0.parentNode.insertBefore(s1, s0);
+    var loaded = false;
+    var loadTawk = function() {
+        if (loaded) {
+            return;
+        }
+
+        loaded = true;
+
+        var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
+        s1.async = true;
+        s1.src = 'https://embed.tawk.to/6a8ebf1410a50a3444253078/1k0upkqdv';
+        s1.charset = 'UTF-8';
+        s1.setAttribute('crossorigin', '*');
+        s0.parentNode.insertBefore(s1, s0);
+    };
+
+    ['pointerdown', 'scroll', 'keydown'].forEach(function(eventName) {
+        window.addEventListener(eventName, loadTawk, { once: true, passive: true });
+    });
+
+    if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(loadTawk, { timeout: 5000 });
+    } else {
+        window.setTimeout(loadTawk, 4000);
+    }
 })();
 </script>
 </body></html>

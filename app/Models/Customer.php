@@ -13,12 +13,25 @@ class Customer extends Model
     protected $fillable = [
         'first_name',
         'last_name',
+        'company_name',
         'email',
         'phone',
         'whatsapp',
         'country',
+        'address',
+        'passport_number',
+        'work_permit_number',
+        'national_id_number',
+        'dependents',
         'notes',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'dependents' => 'array',
+        ];
+    }
 
     public function inquiries(): HasMany
     {

@@ -1,8 +1,5 @@
 @extends('layouts.app')
 
-@section('title', $accommodation->seo_title ?: $accommodation->name.' — Atolliva Maldives')
-@section('description', $accommodation->seo_description ?: $accommodation->summary)
-
 @section('content')
 @php
     $waMessage = "Hello Atolliva Maldives,\n\nI would like to check availability for:\n\nProperty: {$accommodation->name}";
@@ -22,7 +19,7 @@
 
 <article class="detail detail--travel">
     <div class="detail-hero">
-        <img src="{{ str_starts_with($accommodation->cover_image, 'http') ? $accommodation->cover_image : asset('storage/'.$accommodation->cover_image) }}" alt="{{ $accommodation->name }}">
+        <img src="{{ str_starts_with($accommodation->cover_image, 'http') ? $accommodation->cover_image : asset('storage/'.$accommodation->cover_image) }}" alt="{{ $accommodation->name }} in the Maldives" decoding="async" fetchpriority="high">
     </div>
 
     @if($galleryImages->count() > 1)
@@ -34,7 +31,7 @@
             <div class="detail-gallery__grid">
                 @foreach($galleryImages as $image)
                     <figure class="detail-gallery__item">
-                        <img src="{{ $image }}" alt="{{ $accommodation->name }} gallery image {{ $loop->iteration }}">
+                        <img src="{{ $image }}" alt="{{ $accommodation->name }} gallery view {{ $loop->iteration }}" loading="lazy" decoding="async">
                     </figure>
                 @endforeach
             </div>
@@ -96,7 +93,7 @@
                             $roomImage = $roomImage ? (str_starts_with($roomImage, 'http') ? $roomImage : asset('storage/'.$roomImage)) : (str_starts_with($accommodation->cover_image, 'http') ? $accommodation->cover_image : asset('storage/'.$accommodation->cover_image));
                         @endphp
                         <article class="room-card">
-                            <img src="{{ $roomImage }}" alt="{{ $room->name }}">
+                            <img src="{{ $roomImage }}" alt="{{ $room->name }} at {{ $accommodation->name }}" loading="lazy" decoding="async">
                             <div class="room-card__body">
                                 <div class="room-card__head">
                                     <h4>{{ $room->name }}</h4>
@@ -216,11 +213,37 @@
             @foreach($similarProperties as $property)
                 @php($image = str_starts_with($property->cover_image, 'http') ? $property->cover_image : asset('storage/'.$property->cover_image))
                 <article>
-                    <a href="{{ route('accommodations.show', $property) }}">
-                        <div class="photo"><img src="{{ $image }}" alt="{{ $property->name }}"></div>
+                    <a href="{{ $property->publicUrl() }}">
+                        <div class="photo"><img src="{{ $image }}" alt="{{ $property->name }} in the Maldives" loading="lazy" decoding="async"></div>
                         <div class="meta"><span>{{ strtoupper($property->type->label()) }}</span><span>{{ $property->island }}</span></div>
                         <h3>{{ $property->name }}</h3>
                         <div class="foot"><span>{{ $property->tagline }}</span><b>FROM {{ $property->currency }} {{ number_format($property->price_from ?? 0) }}</b></div>
+                    </a>
+                </article>
+            @endforeach
+        </div>
+    </section>
+@endif
+
+@if($relatedPosts->isNotEmpty())
+    <section class="journal">
+        <div class="section-title">
+            <div>
+                <p class="kicker">MALDIVES TRAVEL GUIDES</p>
+                <h2>Helpful reading<br><em>before you book.</em></h2>
+            </div>
+            <a class="under" href="{{ route('blog.index') }}">VISIT THE BLOG →</a>
+        </div>
+        <div class="posts">
+            @foreach($relatedPosts as $post)
+                @php($postImage = str_starts_with($post->featured_image ?? '', 'http') ? $post->featured_image : asset('storage/'.$post->featured_image))
+                <article>
+                    <a href="{{ route('blog.show', $post) }}">
+                        <img src="{{ $postImage }}" alt="{{ $post->title }} featured image" loading="lazy" decoding="async">
+                        <p class="kicker">{{ strtoupper($post->category) }}</p>
+                        <h3>{{ $post->title }}</h3>
+                        <p>{{ $post->excerpt }}</p>
+                        <span>READ POST →</span>
                     </a>
                 </article>
             @endforeach

@@ -28,10 +28,40 @@ class CustomerResource extends Resource
                 ->schema([
                     Forms\Components\TextInput::make('first_name'),
                     Forms\Components\TextInput::make('last_name'),
+                    Forms\Components\TextInput::make('company_name'),
                     Forms\Components\TextInput::make('email')->email(),
                     Forms\Components\TextInput::make('phone'),
                     Forms\Components\TextInput::make('whatsapp'),
                     Forms\Components\Select::make('country')->options(array_combine(config('countries.all', []), config('countries.all', [])))->searchable(),
+                    Forms\Components\Textarea::make('address')->rows(3)->columnSpanFull(),
+                ]),
+            Forms\Components\Section::make('Identity details')
+                ->columns(3)
+                ->schema([
+                    Forms\Components\TextInput::make('passport_number'),
+                    Forms\Components\TextInput::make('work_permit_number'),
+                    Forms\Components\TextInput::make('national_id_number')->label('ID card number'),
+                ]),
+            Forms\Components\Section::make('Dependents')
+                ->description('Add spouse, children, or other accompanying dependents here so quotation preparation is easier later.')
+                ->schema([
+                    Forms\Components\Repeater::make('dependents')
+                        ->defaultItems(0)
+                        ->schema([
+                            Forms\Components\TextInput::make('name')->required(),
+                            Forms\Components\TextInput::make('relationship')->placeholder('e.g. Child, Spouse'),
+                            Forms\Components\TextInput::make('passport_number'),
+                            Forms\Components\TextInput::make('work_permit_number'),
+                            Forms\Components\TextInput::make('national_id_number')->label('ID card number'),
+                            Forms\Components\DatePicker::make('date_of_birth'),
+                            Forms\Components\Textarea::make('notes')->rows(2)->columnSpanFull(),
+                        ])
+                        ->columns(3)
+                        ->collapsible()
+                        ->reorderable(false),
+                ]),
+            Forms\Components\Section::make('Internal notes')
+                ->schema([
                     Forms\Components\Textarea::make('notes')->columnSpanFull(),
                 ]),
         ]);
@@ -43,6 +73,9 @@ class CustomerResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('full_name')->label('Customer')->searchable(['first_name', 'last_name']),
+                Tables\Columns\TextColumn::make('passport_number')->searchable()->toggleable(),
+                Tables\Columns\TextColumn::make('work_permit_number')->searchable()->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('national_id_number')->label('ID card number')->searchable()->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('email')->searchable(),
                 Tables\Columns\TextColumn::make('phone')->searchable(),
                 Tables\Columns\TextColumn::make('country')->searchable(),

@@ -6,11 +6,12 @@ use App\Enums\AccommodationType;
 use App\Models\Accommodation;
 use App\Models\HomePage;
 use App\Models\Post;
+use App\Support\Seo\SeoManager;
 use Illuminate\View\View;
 
 class HomeController extends Controller
 {
-    public function __invoke(): View
+    public function __invoke(SeoManager $seoManager): View
     {
         $hero = HomePage::active()->inRandomOrder()->first()
             ?? new HomePage([
@@ -37,6 +38,13 @@ class HomeController extends Controller
             'featuredProducts' => Accommodation::published()->where('featured', true)->orderBy('sort_order')->take(6)->get(),
             'posts' => Post::published()->latest('published_at')->take(3)->get(),
             'hero' => $hero,
+            'seo' => $seoManager->forSimplePage(
+                title: 'Maldives Travel Agency | Resorts, Guesthouses & Holiday Packages | Atolliva Maldives',
+                description: 'Discover Maldives resorts, guesthouses, liveaboards, honeymoon escapes and holiday packages with Atolliva Maldives, your Maldives travel agency for thoughtfully planned journeys.',
+                canonical: route('home'),
+                breadcrumbs: [['name' => 'Home', 'url' => route('home')]],
+                image: $hero->hero_image_url,
+            )->toArray(),
             'exploreCards' => [
                 [
                     'href' => route('resorts.index'),

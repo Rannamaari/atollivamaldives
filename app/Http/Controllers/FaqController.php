@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\Seo\SeoManager;
 use Illuminate\View\View;
 
 class FaqController extends Controller
 {
-    public function __invoke(): View
+    public function __invoke(SeoManager $seoManager): View
     {
         $sections = [
             [
@@ -318,6 +319,30 @@ class FaqController extends Controller
                     ],
                 ])
                 ->values(),
+            'seo' => $seoManager->forSimplePage(
+                title: 'Maldives FAQ | Atolliva Maldives Travel Questions',
+                description: 'Find answers to common Maldives travel questions about transfers, weather, visas, resorts, liveaboards, budgets, honeymoons, and planning with Atolliva Maldives.',
+                canonical: route('faq'),
+                breadcrumbs: [
+                    ['name' => 'Home', 'url' => route('home')],
+                    ['name' => 'FAQ', 'url' => route('faq')],
+                ],
+                extraSchema: [[
+                    '@context' => 'https://schema.org',
+                    '@type' => 'FAQPage',
+                    'mainEntity' => collect($sections)
+                        ->flatMap(fn (array $section) => $section['items'])
+                        ->map(fn (array $item) => [
+                            '@type' => 'Question',
+                            'name' => $item['question'],
+                            'acceptedAnswer' => [
+                                '@type' => 'Answer',
+                                'text' => implode(' ', $item['answer']),
+                            ],
+                        ])
+                        ->all(),
+                ]],
+            )->toArray(),
         ]);
     }
 }

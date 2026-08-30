@@ -8,6 +8,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
 
 class InquiryResource extends Resource
@@ -31,10 +32,10 @@ class InquiryResource extends Resource
             Forms\Components\Section::make('Inquiry')->columns(2)->schema([
                 Forms\Components\TextInput::make('reference')->disabled()->dehydrated(false),
                 Forms\Components\Select::make('status')->options(static::statusOptions())->required(),
-                Forms\Components\Select::make('customer_id')->relationship('customer', 'first_name')->getOptionLabelFromRecordUsing(fn ($record) => trim($record->first_name.' '.$record->last_name))->searchable()->preload(),
-                Forms\Components\Select::make('assigned_to')->relationship('assignedUser', 'name')->searchable()->preload(),
-                Forms\Components\Select::make('accommodation_id')->relationship('accommodation', 'name')->searchable()->preload()->label('Property'),
-                Forms\Components\Select::make('room_id')->relationship('room', 'name')->searchable()->preload(),
+                Forms\Components\Select::make('customer_id')->relationship('customer', 'first_name')->getOptionLabelFromRecordUsing(fn ($record): string => $record->full_name ?: ($record->email ?: ('Customer #'.$record->id)))->searchable()->preload(),
+                Forms\Components\Select::make('assigned_to')->relationship('assignedUser', 'name')->getOptionLabelFromRecordUsing(fn ($record): string => $record->name ?: ('User #'.$record->id))->searchable()->preload(),
+                Forms\Components\Select::make('accommodation_id')->relationship('accommodation', 'name')->getOptionLabelFromRecordUsing(fn ($record): string => $record->name ?: ('Property #'.$record->id))->searchable()->preload()->label('Property'),
+                Forms\Components\Select::make('room_id')->relationship('room', 'name')->getOptionLabelFromRecordUsing(fn ($record): string => $record->name ?: ('Room #'.$record->id))->searchable()->preload(),
                 Forms\Components\Select::make('travel_type')->options(['resort' => 'Resort', 'guesthouse' => 'Guest Houses', 'liveaboard' => 'Liveaboards', 'city_hotel' => 'City Hotels', 'package' => 'Packages']),
                 Forms\Components\Select::make('nationality')->options(array_combine(config('countries.all', []), config('countries.all', [])))->searchable(),
                 Forms\Components\TextInput::make('preferred_atoll')->label('Preferred location / airport distance'),
@@ -64,12 +65,44 @@ class InquiryResource extends Resource
                 Forms\Components\TextInput::make('email'),
                 Forms\Components\TextInput::make('source'),
             ]),
+            Forms\Components\Section::make('Quotation tools')
+                ->schema([
+                    Forms\Components\Placeholder::make('quotation_help')
+                        ->label('')
+                        ->content('After saving this inquiry, use the "Create quotation" button at the top right, or the blue button on the inquiries list, to prepare a quotation.'),
+                ])
+                ->visible(fn (?Inquiry $record) => filled($record)),
         ]);
     }
 
     public static function table(Table $table): Table
     {
-        return $table->defaultSort('created_at', 'desc')->columns([Tables\Columns\TextColumn::make('reference')->searchable(), Tables\Columns\TextColumn::make('name')->searchable(), Tables\Columns\TextColumn::make('accommodation.name')->label('Property')->searchable(), Tables\Columns\TextColumn::make('travel_type')->badge(), Tables\Columns\TextColumn::make('check_in')->date(), Tables\Columns\TextColumn::make('check_out')->date(), Tables\Columns\TextColumn::make('adults'), Tables\Columns\TextColumn::make('children'), Tables\Columns\TextColumn::make('status')->badge(), Tables\Columns\TextColumn::make('created_at')->since()])->filters([Tables\Filters\SelectFilter::make('status')->options(static::statusOptions())])->actions([Tables\Actions\EditAction::make()]);
+        return $table
+            ->defaultSort('created_at', 'desc')
+            ->columns([
+                Tables\Columns\TextColumn::make('reference')->searchable(),
+                Tables\Columns\TextColumn::make('name')->searchable(),
+                Tables\Columns\TextColumn::make('accommodation.name')->label('Property')->searchable(),
+                Tables\Columns\TextColumn::make('travel_type')->badge(),
+                Tables\Columns\TextColumn::make('check_in')->date(),
+                Tables\Columns\TextColumn::make('check_out')->date(),
+                Tables\Columns\TextColumn::make('adults'),
+                Tables\Columns\TextColumn::make('children'),
+                Tables\Columns\TextColumn::make('status')->badge(),
+                Tables\Columns\TextColumn::make('created_at')->since(),
+            ])
+            ->filters([
+                Tables\Filters\SelectFilter::make('status')->options(static::statusOptions()),
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+                Action::make('createQuotation')
+                    ->label('Create quotation')
+                    ->icon('heroicon-o-document-plus')
+                    ->button()
+                    ->color('primary')
+                    ->url(fn (Inquiry $record) => QuotationResource::getUrl('create').'?inquiry='.$record->id),
+            ]);
     }
 
     public static function getPages(): array

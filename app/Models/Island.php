@@ -13,6 +13,11 @@ class Island extends Model
 
     protected $fillable = ['atoll_id', 'name', 'slug', 'description', 'latitude', 'longitude', 'featured_image', 'status'];
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     protected function casts(): array
     {
         return [

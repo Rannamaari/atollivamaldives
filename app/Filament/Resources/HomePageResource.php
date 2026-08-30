@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\HomePageResource\Pages;
 use App\Models\HomePage;
+use App\Support\OptimizedImageUpload;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -70,12 +71,13 @@ class HomePageResource extends Resource
                     Forms\Components\Fieldset::make('Resorts card')
                         ->columns(1)
                         ->schema([
-                            Forms\Components\FileUpload::make('resorts_card_image')
-                                ->label('Card image')
-                                ->image()
-                                ->disk('public')
-                                ->directory('home-pages/cards')
-                                ->imageEditor(),
+                            OptimizedImageUpload::make(
+                                Forms\Components\FileUpload::make('resorts_card_image')->label('Card image'),
+                                'home-pages/cards',
+                                maxWidth: 1400,
+                                maxHeight: 1000,
+                                quality: 80,
+                            ),
                             Forms\Components\Textarea::make('resorts_card_copy')
                                 ->label('Card text')
                                 ->rows(3)
@@ -84,12 +86,13 @@ class HomePageResource extends Resource
                     Forms\Components\Fieldset::make('Guest houses card')
                         ->columns(1)
                         ->schema([
-                            Forms\Components\FileUpload::make('guesthouses_card_image')
-                                ->label('Card image')
-                                ->image()
-                                ->disk('public')
-                                ->directory('home-pages/cards')
-                                ->imageEditor(),
+                            OptimizedImageUpload::make(
+                                Forms\Components\FileUpload::make('guesthouses_card_image')->label('Card image'),
+                                'home-pages/cards',
+                                maxWidth: 1400,
+                                maxHeight: 1000,
+                                quality: 80,
+                            ),
                             Forms\Components\Textarea::make('guesthouses_card_copy')
                                 ->label('Card text')
                                 ->rows(3)
@@ -98,12 +101,13 @@ class HomePageResource extends Resource
                     Forms\Components\Fieldset::make('City hotels card')
                         ->columns(1)
                         ->schema([
-                            Forms\Components\FileUpload::make('city_hotels_card_image')
-                                ->label('Card image')
-                                ->image()
-                                ->disk('public')
-                                ->directory('home-pages/cards')
-                                ->imageEditor(),
+                            OptimizedImageUpload::make(
+                                Forms\Components\FileUpload::make('city_hotels_card_image')->label('Card image'),
+                                'home-pages/cards',
+                                maxWidth: 1400,
+                                maxHeight: 1000,
+                                quality: 80,
+                            ),
                             Forms\Components\Textarea::make('city_hotels_card_copy')
                                 ->label('Card text')
                                 ->rows(3)
@@ -112,12 +116,13 @@ class HomePageResource extends Resource
                     Forms\Components\Fieldset::make('Liveaboards card')
                         ->columns(1)
                         ->schema([
-                            Forms\Components\FileUpload::make('liveaboards_card_image')
-                                ->label('Card image')
-                                ->image()
-                                ->disk('public')
-                                ->directory('home-pages/cards')
-                                ->imageEditor(),
+                            OptimizedImageUpload::make(
+                                Forms\Components\FileUpload::make('liveaboards_card_image')->label('Card image'),
+                                'home-pages/cards',
+                                maxWidth: 1400,
+                                maxHeight: 1000,
+                                quality: 80,
+                            ),
                             Forms\Components\Textarea::make('liveaboards_card_copy')
                                 ->label('Card text')
                                 ->rows(3)
@@ -125,12 +130,13 @@ class HomePageResource extends Resource
                         ]),
                 ]),
             Forms\Components\Section::make('Hero image')->schema([
-                Forms\Components\FileUpload::make('hero_image')
-                    ->image()
-                    ->disk('public')
-                    ->directory('home-pages')
-                    ->imageEditor()
-                    ->helperText('Upload a wide homepage banner image.'),
+                OptimizedImageUpload::make(
+                    Forms\Components\FileUpload::make('hero_image'),
+                    'home-pages',
+                    maxWidth: 2200,
+                    maxHeight: 1600,
+                    quality: 82,
+                )->helperText('Upload a wide homepage banner image. It will be optimized automatically.'),
             ]),
         ]);
     }

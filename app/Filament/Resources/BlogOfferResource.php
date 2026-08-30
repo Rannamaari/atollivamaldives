@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\BlogOfferResource\Pages;
 use App\Models\BlogCategory;
 use App\Models\BlogOffer;
+use App\Support\OptimizedImageUpload;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -40,12 +41,13 @@ class BlogOfferResource extends Resource
                     Forms\Components\Textarea::make('description')
                         ->rows(4)
                         ->columnSpanFull(),
-                    Forms\Components\FileUpload::make('image')
-                        ->image()
-                        ->disk('public')
-                        ->directory('blog-offers')
-                        ->imageEditor()
-                        ->columnSpanFull(),
+                    OptimizedImageUpload::make(
+                        Forms\Components\FileUpload::make('image'),
+                        'blog-offers',
+                        maxWidth: 1600,
+                        maxHeight: 1200,
+                        quality: 82,
+                    )->columnSpanFull(),
                     Forms\Components\TextInput::make('button_text')
                         ->default('Explore offer')
                         ->required()

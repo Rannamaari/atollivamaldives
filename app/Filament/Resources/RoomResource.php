@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\RoomResource\Pages;
 use App\Models\Room;
+use App\Support\OptimizedImageUpload;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -74,13 +75,16 @@ class RoomResource extends Resource
                         ->searchable()
                         ->preload()
                         ->columnSpan(2),
-                    Forms\Components\FileUpload::make('room_images_upload')
-                        ->label('Room gallery')
-                        ->image()
+                    OptimizedImageUpload::make(
+                        Forms\Components\FileUpload::make('room_images_upload')->label('Room gallery'),
+                        'rooms',
+                        maxWidth: 1800,
+                        maxHeight: 1200,
+                        quality: 82,
+                    )
                         ->multiple()
                         ->reorderable()
-                        ->disk('public')
-                        ->directory('rooms')
+                        ->helperText('Room images are automatically optimized for faster loading.')
                         ->saveRelationshipsUsing(function (Room $record, ?array $state): void {
                             if (! $state) {
                                 return;

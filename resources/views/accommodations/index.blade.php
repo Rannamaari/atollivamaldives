@@ -2,10 +2,15 @@
 
 @php
     $pageTitle = $selectedType ? $selectedType->label().' — Atolliva Maldives' : 'Travel Products — Atolliva Maldives';
-    $pageHeading = $selectedType ? $selectedType->label() : 'Travel Products';
-    $pageIntro = $selectedType
-        ? 'Explore handpicked '.$selectedType->label().' for your Maldives journey.'
-        : 'Explore resorts, guest houses, city hotels, packages, and liveaboards across the Maldives.';
+    $pageHeading = $selectedIsland?->name
+        ?? $selectedAtoll?->name
+        ?? ($selectedType ? $selectedType->label() : 'Travel Products');
+    $pageIntro = match (true) {
+        (bool) $selectedIsland => 'Explore guest houses in '.$selectedIsland->name.', '.($selectedAtoll?->name ?? 'Maldives').' for your Maldives journey.',
+        (bool) $selectedAtoll => 'Explore guest houses across '.$selectedAtoll->name.' for your Maldives journey.',
+        (bool) $selectedType => 'Explore handpicked '.$selectedType->label().' for your Maldives journey.',
+        default => 'Explore resorts, guest houses, city hotels, packages, and liveaboards across the Maldives.',
+    };
     $searchSummary = collect([
         $searchState['destination'] ? 'Destination: '.$searchState['destination'] : null,
         $searchState['check_in'] ? 'Check-in: '.\Carbon\Carbon::parse($searchState['check_in'])->format('d M Y') : null,
@@ -13,6 +18,15 @@
         ($searchState['adults'] ?? 0) ? $searchState['adults'].' adults' : null,
         isset($searchState['children']) ? $searchState['children'].' children' : null,
     ])->filter()->implode(' · ');
+    $searchAction = match (true) {
+        request()->routeIs('resorts.index') => route('resorts.index'),
+        request()->routeIs('guesthouses.atoll') && $selectedAtoll => route('guesthouses.atoll', $selectedAtoll),
+        request()->routeIs('guesthouses.island') && $selectedAtoll && $selectedIsland => route('guesthouses.island', [$selectedAtoll, $selectedIsland]),
+        request()->routeIs('guesthouses.index') => route('guesthouses.index'),
+        request()->routeIs('cityhotels.index') => route('cityhotels.index'),
+        request()->routeIs('packages.index') => route('packages.index'),
+        default => route('accommodations.index'),
+    };
 @endphp
 
 @section('title', $pageTitle)
@@ -25,7 +39,7 @@
     <h1>{{ $pageHeading }}<br><em>curated for you.</em></h1>
     <p class="listing-page__intro">{{ $pageIntro }}</p>
 
-    <form class="search-panel" method="get" action="{{ request()->routeIs('resorts.index') ? route('resorts.index') : route('accommodations.index') }}">
+    <form class="search-panel" method="get" action="{{ $searchAction }}">
         <label>
             <small>Destination / Property</small>
             <input name="destination" value="{{ $searchState['destination'] }}" placeholder="Resort, island, atoll, Malé...">
@@ -71,11 +85,11 @@
                 $location = collect([$product->islandRelation?->name ?: $product->island, $product->atollRelation?->name ?: $product->atoll, $product->city])->filter()->implode(', ');
                 $facilities = $product->facilities->take(4);
                 $primaryTransfer = $product->transfers->first();
-                $propertyUrl = route('accommodations.show', $product).(request()->getQueryString() ? '?'.request()->getQueryString() : '');
+                $propertyUrl = $product->publicUrl(request()->query());
             @endphp
             <article class="search-card">
                 <a class="search-card__media" href="{{ $propertyUrl }}">
-                    <img src="{{ $image }}" alt="{{ $product->name }}">
+                    <img src="{{ $image }}" alt="{{ $product->name }}" loading="lazy" decoding="async">
                 </a>
                 <div class="search-card__content">
                     <div class="search-card__head">

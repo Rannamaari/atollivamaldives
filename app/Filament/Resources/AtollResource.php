@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\AtollResource\Pages;
 use App\Models\Atoll;
+use App\Support\OptimizedImageUpload;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -46,12 +47,13 @@ class AtollResource extends Resource
                         ])
                         ->default('draft')
                         ->required(),
-                    Forms\Components\FileUpload::make('featured_image')
-                        ->image()
-                        ->disk('public')
-                        ->directory('destinations/atolls')
-                        ->imageEditor()
-                        ->columnSpanFull(),
+                    OptimizedImageUpload::make(
+                        Forms\Components\FileUpload::make('featured_image'),
+                        'destinations/atolls',
+                        maxWidth: 1800,
+                        maxHeight: 1200,
+                        quality: 82,
+                    )->columnSpanFull(),
                     Forms\Components\Textarea::make('description')
                         ->rows(5)
                         ->columnSpanFull(),

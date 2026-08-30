@@ -12,6 +12,11 @@ class Atoll extends Model
 
     protected $fillable = ['name', 'slug', 'code', 'description', 'featured_image', 'status'];
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     public function islands(): HasMany
     {
         return $this->hasMany(Island::class);

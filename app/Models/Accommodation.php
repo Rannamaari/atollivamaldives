@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Accommodation extends Model
 {
@@ -36,6 +37,123 @@ class Accommodation extends Model
         return $this->featured_image ?: ($this->images[0] ?? match ($this->type) {
             AccommodationType::Guesthouse => 'placeholders/guesthouse-placeholder.svg',AccommodationType::CityHotel => 'placeholders/city-hotel-placeholder.svg',AccommodationType::Liveaboard => 'placeholders/liveaboard-placeholder.svg',default => 'placeholders/resort-placeholder.svg'
         });
+    }
+
+    public function publicPathForSlug(?string $slug = null): string
+    {
+        $slug ??= $this->slug;
+
+        return match ($this->type) {
+            AccommodationType::Resort => route('resorts.show', ['accommodation' => $slug], false),
+            AccommodationType::Guesthouse => route('guesthouses.show', [
+                'atoll' => $this->atollRelation?->slug ?? Str::slug((string) $this->atoll),
+                'island' => $this->islandRelation?->slug ?? Str::slug((string) $this->island),
+                'accommodation' => $slug,
+            ], false),
+            AccommodationType::Liveaboard => route('liveaboards.show', ['accommodation' => $slug], false),
+            AccommodationType::CityHotel => route('cityhotels.show', ['accommodation' => $slug], false),
+            AccommodationType::Package => route('packages.show', [
+                'category' => $this->packageCategorySlug(),
+                'accommodation' => $slug,
+            ], false),
+        };
+    }
+
+    public function publicUrl(array $query = []): string
+    {
+        $path = $this->publicPathForSlug($this->slug);
+
+        if ($query === []) {
+            return url($path);
+        }
+
+        return url($path).'?'.http_build_query($query);
+    }
+
+    public function packageCategorySlug(): string
+    {
+        return Str::slug((string) ($this->property_subtype ?: 'general'));
+    }
+
+    public function seoTitleFallback(): string
+    {
+        return match ($this->type) {
+            AccommodationType::Resort => $this->name.' | Rates & Holiday Packages | Atolliva Maldives',
+            AccommodationType::Guesthouse => collect([$this->name, $this->islandRelation?->name ?: $this->island])
+                ->filter()
+                ->implode(', ').' | Maldives Guesthouse | Atolliva Maldives',
+            AccommodationType::Liveaboard => $this->name.' | Maldives Liveaboard Packages | Atolliva Maldives',
+            AccommodationType::Package => $this->name.' | Maldives Holiday Package | Atolliva Maldives',
+            AccommodationType::CityHotel => $this->name.' | Maldives City Hotel | Atolliva Maldives',
+        };
+    }
+
+    public function seoDescriptionFallback(): string
+    {
+        if (filled($this->seo_description)) {
+            return (string) $this->seo_description;
+        }
+
+        if (filled($this->summary)) {
+            return trim(strip_tags((string) $this->summary));
+        }
+
+        $location = collect([$this->islandRelation?->name ?: $this->island, $this->atollRelation?->name ?: $this->atoll])
+            ->filter()
+            ->implode(', ');
+
+        return match ($this->type) {
+            AccommodationType::Resort => trim("Explore {$this->name} resort rates, villas, meal plans, transfers and Maldives holiday packages with Atolliva Maldives.".($location ? " Located in {$location}." : '')),
+            AccommodationType::Guesthouse => trim("Discover {$this->name}".($location ? " in {$location}" : '')." with local island stay details, room options, transfers and Maldives guesthouse holiday planning from Atolliva Maldives."),
+            AccommodationType::Liveaboard => trim("Explore {$this->name} liveaboard routes, cabins, diving options and Maldives cruise planning with Atolliva Maldives.".($location ? " Operating around {$location}." : '')),
+            AccommodationType::Package => trim("Explore {$this->name} with accommodation, transfers and Maldives holiday planning support from Atolliva Maldives."),
+            AccommodationType::CityHotel => trim("Explore {$this->name}".($location ? " in {$location}" : '')." with city stay details, transfer information and Maldives stopover planning from Atolliva Maldives."),
+        };
+    }
+
+    public function seoImageUrl(): string
+    {
+        $image = $this->cover_image;
+
+        return str_starts_with($image, 'http')
+            ? $image
+            : asset('storage/'.ltrim($image, '/'));
+    }
+
+    public function seoBreadcrumbs(): array
+    {
+        $home = [['name' => 'Home', 'url' => route('home')]];
+
+        return match ($this->type) {
+            AccommodationType::Resort => [
+                ...$home,
+                ['name' => 'Resorts', 'url' => route('resorts.index')],
+                ['name' => $this->name, 'url' => url($this->publicPathForSlug())],
+            ],
+            AccommodationType::Guesthouse => array_values(array_filter([
+                ...$home,
+                ['name' => 'Guesthouses', 'url' => route('guesthouses.index')],
+                $this->atollRelation ? ['name' => $this->atollRelation->name, 'url' => route('guesthouses.atoll', $this->atollRelation)] : null,
+                $this->atollRelation && $this->islandRelation ? ['name' => $this->islandRelation->name, 'url' => route('guesthouses.island', [$this->atollRelation, $this->islandRelation])] : null,
+                ['name' => $this->name, 'url' => url($this->publicPathForSlug())],
+            ])),
+            AccommodationType::Liveaboard => [
+                ...$home,
+                ['name' => 'Liveaboards', 'url' => route('liveaboards.index')],
+                ['name' => $this->name, 'url' => url($this->publicPathForSlug())],
+            ],
+            AccommodationType::Package => [
+                ...$home,
+                ['name' => 'Packages', 'url' => route('packages.index')],
+                ['name' => Str::headline($this->packageCategorySlug()), 'url' => route('packages.show', ['category' => $this->packageCategorySlug(), 'accommodation' => $this])],
+                ['name' => $this->name, 'url' => url($this->publicPathForSlug())],
+            ],
+            AccommodationType::CityHotel => [
+                ...$home,
+                ['name' => 'City Hotels', 'url' => route('cityhotels.index')],
+                ['name' => $this->name, 'url' => url($this->publicPathForSlug())],
+            ],
+        };
     }
 
     public function atollRelation(): BelongsTo
