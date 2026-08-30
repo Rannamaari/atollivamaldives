@@ -3,12 +3,14 @@
 namespace App\Filament\Resources\SiteSettingResource\Pages;
 
 use App\Filament\Concerns\HandlesLegacyRemoteImages;
+use App\Filament\Concerns\NormalizesFileUploadState;
 use App\Filament\Resources\SiteSettingResource;
 use Filament\Resources\Pages\EditRecord;
 
 class EditSiteSetting extends EditRecord
 {
     use HandlesLegacyRemoteImages;
+    use NormalizesFileUploadState;
 
     protected static string $resource = SiteSettingResource::class;
 
@@ -33,5 +35,14 @@ class EditSiteSetting extends EditRecord
             'default_og_image',
             'business_logo',
         ]);
+    }
+
+    protected function legacyUploadStatePaths(): array
+    {
+        return [
+            'data.hero_image',
+            'data.default_og_image',
+            'data.business_logo',
+        ];
     }
 }

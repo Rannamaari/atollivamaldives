@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Resources\PostResource\Pages;
 use App\Filament\Concerns\HandlesLegacyRemoteImages;
+use App\Filament\Concerns\NormalizesFileUploadState;
 use App\Filament\Resources\PostResource;
 use App\Models\Post;
 use Filament\Actions;
@@ -9,6 +10,7 @@ use Filament\Resources\Pages\EditRecord;
 class EditPost extends EditRecord
 {
     use HandlesLegacyRemoteImages;
+    use NormalizesFileUploadState;
 
     protected static string $resource = PostResource::class;
 
@@ -25,5 +27,10 @@ class EditPost extends EditRecord
     protected function mutateFormDataBeforeSave(array $data): array
     {
         return $this->restoreLegacyRemoteImageFields($data, $this->getRecord(), ['featured_image']);
+    }
+
+    protected function legacyUploadStatePaths(): array
+    {
+        return ['data.featured_image'];
     }
 }

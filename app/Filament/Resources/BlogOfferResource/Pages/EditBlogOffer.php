@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\BlogOfferResource\Pages;
 
 use App\Filament\Concerns\HandlesLegacyRemoteImages;
+use App\Filament\Concerns\NormalizesFileUploadState;
 use App\Filament\Resources\BlogOfferResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
@@ -10,6 +11,7 @@ use Filament\Resources\Pages\EditRecord;
 class EditBlogOffer extends EditRecord
 {
     use HandlesLegacyRemoteImages;
+    use NormalizesFileUploadState;
 
     protected static string $resource = BlogOfferResource::class;
 
@@ -28,5 +30,10 @@ class EditBlogOffer extends EditRecord
     protected function mutateFormDataBeforeSave(array $data): array
     {
         return $this->restoreLegacyRemoteImageFields($data, $this->getRecord(), ['image']);
+    }
+
+    protected function legacyUploadStatePaths(): array
+    {
+        return ['data.image'];
     }
 }

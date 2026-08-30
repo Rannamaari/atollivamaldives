@@ -3,12 +3,14 @@
 namespace App\Filament\Resources\LiveaboardPageResource\Pages;
 
 use App\Filament\Concerns\HandlesLegacyRemoteImages;
+use App\Filament\Concerns\NormalizesFileUploadState;
 use App\Filament\Resources\LiveaboardPageResource;
 use Filament\Resources\Pages\EditRecord;
 
 class EditLiveaboardPage extends EditRecord
 {
     use HandlesLegacyRemoteImages;
+    use NormalizesFileUploadState;
 
     protected static string $resource = LiveaboardPageResource::class;
 
@@ -25,5 +27,10 @@ class EditLiveaboardPage extends EditRecord
     protected function mutateFormDataBeforeSave(array $data): array
     {
         return $this->restoreLegacyRemoteImageFields($data, $this->getRecord(), ['hero_image']);
+    }
+
+    protected function legacyUploadStatePaths(): array
+    {
+        return ['data.hero_image'];
     }
 }
