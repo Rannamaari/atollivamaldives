@@ -1,5 +1,11 @@
 <x-filament-panels::page>
     <div class="fi-section grid gap-6">
+        @if (filled($errorMessage))
+            <div class="rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900">
+                {{ $errorMessage }}
+            </div>
+        @endif
+
         <div class="rounded-xl border border-gray-200 bg-white p-6">
             <div class="flex flex-wrap items-center justify-between gap-4">
                 <div>
