@@ -14,6 +14,7 @@ use App\Http\Controllers\RequestQuoteController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SeoRedirectFallbackController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\SocialShareTrackingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/robots.txt', RobotsController::class)->name('seo.robots');
@@ -44,6 +45,7 @@ Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{post}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('/request-quote', RequestQuoteController::class)->name('request-quote');
 Route::post('/inquiries', [InquiryController::class, 'store'])->middleware('throttle:5,1')->name('inquiries.store');
+Route::post('/social-share/track', SocialShareTrackingController::class)->middleware('throttle:60,1')->name('social-share.track');
 Route::get('/admin/operations/documents/{document}/download', OperationsDocumentDownloadController::class)->name('operations.documents.download');
 Route::get('/admin/operations/import-templates/{type}', OperationsImportTemplateController::class)->name('operations.import-template');
 Route::get('/admin/quotations/{quotation}/print', QuotationPrintController::class)->middleware('auth')->name('quotations.print');

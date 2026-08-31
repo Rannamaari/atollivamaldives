@@ -6,10 +6,15 @@ use App\Filament\Resources\PostResource\Pages;
 use App\Models\BlogCategory;
 use App\Models\BlogOffer;
 use App\Models\Post;
+use App\Services\SocialImageGeneratorService;
+use App\Services\SocialShareService;
 use App\Support\OptimizedImageUpload;
 use Filament\Forms;
+use Filament\Forms\Components\Actions;
+use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -78,13 +83,86 @@ class PostResource extends Resource
                 Forms\Components\TextInput::make('author')->default('Atolliva Maldives'),
             ])->columns(2),
             Forms\Components\Section::make('Publishing')->columns(3)->schema([Forms\Components\Toggle::make('published'), Forms\Components\Toggle::make('featured'), Forms\Components\DateTimePicker::make('published_at')]),
-            Forms\Components\Section::make('SEO')->collapsed()->schema([Forms\Components\TextInput::make('seo_title'), Forms\Components\Textarea::make('seo_description')]),
+            Forms\Components\Section::make('SEO & Social')->collapsed()->schema([
+                Forms\Components\TextInput::make('seo_title'),
+                Forms\Components\Textarea::make('seo_description'),
+                Forms\Components\TextInput::make('social_title')
+                    ->maxLength(100)
+                    ->helperText('Optional. Overrides the social share title only.'),
+                Forms\Components\Textarea::make('social_description')
+                    ->rows(3)
+                    ->maxLength(200)
+                    ->helperText('Optional. Overrides the social share description only.'),
+                Forms\Components\Textarea::make('social_caption')
+                    ->rows(5)
+                    ->columnSpanFull()
+                    ->helperText('Optional. Used for WhatsApp, native share, and Copy Caption.'),
+                Forms\Components\Textarea::make('social_hashtags')
+                    ->rows(2)
+                    ->columnSpanFull()
+                    ->helperText('Optional. Add hashtags separated by spaces or commas.'),
+                OptimizedImageUpload::make(
+                    FileUpload::make('social_image'),
+                    'social/manual',
+                    maxWidth: 1600,
+                    maxHeight: 1200,
+                    quality: 84,
+                )
+                    ->helperText('Optional manual social image. If blank, Atolliva will use a generated image or the featured image.'),
+                Forms\Components\Placeholder::make('generated_social_image_preview')
+                    ->label('Generated social image')
+                    ->content(function (?Post $record): HtmlString|string {
+                        if (! $record?->generated_social_image) {
+                            return 'No generated social image yet.';
+                        }
+
+                        $url = asset('storage/'.ltrim($record->generated_social_image, '/'));
+
+                        return new HtmlString('<img src="'.e($url).'" alt="Generated social image preview" style="max-width: 22rem; border-radius: 1rem; border: 1px solid rgba(15, 23, 42, 0.12);" />');
+                    }),
+                Actions::make([
+                    Action::make('generateSocialImage')
+                        ->label('Generate Social Image')
+                        ->action(function (?Post $record): void {
+                            if (! $record) {
+                                return;
+                            }
+
+                            app(SocialImageGeneratorService::class)->generateAndStore($record, true);
+
+                            Notification::make()
+                                ->title('Social image generated')
+                                ->success()
+                                ->send();
+                        }),
+                ])->columnSpanFull(),
+                Forms\Components\Placeholder::make('social_preview')
+                    ->label('Share preview')
+                    ->columnSpanFull()
+                    ->content(function (?Post $record): HtmlString|string {
+                        if (! $record) {
+                            return 'Save this post first to preview how it will appear when shared.';
+                        }
+
+                        $share = app(SocialShareService::class)->for($record)->toArray();
+
+                        return new HtmlString(
+                            '<div style="display:grid;gap:0;max-width:30rem;border:1px solid rgba(15,23,42,.12);border-radius:1rem;overflow:hidden;background:#fff;">'
+                            .'<img src="'.e($share['image']).'" alt="" style="display:block;width:100%;aspect-ratio:1200 / 630;object-fit:cover;" />'
+                            .'<div style="padding:1rem 1.1rem;display:grid;gap:.45rem;">'
+                            .'<p style="margin:0;font-size:.75rem;color:#64748b;">atollivamaldives.com</p>'
+                            .'<p style="margin:0;font-weight:700;color:#0f172a;">'.e($share['title']).'</p>'
+                            .'<p style="margin:0;color:#475569;">'.e($share['description']).'</p>'
+                            .'</div></div>'
+                        );
+                    }),
+            ]),
         ]);
     }
 
     public static function table(Table $table): Table
     {
-        return $table->columns([Tables\Columns\ImageColumn::make('featured_image')->getStateUsing(fn (Post $record): string => $record->seoImageUrl()), Tables\Columns\TextColumn::make('title')->searchable()->sortable(), Tables\Columns\TextColumn::make('category')->badge(), Tables\Columns\TextColumn::make('published_at')->dateTime()->sortable(), Tables\Columns\IconColumn::make('published')->boolean()])->actions([Tables\Actions\EditAction::make()])->bulkActions([Tables\Actions\DeleteBulkAction::make()]);
+        return $table->columns([Tables\Columns\ImageColumn::make('featured_image')->getStateUsing(fn (Post $record): string => $record->seoImageUrl()), Tables\Columns\TextColumn::make('title')->searchable()->sortable(), Tables\Columns\TextColumn::make('category')->badge(), Tables\Columns\TextColumn::make('published_at')->dateTime()->sortable(), Tables\Columns\IconColumn::make('published')->boolean()])->actions([Tables\Actions\EditAction::make()])->bulkActions([Tables\Actions\BulkAction::make('generateSocialImages')->label('Generate Social Images')->action(function ($records): void { $generator = app(SocialImageGeneratorService::class); foreach ($records as $record) { $generator->generateAndStore($record, true); } Notification::make()->title('Social images generated')->success()->send(); }), Tables\Actions\DeleteBulkAction::make()]);
     }
 
     public static function getPages(): array

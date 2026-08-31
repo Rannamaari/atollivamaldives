@@ -6,6 +6,13 @@ return [
         'supplier_first_follow_up_business_days' => 5,
         'agency_intro_business_days' => 4,
     ],
+    'campaigns' => [
+        'default_daily_limit' => (int) env('OPERATIONS_CAMPAIGN_DEFAULT_DAILY_LIMIT', 10),
+        'hard_daily_limit' => (int) env('OPERATIONS_CAMPAIGN_HARD_DAILY_LIMIT', 20),
+        'default_interval_minutes' => (int) env('OPERATIONS_CAMPAIGN_DEFAULT_INTERVAL', 5),
+        'minimum_interval_minutes' => (int) env('OPERATIONS_CAMPAIGN_MINIMUM_INTERVAL', 5),
+        'default_send_time' => env('OPERATIONS_CAMPAIGN_DEFAULT_SEND_TIME', '09:00'),
+    ],
     'expiry_windows' => [
         'rate_days' => 30,
         'agreement_days' => 60,

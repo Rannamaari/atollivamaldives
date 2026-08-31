@@ -34,27 +34,12 @@
         </script>
     @endif
     <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>{{ $pageTitle }}</title>
-    <meta name="description" content="{{ $pageDescription }}">
-    <link rel="canonical" href="{{ $canonicalUrl }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <x-seo.social-meta :seo="$seoDefaults" :share="$socialShare ?? null" />
     <meta name="robots" content="{{ $robots }}">
     @if($searchConsoleVerification)
         <meta name="google-site-verification" content="{{ $searchConsoleVerification }}">
     @endif
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="{{ $brandTitle }}">
-    <meta property="og:title" content="{{ $pageTitle }}">
-    <meta property="og:description" content="{{ $pageDescription }}">
-    <meta property="og:url" content="{{ $canonicalUrl }}">
-    <meta property="og:image" content="{{ $shareImage }}">
-    <meta property="og:image:secure_url" content="{{ $shareImage }}">
-    <meta property="og:image:width" content="1731">
-    <meta property="og:image:height" content="909">
-    <meta property="og:image:type" content="image/png">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ $pageTitle }}">
-    <meta name="twitter:description" content="{{ $pageDescription }}">
-    <meta name="twitter:image" content="{{ $shareImage }}">
     <link rel="icon" type="image/png" href="{{ asset('logo/optimized/favicon.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('logo/optimized/favicon.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -74,6 +59,7 @@
     <link rel="stylesheet" href="{{ $cssVersion('css/faq.css') }}">
     <link rel="stylesheet" href="{{ $cssVersion('css/about.css') }}">
     <link rel="stylesheet" href="{{ $cssVersion('css/forms.css') }}">
+    <link rel="stylesheet" href="{{ $cssVersion('css/social-share.css') }}">
     @if($recaptchaEnabled)
         <script async src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
     @endif
@@ -197,6 +183,81 @@ document.querySelectorAll('.finder--premium').forEach((finder) => {
     updateSummary();
 });
 
+(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayString = today.toISOString().split('T')[0];
+
+    const parseDateInputValue = (value) => {
+        if (!value) {
+            return null;
+        }
+
+        const parsed = new Date(`${value}T00:00:00`);
+
+        return Number.isNaN(parsed.getTime()) ? null : parsed;
+    };
+
+    const enforceDateRules = (form) => {
+        const dateInputs = form
+            ? Array.from(form.querySelectorAll('input[type="date"]'))
+            : Array.from(document.querySelectorAll('input[type="date"]'));
+
+        dateInputs.forEach((input) => {
+            if (!input.min || input.min < todayString) {
+                input.min = todayString;
+            }
+
+            const inputDate = parseDateInputValue(input.value);
+
+            if (inputDate && inputDate < today) {
+                input.value = '';
+            }
+        });
+
+        const arrivalInput = form?.querySelector('input[type="date"][name="arrival_date"], input[type="date"][name="check_in"]');
+        const departureInput = form?.querySelector('input[type="date"][name="departure_date"], input[type="date"][name="check_out"]');
+
+        if (!arrivalInput || !departureInput) {
+            return;
+        }
+
+        const arrivalValue = parseDateInputValue(arrivalInput.value);
+        const departureMin = arrivalValue && arrivalValue > today ? arrivalInput.value : todayString;
+
+        departureInput.min = departureMin;
+
+        const departureValue = parseDateInputValue(departureInput.value);
+
+        if (departureValue && departureValue < parseDateInputValue(departureMin)) {
+            departureInput.value = '';
+        }
+    };
+
+    const forms = new Set(
+        Array.from(document.querySelectorAll('input[type="date"]'))
+            .map((input) => input.form)
+            .filter(Boolean),
+    );
+
+    document.querySelectorAll('input[type="date"]').forEach((input) => {
+        const form = input.form;
+
+        if (!form) {
+            if (!input.min || input.min < todayString) {
+                input.min = todayString;
+            }
+
+            return;
+        }
+
+        input.addEventListener('input', () => enforceDateRules(form));
+        input.addEventListener('change', () => enforceDateRules(form));
+    });
+
+    forms.forEach((form) => enforceDateRules(form));
+})();
+
 document.querySelectorAll('form[data-recaptcha-form]').forEach((form) => {
     if (!recaptchaSiteKey) {
         return;
@@ -245,6 +306,115 @@ document.querySelectorAll('form[data-recaptcha-form]').forEach((form) => {
                 form.submit();
             });
         });
+    });
+});
+
+document.querySelectorAll('[data-social-share]').forEach((shareRoot) => {
+    const toggle = shareRoot.querySelector('[data-social-share-toggle]');
+    const menu = shareRoot.querySelector('[data-social-share-menu]');
+    const feedback = shareRoot.querySelector('[data-social-feedback]');
+    const title = shareRoot.dataset.socialTitle || '';
+    const description = shareRoot.dataset.socialDescription || '';
+    const caption = shareRoot.dataset.socialCaption || '';
+    const url = shareRoot.dataset.socialUrl || '';
+    const contentType = shareRoot.dataset.socialContentType || '';
+    const contentId = shareRoot.dataset.socialContentId || '';
+    const trackingEndpoint = shareRoot.dataset.socialTrackEndpoint || '';
+    const nativeEnabled = shareRoot.dataset.socialNativeEnabled === 'true';
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+    const setFeedback = (message) => {
+        if (feedback) {
+            feedback.textContent = message;
+        }
+    };
+
+    const track = (platform, trackedUrl = url) => {
+        if (!trackingEndpoint || !contentType || !contentId || !csrfToken) {
+            return;
+        }
+
+        window.fetch(trackingEndpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+            },
+            body: JSON.stringify({
+                content_type: contentType,
+                content_id: Number(contentId),
+                platform,
+                url: trackedUrl,
+            }),
+            keepalive: true,
+        }).catch(() => {});
+    };
+
+    const closeMenu = () => {
+        menu.hidden = true;
+        toggle?.setAttribute('aria-expanded', 'false');
+    };
+
+    toggle?.addEventListener('click', async () => {
+        if (nativeEnabled && navigator.share && window.matchMedia('(max-width: 768px)').matches) {
+            try {
+                await navigator.share({ title, text: caption || description, url });
+                track('native', url);
+            } catch {
+                // Let the fallback menu open if the share sheet is cancelled or unavailable.
+            }
+        }
+
+        const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!isOpen));
+        menu.hidden = isOpen;
+    });
+
+    shareRoot.querySelectorAll('[data-social-platform]').forEach((link) => {
+        link.addEventListener('click', () => track(link.dataset.socialPlatform, link.href));
+    });
+
+    shareRoot.querySelector('[data-social-copy-link]')?.addEventListener('click', async () => {
+        await navigator.clipboard.writeText(url);
+        track('copy_link', url);
+        setFeedback('Link copied');
+    });
+
+    shareRoot.querySelector('[data-social-copy-caption]')?.addEventListener('click', async () => {
+        await navigator.clipboard.writeText(caption);
+        track('copy_caption', url);
+        setFeedback('Caption copied');
+    });
+
+    shareRoot.querySelector('[data-social-native]')?.addEventListener('click', async () => {
+        if (nativeEnabled && navigator.share) {
+            try {
+                await navigator.share({ title, text: caption || description, url });
+                track('native', url);
+                closeMenu();
+                return;
+            } catch {
+                setFeedback('Sharing is not available right now');
+                return;
+            }
+        }
+
+        await navigator.clipboard.writeText(url);
+        track('copy_link', url);
+        setFeedback('Link copied');
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!shareRoot.contains(event.target)) {
+            closeMenu();
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            closeMenu();
+        }
     });
 });
 </script>

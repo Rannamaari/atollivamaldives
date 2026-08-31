@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\Dashboard;
+use App\Filament\Pages\SocialSharingAnalytics;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -24,7 +25,7 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel->default()->id('admin')->path('admin')->login()->brandName('Atolliva Maldives')->colors(['primary' => Color::Teal])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
-            ->pages([Dashboard::class])->widgets([Widgets\AccountWidget::class, Widgets\FilamentInfoWidget::class])
+            ->pages([Dashboard::class, SocialSharingAnalytics::class])->widgets([Widgets\AccountWidget::class, Widgets\FilamentInfoWidget::class])
             ->middleware([EncryptCookies::class, AddQueuedCookiesToResponse::class, StartSession::class, AuthenticateSession::class, ShareErrorsFromSession::class, VerifyCsrfToken::class, SubstituteBindings::class, DisableBladeIconComponents::class, DispatchServingFilamentEvent::class])
             ->authMiddleware([Authenticate::class]);
     }

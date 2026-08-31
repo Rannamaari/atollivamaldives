@@ -25,9 +25,17 @@
         @endforeach
     </div>
 
-    <p class="listing-page__summary">
-        Looking for tailored advice instead? <a href="{{ route('request-quote') }}">Send your Maldives trip brief</a> and Atolliva Maldives will help you shortlist suitable options.
-    </p>
+    <aside class="listing-page__cta" aria-labelledby="blog-cta-title">
+        <p class="listing-page__cta-kicker">Thoughtful Planning</p>
+        <blockquote class="listing-page__cta-quote">
+            <p id="blog-cta-title">
+                “Looking for tailored advice instead? Share your Maldives trip brief and we will help you narrow down the right islands, stays, and experiences.”
+            </p>
+        </blockquote>
+        <a class="listing-page__cta-link" href="{{ route('request-quote') }}">
+            Start your trip brief <span aria-hidden="true">→</span>
+        </a>
+    </aside>
 
     {{ $posts->links() }}
 </section>

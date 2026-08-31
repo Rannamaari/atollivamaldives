@@ -60,7 +60,7 @@ class SiteSettingResource extends Resource
                     if (is_string($state) && (str_starts_with($state, 'http://') || str_starts_with($state, 'https://'))) {
                         $component->state(null);
                     }
-                }),
+                })->helperText('Fallback social preview image used when no content-specific image is available.'),
                 Forms\Components\Toggle::make('default_robots_index')->default(true),
                 Forms\Components\Toggle::make('default_robots_follow')->default(true),
             ]),
@@ -95,6 +95,14 @@ class SiteSettingResource extends Resource
                 Forms\Components\TextInput::make('instagram_url')->url(),
                 Forms\Components\TextInput::make('x_url')->url()->label('X / Twitter URL'),
                 Forms\Components\TextInput::make('tiktok_url')->url(),
+                Forms\Components\Textarea::make('default_share_hashtags')
+                    ->rows(2)
+                    ->columnSpanFull()
+                    ->helperText('Optional global default hashtags separated by spaces or commas.'),
+                Forms\Components\Toggle::make('enable_share_tracking')
+                    ->default(true),
+                Forms\Components\Toggle::make('enable_native_share')
+                    ->default(true),
                 Forms\Components\TextInput::make('google_analytics_id')
                     ->helperText('Example: G-XXXXXXXXXX'),
                 Forms\Components\TextInput::make('google_tag_manager_id')

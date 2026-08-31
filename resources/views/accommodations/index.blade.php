@@ -46,11 +46,11 @@
         </label>
         <label>
             <small>Check-in</small>
-            <input type="date" name="check_in" value="{{ $searchState['check_in'] }}">
+            <input type="date" name="check_in" value="{{ $searchState['check_in'] }}" min="{{ now()->toDateString() }}">
         </label>
         <label>
             <small>Check-out</small>
-            <input type="date" name="check_out" value="{{ $searchState['check_out'] }}">
+            <input type="date" name="check_out" value="{{ $searchState['check_out'] }}" min="{{ now()->toDateString() }}">
         </label>
         <label>
             <small>Adults</small>

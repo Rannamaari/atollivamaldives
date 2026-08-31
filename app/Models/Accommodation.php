@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Contracts\SocialShareable;
 use App\Enums\AccommodationType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,11 +12,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
-class Accommodation extends Model
+class Accommodation extends Model implements SocialShareable
 {
     use HasFactory;
 
-    protected $fillable = ['type', 'property_subtype', 'status', 'name', 'previous_name', 'aliases', 'slug', 'tagline', 'summary', 'description', 'island', 'island_id', 'atoll', 'atoll_id', 'city', 'country', 'address', 'official_website', 'source_url', 'latitude', 'longitude', 'price_from', 'currency', 'price_unit', 'rating', 'images', 'featured_image', 'amenities', 'featured', 'verified', 'published', 'vessel_name', 'vessel_type', 'cabins', 'maximum_guests', 'length_meters', 'cruising_speed_knots', 'diving_available', 'surfing_available', 'snorkeling_available', 'nitrox_available', 'dhoni_available', 'jacuzzi', 'spa', 'restaurant', 'bar', 'wifi', 'departure_port', 'typical_route', 'typical_trip_length', 'minimum_nights', 'check_in_time', 'check_out_time', 'airport_distance', 'transfer_duration', 'transfer_notes', 'house_rules', 'cancellation_policy', 'sort_order', 'seo_title', 'seo_description'];
+    protected $fillable = ['type', 'property_subtype', 'status', 'name', 'previous_name', 'aliases', 'slug', 'tagline', 'summary', 'description', 'island', 'island_id', 'atoll', 'atoll_id', 'city', 'country', 'address', 'official_website', 'source_url', 'latitude', 'longitude', 'price_from', 'currency', 'price_unit', 'rating', 'images', 'featured_image', 'amenities', 'featured', 'verified', 'published', 'vessel_name', 'vessel_type', 'cabins', 'maximum_guests', 'length_meters', 'cruising_speed_knots', 'diving_available', 'surfing_available', 'snorkeling_available', 'nitrox_available', 'dhoni_available', 'jacuzzi', 'spa', 'restaurant', 'bar', 'wifi', 'departure_port', 'typical_route', 'typical_trip_length', 'minimum_nights', 'check_in_time', 'check_out_time', 'airport_distance', 'transfer_duration', 'transfer_notes', 'house_rules', 'cancellation_policy', 'sort_order', 'seo_title', 'seo_description', 'social_title', 'social_description', 'social_caption', 'social_hashtags', 'social_image', 'generated_social_image'];
 
     protected function casts(): array
     {
@@ -154,6 +155,50 @@ class Accommodation extends Model
                 ['name' => $this->name, 'url' => url($this->publicPathForSlug())],
             ],
         };
+    }
+
+    public function socialShareType(): string
+    {
+        return $this->type->value;
+    }
+
+    public function socialShareTitleFallback(): string
+    {
+        return $this->seoTitleFallback();
+    }
+
+    public function socialShareDescriptionFallback(): string
+    {
+        return $this->seoDescriptionFallback();
+    }
+
+    public function socialShareCanonicalUrl(): string
+    {
+        return $this->publicUrl();
+    }
+
+    public function socialSharePrimaryImageUrl(): string
+    {
+        return $this->seoImageUrl();
+    }
+
+    public function socialShareLocationLabel(): ?string
+    {
+        return collect([
+            $this->islandRelation?->name ?: $this->island,
+            $this->atollRelation?->name ?: $this->atoll,
+            $this->city,
+        ])->filter()->implode(' ') ?: null;
+    }
+
+    public function socialShareCategoryLabel(): ?string
+    {
+        return $this->property_subtype ?: $this->type->label();
+    }
+
+    public function socialShareSlugValue(): string
+    {
+        return $this->slug ?: $this->name;
     }
 
     public function atollRelation(): BelongsTo

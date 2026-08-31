@@ -11,7 +11,7 @@ class Inquiry extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['reference', 'customer_id', 'accommodation_id', 'room_id', 'name', 'first_name', 'last_name', 'email', 'phone', 'nationality', 'travel_type', 'arrival_date', 'departure_date', 'check_in', 'check_out', 'number_of_nights', 'travellers', 'adults', 'children', 'children_ages', 'infants', 'budget', 'preferred_atoll', 'transfer_preference', 'honeymoon', 'family_trip', 'diving_trip', 'surfing_trip', 'preferred_room', 'meal_plan', 'message', 'notes', 'status', 'source', 'assigned_to'];
+    protected $fillable = ['reference', 'customer_id', 'accommodation_id', 'room_id', 'name', 'first_name', 'last_name', 'email', 'phone', 'nationality', 'travel_type', 'arrival_date', 'departure_date', 'check_in', 'check_out', 'number_of_nights', 'travellers', 'adults', 'children', 'children_ages', 'infants', 'budget', 'preferred_atoll', 'transfer_preference', 'honeymoon', 'family_trip', 'diving_trip', 'surfing_trip', 'preferred_room', 'meal_plan', 'message', 'notes', 'status', 'source', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'landing_page', 'assigned_to'];
 
     protected function casts(): array
     {

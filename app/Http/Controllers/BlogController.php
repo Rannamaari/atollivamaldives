@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BlogOffer;
 use App\Models\Post;
+use App\Services\SocialShareService;
 use App\Support\Seo\SeoManager;
 use Illuminate\View\View;
 
@@ -25,7 +26,7 @@ class BlogController extends Controller
         ]);
     }
 
-    public function show(Post $post, SeoManager $seoManager): View
+    public function show(Post $post, SeoManager $seoManager, SocialShareService $socialShareService): View
     {
         abort_unless($post->published, 404);
 
@@ -72,6 +73,7 @@ class BlogController extends Controller
             'offer' => $offer,
             'relatedPosts' => $relatedPosts,
             'seo' => $seoManager->forPost($post)->toArray(),
+            'socialShare' => $socialShareService->for($post)->toArray(),
         ]);
     }
 }

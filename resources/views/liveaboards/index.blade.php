@@ -93,8 +93,8 @@
                 <label>Email address<input type="email" name="email" value="{{ old('email') }}"></label>
                 <label>WhatsApp number<input name="phone" required value="{{ old('phone') }}"></label>
                 <label>Nationality<select name="nationality"><option value="">Select country</option>@foreach(config('countries.all', []) as $country)<option value="{{ $country }}" @selected(old('nationality') === $country)>{{ $country }}</option>@endforeach</select></label>
-                <label>Arrival date<input type="date" name="arrival_date" value="{{ old('arrival_date') }}"></label>
-                <label>Departure date<input type="date" name="departure_date" value="{{ old('departure_date') }}"></label>
+                <label>Arrival date<input type="date" name="arrival_date" value="{{ old('arrival_date') }}" min="{{ now()->toDateString() }}"></label>
+                <label>Departure date<input type="date" name="departure_date" value="{{ old('departure_date') }}" min="{{ now()->toDateString() }}"></label>
                 <label>Travellers<input type="number" name="travellers" min="1" value="{{ old('travellers', 2) }}"></label>
                 <label>Approximate budget<input name="budget" placeholder="e.g. USD 8,000" value="{{ old('budget') }}"></label>
                 <label class="wide">What kind of trip would you like?<textarea name="message" rows="5" placeholder="Private charter, diving route, family trip, celebration at sea...">{{ old('message') }}</textarea></label>

@@ -5,14 +5,20 @@ namespace App\Filament\Resources;
 use App\Enums\AccommodationType;
 use App\Models\Accommodation;
 use App\Models\Facility;
+use App\Services\SocialImageGeneratorService;
+use App\Services\SocialShareService;
 use App\Support\OptimizedImageUpload;
 use Filament\Forms;
+use Filament\Forms\Components\Actions;
+use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 
 abstract class AbstractTravelProductResource extends Resource
@@ -125,9 +131,81 @@ abstract class AbstractTravelProductResource extends Resource
                 Forms\Components\TextInput::make('sort_order')->numeric()->default(0),
                 Forms\Components\Textarea::make('transfer_notes')->columnSpanFull(),
             ]),
-            Forms\Components\Section::make('SEO')->collapsed()->schema([
-                Forms\Components\TextInput::make('seo_title'),
-                Forms\Components\Textarea::make('seo_description'),
+            Forms\Components\Section::make('SEO & Social')->collapsed()->schema([
+                Forms\Components\TextInput::make('seo_title')
+                    ->helperText('Optional. If left blank, Atolliva will create the page title automatically.'),
+                Forms\Components\Textarea::make('seo_description')
+                    ->helperText('Optional. If left blank, the summary and property details will be used.'),
+                Forms\Components\TextInput::make('social_title')
+                    ->maxLength(100)
+                    ->helperText('Optional. Overrides the social share title only.'),
+                Forms\Components\Textarea::make('social_description')
+                    ->rows(3)
+                    ->helperText('Optional. Overrides the social preview description only.')
+                    ->maxLength(200),
+                Forms\Components\Textarea::make('social_caption')
+                    ->rows(5)
+                    ->columnSpanFull()
+                    ->helperText('Optional. Used for WhatsApp, native share, and Copy Caption.'),
+                Forms\Components\Textarea::make('social_hashtags')
+                    ->rows(2)
+                    ->columnSpanFull()
+                    ->helperText('Optional. Add hashtags separated by spaces or commas.'),
+                OptimizedImageUpload::make(
+                    FileUpload::make('social_image'),
+                    'social/manual',
+                    maxWidth: 1600,
+                    maxHeight: 1200,
+                    quality: 84,
+                )
+                    ->helperText('Optional manual social image. If blank, Atolliva will use a generated image or the featured image.'),
+                Forms\Components\Placeholder::make('generated_social_image_preview')
+                    ->label('Generated social image')
+                    ->content(function (?Accommodation $record): HtmlString|string {
+                        if (! $record?->generated_social_image) {
+                            return 'No generated social image yet.';
+                        }
+
+                        $url = asset('storage/'.ltrim($record->generated_social_image, '/'));
+
+                        return new HtmlString('<img src="'.e($url).'" alt="Generated social image preview" style="max-width: 22rem; border-radius: 1rem; border: 1px solid rgba(15, 23, 42, 0.12);" />');
+                    }),
+                Actions::make([
+                    Action::make('generateSocialImage')
+                        ->label('Generate Social Image')
+                        ->action(function (?Accommodation $record): void {
+                            if (! $record) {
+                                return;
+                            }
+
+                            app(SocialImageGeneratorService::class)->generateAndStore($record, true);
+
+                            Notification::make()
+                                ->title('Social image generated')
+                                ->success()
+                                ->send();
+                        }),
+                ])->columnSpanFull(),
+                Forms\Components\Placeholder::make('social_preview')
+                    ->label('Share preview')
+                    ->columnSpanFull()
+                    ->content(function (?Accommodation $record): HtmlString|string {
+                        if (! $record) {
+                            return 'Save this travel product first to preview how it will appear when shared.';
+                        }
+
+                        $share = app(SocialShareService::class)->for($record)->toArray();
+
+                        return new HtmlString(
+                            '<div style="display:grid;gap:0;max-width:30rem;border:1px solid rgba(15,23,42,.12);border-radius:1rem;overflow:hidden;background:#fff;">'
+                            .'<img src="'.e($share['image']).'" alt="" style="display:block;width:100%;aspect-ratio:1200 / 630;object-fit:cover;" />'
+                            .'<div style="padding:1rem 1.1rem;display:grid;gap:.45rem;">'
+                            .'<p style="margin:0;font-size:.75rem;color:#64748b;">atollivamaldives.com</p>'
+                            .'<p style="margin:0;font-weight:700;color:#0f172a;">'.e($share['title']).'</p>'
+                            .'<p style="margin:0;color:#475569;">'.e($share['description']).'</p>'
+                            .'</div></div>'
+                        );
+                    }),
             ]),
         ]);
     }
@@ -152,6 +230,20 @@ abstract class AbstractTravelProductResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('generateSocialImages')
+                        ->label('Generate Social Images')
+                        ->action(function ($records): void {
+                            $generator = app(SocialImageGeneratorService::class);
+
+                            foreach ($records as $record) {
+                                $generator->generateAndStore($record, true);
+                            }
+
+                            Notification::make()
+                                ->title('Social images generated')
+                                ->success()
+                                ->send();
+                        }),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);

@@ -12,6 +12,9 @@ class SiteSetting extends Model
         'default_meta_title',
         'default_meta_description',
         'default_og_image',
+        'default_share_hashtags',
+        'enable_share_tracking',
+        'enable_native_share',
         'business_logo',
         'business_email',
         'business_phone',
@@ -43,6 +46,8 @@ class SiteSetting extends Model
             'quotation_tax_settings' => 'array',
             'default_robots_index' => 'boolean',
             'default_robots_follow' => 'boolean',
+            'enable_share_tracking' => 'boolean',
+            'enable_native_share' => 'boolean',
         ];
     }
 

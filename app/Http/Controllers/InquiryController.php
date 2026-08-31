@@ -43,6 +43,11 @@ class InquiryController extends Controller
             'meal_plan' => 'nullable|string|max:255',
             'message' => 'nullable|string|max:3000',
             'source' => 'nullable|string|max:100',
+            'utm_source' => 'nullable|string|max:100',
+            'utm_medium' => 'nullable|string|max:100',
+            'utm_campaign' => 'nullable|string|max:100',
+            'utm_content' => 'nullable|string|max:150',
+            'landing_page' => 'nullable|string|max:2048',
             'website' => 'nullable|string|size:0',
             'recaptcha_token' => $reCaptchaVerifier->enabled() ? 'required|string' : 'nullable|string',
             'recaptcha_action' => 'nullable|string|max:100',
@@ -62,7 +67,12 @@ class InquiryController extends Controller
             $data['name'] = trim(collect([$data['first_name'] ?? null, $data['last_name'] ?? null])->filter()->implode(' '));
         }
 
-        $inquiry = DB::transaction(function () use ($data) {
+        $attribution = array_filter(
+            $request->session()->get('marketing_attribution', []),
+            fn ($value) => filled($value)
+        );
+
+        $inquiry = DB::transaction(function () use ($data, $attribution, $request) {
             [$firstName, $lastName] = $this->splitName($data['name']);
 
             $customer = Customer::query()
@@ -105,6 +115,11 @@ class InquiryController extends Controller
                 'children' => $data['children'] ?? 0,
                 'infants' => $data['infants'] ?? 0,
                 'source' => $data['source'] ?? 'website',
+                'utm_source' => $data['utm_source'] ?? ($attribution['utm_source'] ?? null),
+                'utm_medium' => $data['utm_medium'] ?? ($attribution['utm_medium'] ?? null),
+                'utm_campaign' => $data['utm_campaign'] ?? ($attribution['utm_campaign'] ?? null),
+                'utm_content' => $data['utm_content'] ?? ($attribution['utm_content'] ?? null),
+                'landing_page' => $data['landing_page'] ?? ($attribution['landing_page'] ?? $request->fullUrlWithoutQuery(['utm_source', 'utm_medium', 'utm_campaign', 'utm_content'])),
                 'status' => 'new',
             ]);
         });

@@ -63,6 +63,7 @@
         <div class="detail-actions">
             <a class="primary" href="{{ $wa }}" target="_blank">CHECK AVAILABILITY ON WHATSAPP</a>
             <a class="outline-button" href="{{ route('inquiries.store') }}" onclick="event.preventDefault(); document.getElementById('property-inquiry').scrollIntoView({ behavior: 'smooth' });">SEND INQUIRY</a>
+            <x-social-share :share="$socialShare" />
         </div>
 
         @if($accommodation->description)
@@ -186,8 +187,8 @@
             <label>Nationality<select name="nationality"><option value="">Select country</option>@foreach(config('countries.all', []) as $country)<option value="{{ $country }}" @selected(old('nationality') === $country)>{{ $country }}</option>@endforeach</select></label>
             <input type="hidden" name="accommodation_id" value="{{ $accommodation->id }}">
             <label>Travel type<select name="travel_type"><option value="{{ $accommodation->type->value }}" selected>{{ $accommodation->type->label() }}</option></select></label>
-            <label>Arrival date<input type="date" name="arrival_date" value="{{ old('arrival_date', $searchArrivalDate) }}"></label>
-            <label>Departure date<input type="date" name="departure_date" value="{{ old('departure_date', $searchDepartureDate) }}"></label>
+            <label>Arrival date<input type="date" name="arrival_date" value="{{ old('arrival_date', $searchArrivalDate) }}" min="{{ now()->toDateString() }}"></label>
+            <label>Departure date<input type="date" name="departure_date" value="{{ old('departure_date', $searchDepartureDate) }}" min="{{ now()->toDateString() }}"></label>
             <label>Adults<input type="number" name="adults" min="1" value="{{ old('adults', old('travellers', $searchAdults)) }}"></label>
             <label>Children<input type="number" name="children" min="0" value="{{ old('children', $searchChildren) }}"></label>
             <label>Infants<input type="number" name="infants" min="0" value="{{ old('infants', 0) }}"></label>

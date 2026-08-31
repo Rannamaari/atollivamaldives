@@ -7,6 +7,7 @@ use App\Models\Accommodation;
 use App\Models\Atoll;
 use App\Models\Island;
 use App\Models\Post;
+use App\Services\SocialShareService;
 use App\Support\Seo\SeoManager;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -174,6 +175,7 @@ class AccommodationController extends Controller
             'similarProperties' => $similarProperties,
             'relatedPosts' => $relatedPosts,
             'seo' => app(SeoManager::class)->forAccommodation($accommodation)->toArray(),
+            'socialShare' => app(SocialShareService::class)->for($accommodation)->toArray(),
         ]);
     }
 

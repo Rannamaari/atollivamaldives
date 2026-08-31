@@ -27,7 +27,10 @@
 <article class="article">
     <p class="kicker">{{ strtoupper($post->category) }}</p>
     <h1>{{ $post->title }}</h1>
-    <p class="byline">{{ $post->author }} · {{ optional($post->published_at)->format('d M Y') }}</p>
+    <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px;">
+        <p class="byline" style="margin:0;">{{ $post->author }} · {{ optional($post->published_at)->format('d M Y') }}</p>
+        <x-social-share :share="$socialShare" style="compact" />
+    </div>
 
     @if($post->featured_image)
         <img src="{{ str_starts_with($post->featured_image, 'http') ? $post->featured_image : asset('storage/'.$post->featured_image) }}" alt="{{ $post->title }} featured image" decoding="async" fetchpriority="high">

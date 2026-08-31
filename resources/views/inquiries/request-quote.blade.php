@@ -47,8 +47,8 @@
                         <option value="Best marine life / special location matters more than distance" @selected(old('preferred_atoll') === 'Best marine life / special location matters more than distance')>Best marine life / special location matters more than distance</option>
                     </select>
                 </label>
-                <label>Arrival date<input type="date" name="arrival_date" value="{{ old('arrival_date') }}" data-trip-arrival></label>
-                <label>Departure date<input type="date" name="departure_date" value="{{ old('departure_date') }}" data-trip-departure></label>
+                <label>Arrival date<input type="date" name="arrival_date" value="{{ old('arrival_date') }}" min="{{ now()->toDateString() }}" data-trip-arrival></label>
+                <label>Departure date<input type="date" name="departure_date" value="{{ old('departure_date') }}" min="{{ now()->toDateString() }}" data-trip-departure></label>
                 <label>Number of nights<input value="{{ old('arrival_date') && old('departure_date') ? \Carbon\Carbon::parse(old('arrival_date'))->diffInDays(\Carbon\Carbon::parse(old('departure_date')), false) : '' }}" readonly data-trip-nights placeholder="Calculated automatically"></label>
                 <label>Adults<input type="number" name="adults" min="1" value="{{ old('adults', 2) }}"></label>
                 <label>Children<input type="number" name="children" min="0" value="{{ old('children', 0) }}"></label>

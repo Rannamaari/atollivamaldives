@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use App\Contracts\SocialShareable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Post extends Model
+class Post extends Model implements SocialShareable
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'slug', 'category', 'blog_offer_id', 'excerpt', 'body', 'featured_image', 'author', 'published', 'featured', 'published_at', 'seo_title', 'seo_description'];
+    protected $fillable = ['title', 'slug', 'category', 'blog_offer_id', 'excerpt', 'body', 'featured_image', 'author', 'published', 'featured', 'published_at', 'seo_title', 'seo_description', 'social_title', 'social_description', 'social_caption', 'social_hashtags', 'social_image', 'generated_social_image'];
 
     protected function casts(): array
     {
@@ -65,5 +66,45 @@ class Post extends Model
             ['name' => 'Blog', 'url' => route('blog.index')],
             ['name' => $this->title, 'url' => url($this->publicPathForSlug())],
         ];
+    }
+
+    public function socialShareType(): string
+    {
+        return 'post';
+    }
+
+    public function socialShareTitleFallback(): string
+    {
+        return $this->seoTitleFallback();
+    }
+
+    public function socialShareDescriptionFallback(): string
+    {
+        return $this->seoDescriptionFallback();
+    }
+
+    public function socialShareCanonicalUrl(): string
+    {
+        return url($this->publicPathForSlug());
+    }
+
+    public function socialSharePrimaryImageUrl(): string
+    {
+        return $this->seoImageUrl();
+    }
+
+    public function socialShareLocationLabel(): ?string
+    {
+        return null;
+    }
+
+    public function socialShareCategoryLabel(): ?string
+    {
+        return $this->category;
+    }
+
+    public function socialShareSlugValue(): string
+    {
+        return $this->slug ?: $this->title;
     }
 }
