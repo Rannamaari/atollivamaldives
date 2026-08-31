@@ -2,6 +2,7 @@
 .social-share__toggle{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 16px;border:1px solid rgba(18,54,60,.14);border-radius:999px;background:#fff;color:#12363c;font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;cursor:pointer}
 .social-share__toggle svg{width:16px;height:16px;flex:0 0 16px}
 .social-share__menu{position:absolute;top:calc(100% + 10px);right:0;z-index:35;display:grid;gap:12px;width:min(280px,calc(100vw - 32px));padding:16px;border:1px solid rgba(18,54,60,.1);border-radius:18px;background:#fff;box-shadow:0 20px 42px rgba(7,27,38,.12)}
+.social-share__menu[hidden]{display:none!important}
 .social-share__title{margin:0;font:500 22px/1.06 'Cormorant Garamond',serif;color:#12363c}
 .social-share__actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .social-share__actions a,.social-share__actions button{display:inline-flex;align-items:center;justify-content:flex-start;gap:8px;min-height:40px;padding:0 12px;border:1px solid rgba(18,54,60,.1);border-radius:12px;background:#f8fbfb;color:#12363c;font-size:9px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;cursor:pointer;text-align:left}

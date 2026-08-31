@@ -353,6 +353,8 @@ document.querySelectorAll('[data-social-share]').forEach((shareRoot) => {
 
     const closeMenu = () => {
         menu.hidden = true;
+        menu.style.display = 'none';
+        menu.setAttribute('aria-hidden', 'true');
         toggle?.setAttribute('aria-expanded', 'false');
     };
 
@@ -369,6 +371,8 @@ document.querySelectorAll('[data-social-share]').forEach((shareRoot) => {
         const isOpen = toggle.getAttribute('aria-expanded') === 'true';
         toggle.setAttribute('aria-expanded', String(!isOpen));
         menu.hidden = isOpen;
+        menu.style.display = isOpen ? 'none' : 'grid';
+        menu.setAttribute('aria-hidden', isOpen ? 'true' : 'false');
     });
 
     shareRoot.querySelectorAll('[data-social-platform]').forEach((link) => {

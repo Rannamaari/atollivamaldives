@@ -36,7 +36,7 @@
             {!! $icon('share') !!}
             <span>Share</span>
         </button>
-        <div class="social-share__menu" data-social-share-menu hidden>
+        <div class="social-share__menu" data-social-share-menu hidden style="display:none;" aria-hidden="true">
             <div class="social-share__actions">
                 <a href="{{ $share['whatsapp_url'] ?? '#' }}" target="_blank" rel="noopener" data-social-platform="whatsapp">{!! $icon('whatsapp') !!}<span>WhatsApp</span></a>
                 <a href="{{ $share['facebook_url'] ?? '#' }}" target="_blank" rel="noopener" data-social-platform="facebook">{!! $icon('facebook') !!}<span>Facebook</span></a>

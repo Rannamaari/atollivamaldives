@@ -5,6 +5,8 @@ namespace App\Filament\Pages;
 use App\Models\Accommodation;
 use App\Models\Post;
 use App\Models\SocialShareEvent;
+use App\Models\SocialShareVisit;
+use App\Models\Inquiry;
 use Filament\Pages\Page;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -42,8 +44,28 @@ class SocialSharingAnalytics extends Page
                 ->when($from, fn ($query) => $query->where('created_at', '>=', $from))
                 ->get();
 
+            $visits = SocialShareVisit::query()
+                ->when($from, fn ($query) => $query->where('created_at', '>=', $from))
+                ->get();
+
+            $socialInquiries = Inquiry::query()
+                ->where('utm_medium', 'social')
+                ->when($from, fn ($query) => $query->where('created_at', '>=', $from))
+                ->get();
+
             $platformTotals = collect(['whatsapp', 'facebook', 'x', 'native', 'copy_link', 'copy_caption'])
                 ->mapWithKeys(fn (string $platform): array => [$platform => $events->where('platform', $platform)->count()]);
+
+            $visitTotals = collect(['whatsapp', 'facebook', 'x', 'native', 'copy_link', 'copy_caption'])
+                ->mapWithKeys(fn (string $platform): array => [$platform => $visits->where('utm_source', $platform)->count()]);
+
+            $visitSummary = [
+                'total_visits' => $visits->count(),
+                'total_inquiries' => $socialInquiries->count(),
+                'conversion_rate' => $visits->isEmpty()
+                    ? 0
+                    : round(($socialInquiries->count() / max($visits->count(), 1)) * 100, 1),
+            ];
 
             $grouped = $events
                 ->groupBy(fn (SocialShareEvent $event): string => $event->shareable_type.'#'.$event->shareable_id)
@@ -73,6 +95,8 @@ class SocialSharingAnalytics extends Page
             return [
                 'range' => $range,
                 'platformTotals' => $platformTotals,
+                'visitTotals' => $visitTotals,
+                'visitSummary' => $visitSummary,
                 'topContent' => $grouped->take(10),
                 'generatedAt' => Carbon::now(),
                 'errorMessage' => null,
@@ -96,6 +120,13 @@ class SocialSharingAnalytics extends Page
             'range' => $range,
             'platformTotals' => collect(['whatsapp', 'facebook', 'x', 'native', 'copy_link', 'copy_caption'])
                 ->mapWithKeys(fn (string $platform): array => [$platform => 0]),
+            'visitTotals' => collect(['whatsapp', 'facebook', 'x', 'native', 'copy_link', 'copy_caption'])
+                ->mapWithKeys(fn (string $platform): array => [$platform => 0]),
+            'visitSummary' => [
+                'total_visits' => 0,
+                'total_inquiries' => 0,
+                'conversion_rate' => 0,
+            ],
             'topContent' => collect(),
             'generatedAt' => Carbon::now(),
             'errorMessage' => $errorMessage,

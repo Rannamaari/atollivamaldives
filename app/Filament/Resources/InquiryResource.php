@@ -65,6 +65,15 @@ class InquiryResource extends Resource
                 Forms\Components\TextInput::make('email'),
                 Forms\Components\TextInput::make('source'),
             ]),
+            Forms\Components\Section::make('Attribution')->columns(2)->schema([
+                Forms\Components\TextInput::make('utm_source')->label('UTM source'),
+                Forms\Components\TextInput::make('utm_medium')->label('UTM medium'),
+                Forms\Components\TextInput::make('utm_campaign')->label('UTM campaign'),
+                Forms\Components\TextInput::make('utm_content')->label('UTM content'),
+                Forms\Components\TextInput::make('landing_page')
+                    ->label('Landing page')
+                    ->columnSpanFull(),
+            ]),
             Forms\Components\Section::make('Quotation tools')
                 ->schema([
                     Forms\Components\Placeholder::make('quotation_help')
@@ -89,10 +98,20 @@ class InquiryResource extends Resource
                 Tables\Columns\TextColumn::make('adults'),
                 Tables\Columns\TextColumn::make('children'),
                 Tables\Columns\TextColumn::make('status')->badge(),
+                Tables\Columns\TextColumn::make('utm_source')->label('UTM source')->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('utm_campaign')->label('UTM campaign')->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('created_at')->since(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')->options(static::statusOptions()),
+                Tables\Filters\SelectFilter::make('utm_source')
+                    ->label('UTM source')
+                    ->options(fn (): array => Inquiry::query()
+                        ->whereNotNull('utm_source')
+                        ->distinct()
+                        ->orderBy('utm_source')
+                        ->pluck('utm_source', 'utm_source')
+                        ->all()),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
