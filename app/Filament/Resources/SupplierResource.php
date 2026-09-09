@@ -20,6 +20,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\DB;
 
 class SupplierResource extends Resource
 {
@@ -110,31 +111,14 @@ class SupplierResource extends Resource
     {
         return $table
             ->defaultSort('legal_name')
+            ->searchPlaceholder('Search suppliers, contacts, emails, locations, or folders')
+            ->searchDebounce('700ms')
+            ->paginated([10, 25, 50])
             ->columns([
                 Tables\Columns\TextColumn::make('supplier_display_name')
                     ->label('Supplier')
                     ->state(fn (Supplier $record) => $record->trading_name ?: $record->legal_name)
-                    ->searchable(query: function ($query, string $search): void {
-                        $query
-                            ->where(function ($supplierQuery) use ($search): void {
-                                $supplierQuery
-                                    ->where('trading_name', 'like', "%{$search}%")
-                                    ->orWhere('legal_name', 'like', "%{$search}%")
-                                    ->orWhere('general_email', 'like', "%{$search}%")
-                                    ->orWhere('sales_email', 'like', "%{$search}%")
-                                    ->orWhere('reservations_email', 'like', "%{$search}%")
-                                    ->orWhere('contracting_email', 'like', "%{$search}%")
-                                    ->orWhere('main_telephone', 'like', "%{$search}%")
-                                    ->orWhere('website', 'like', "%{$search}%")
-                                    ->orWhere('country', 'like', "%{$search}%")
-                                    ->orWhereHas('contacts', function ($contactQuery) use ($search): void {
-                                        $contactQuery
-                                            ->where('full_name', 'like', "%{$search}%")
-                                            ->orWhere('email', 'like', "%{$search}%")
-                                            ->orWhere('telephone', 'like', "%{$search}%");
-                                    });
-                            });
-                    })
+                    ->searchable(query: fn ($query, string $search): mixed => static::applySearch($query, $search))
                     ->sortable(query: fn ($query, string $direction) => $query->orderByRaw("coalesce(nullif(trading_name, ''), legal_name) {$direction}")),
                 Tables\Columns\TextColumn::make('legal_name')->toggleable(),
                 Tables\Columns\TextColumn::make('supplier_type')->badge()->formatStateUsing(fn ($state) => $state?->label() ?? SupplierType::tryFrom((string) $state)?->label() ?? $state),
@@ -221,6 +205,58 @@ class SupplierResource extends Resource
                     Tables\Actions\DeleteBulkAction::make()->requiresConfirmation(),
                 ]),
             ]);
+    }
+
+    /**
+     * Keep the search broad enough for operations work while using the indexed
+     * PostgreSQL document search in production.
+     */
+    private static function applySearch($query, string $search): mixed
+    {
+        $search = trim($search);
+
+        if ($search === '') {
+            return $query;
+        }
+
+        if (DB::connection()->getDriverName() === 'pgsql') {
+            $tsQuery = static::toPrefixTsQuery($search);
+
+            if ($tsQuery !== '') {
+                return $query->where(function ($supplierQuery) use ($tsQuery): void {
+                    $supplierQuery
+                        ->whereRaw("to_tsvector('simple', coalesce(legal_name, '') || ' ' || coalesce(trading_name, '') || ' ' || coalesce(atoll, '') || ' ' || coalesce(island, '') || ' ' || coalesce(country, '') || ' ' || coalesce(general_email, '') || ' ' || coalesce(sales_email, '') || ' ' || coalesce(reservations_email, '') || ' ' || coalesce(contracting_email, '') || ' ' || coalesce(accounts_email, '') || ' ' || coalesce(main_telephone, '') || ' ' || coalesce(whatsapp_number, '') || ' ' || coalesce(website, '')) @@ to_tsquery('simple', ?)", [$tsQuery])
+                        ->orWhereHas('contacts', fn ($contactQuery) => $contactQuery->whereRaw("to_tsvector('simple', coalesce(full_name, '') || ' ' || coalesce(job_title, '') || ' ' || coalesce(department, '') || ' ' || coalesce(email, '') || ' ' || coalesce(telephone, '') || ' ' || coalesce(whatsapp_number, '')) @@ to_tsquery('simple', ?)", [$tsQuery]))
+                        ->orWhereHas('collections', fn ($collectionQuery) => $collectionQuery->whereRaw("to_tsvector('simple', name) @@ to_tsquery('simple', ?)", [$tsQuery]));
+                });
+            }
+        }
+
+        $pattern = '%'.mb_strtolower($search).'%';
+
+        return $query->where(function ($supplierQuery) use ($pattern): void {
+            foreach (['legal_name', 'trading_name', 'atoll', 'island', 'country', 'general_email', 'sales_email', 'reservations_email', 'contracting_email', 'accounts_email', 'main_telephone', 'whatsapp_number', 'website'] as $column) {
+                $supplierQuery->orWhereRaw("LOWER(COALESCE({$column}, '')) LIKE ?", [$pattern]);
+            }
+
+            $supplierQuery
+                ->orWhereHas('contacts', function ($contactQuery) use ($pattern): void {
+                    foreach (['full_name', 'job_title', 'department', 'email', 'telephone', 'whatsapp_number'] as $column) {
+                        $contactQuery->orWhereRaw("LOWER(COALESCE({$column}, '')) LIKE ?", [$pattern]);
+                    }
+                })
+                ->orWhereHas('collections', fn ($collectionQuery) => $collectionQuery->whereRaw('LOWER(name) LIKE ?', [$pattern]));
+        });
+    }
+
+    private static function toPrefixTsQuery(string $search): string
+    {
+        $terms = preg_split('/[^[:alnum:]]+/u', mb_strtolower($search), -1, PREG_SPLIT_NO_EMPTY);
+
+        return collect($terms)
+            ->filter(fn (string $term): bool => mb_strlen($term) >= 2)
+            ->map(fn (string $term): string => str_replace("'", "''", $term).':*')
+            ->implode(' & ');
     }
 
     public static function getRelations(): array

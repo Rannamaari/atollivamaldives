@@ -19,6 +19,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\DB;
 
 class AgencyPartnerResource extends Resource
 {
@@ -90,27 +91,14 @@ class AgencyPartnerResource extends Resource
     {
         return $table
             ->defaultSort('legal_company_name')
+            ->searchPlaceholder('Search agencies, contacts, emails, countries, or folders')
+            ->searchDebounce('700ms')
+            ->paginated([10, 25, 50])
             ->columns([
                 Tables\Columns\TextColumn::make('agency_display_name')
                     ->label('Agency')
                     ->state(fn (AgencyPartner $record) => $record->trading_name ?: $record->legal_company_name)
-                    ->searchable(query: function ($query, string $search): void {
-                        $query
-                            ->where(function ($agencyQuery) use ($search): void {
-                                $agencyQuery
-                                    ->where('trading_name', 'like', "%{$search}%")
-                                    ->orWhere('legal_company_name', 'like', "%{$search}%")
-                                    ->orWhere('country', 'like', "%{$search}%")
-                                    ->orWhere('email', 'like', "%{$search}%")
-                                    ->orWhere('website', 'like', "%{$search}%")
-                                    ->orWhereHas('contacts', function ($contactQuery) use ($search): void {
-                                        $contactQuery
-                                            ->where('full_name', 'like', "%{$search}%")
-                                            ->orWhere('email', 'like', "%{$search}%")
-                                            ->orWhere('telephone', 'like', "%{$search}%");
-                                    });
-                            });
-                    })
+                    ->searchable(query: fn ($query, string $search): mixed => static::applySearch($query, $search))
                     ->sortable(query: fn ($query, string $direction) => $query->orderByRaw("coalesce(nullif(trading_name, ''), legal_company_name) {$direction}")),
                 Tables\Columns\TextColumn::make('country')->sortable(),
                 Tables\Columns\TextColumn::make('email')->label('Email')->toggleable(),
@@ -192,6 +180,57 @@ class AgencyPartnerResource extends Resource
                         }),
                 ]),
             ]);
+    }
+
+    /**
+     * Search agency records, their contacts, and assigned folders in one place.
+     */
+    private static function applySearch($query, string $search): mixed
+    {
+        $search = trim($search);
+
+        if ($search === '') {
+            return $query;
+        }
+
+        if (DB::connection()->getDriverName() === 'pgsql') {
+            $tsQuery = static::toPrefixTsQuery($search);
+
+            if ($tsQuery !== '') {
+                return $query->where(function ($agencyQuery) use ($tsQuery): void {
+                    $agencyQuery
+                        ->whereRaw("to_tsvector('simple', coalesce(legal_company_name, '') || ' ' || coalesce(trading_name, '') || ' ' || coalesce(country, '') || ' ' || coalesce(city, '') || ' ' || coalesce(email, '') || ' ' || coalesce(website, '') || ' ' || coalesce(licence_number, '') || ' ' || coalesce(target_customer_segment, '') || ' ' || coalesce(source_markets, '') || ' ' || coalesce(preferred_products, '')) @@ to_tsquery('simple', ?)", [$tsQuery])
+                        ->orWhereHas('contacts', fn ($contactQuery) => $contactQuery->whereRaw("to_tsvector('simple', coalesce(full_name, '') || ' ' || coalesce(position, '') || ' ' || coalesce(department, '') || ' ' || coalesce(email, '') || ' ' || coalesce(telephone, '') || ' ' || coalesce(whatsapp_number, '')) @@ to_tsquery('simple', ?)", [$tsQuery]))
+                        ->orWhereHas('collections', fn ($collectionQuery) => $collectionQuery->whereRaw("to_tsvector('simple', name) @@ to_tsquery('simple', ?)", [$tsQuery]));
+                });
+            }
+        }
+
+        $pattern = '%'.mb_strtolower($search).'%';
+
+        return $query->where(function ($agencyQuery) use ($pattern): void {
+            foreach (['legal_company_name', 'trading_name', 'country', 'city', 'email', 'website', 'licence_number', 'target_customer_segment', 'source_markets', 'preferred_products'] as $column) {
+                $agencyQuery->orWhereRaw("LOWER(COALESCE({$column}, '')) LIKE ?", [$pattern]);
+            }
+
+            $agencyQuery
+                ->orWhereHas('contacts', function ($contactQuery) use ($pattern): void {
+                    foreach (['full_name', 'position', 'department', 'email', 'telephone', 'whatsapp_number'] as $column) {
+                        $contactQuery->orWhereRaw("LOWER(COALESCE({$column}, '')) LIKE ?", [$pattern]);
+                    }
+                })
+                ->orWhereHas('collections', fn ($collectionQuery) => $collectionQuery->whereRaw('LOWER(name) LIKE ?', [$pattern]));
+        });
+    }
+
+    private static function toPrefixTsQuery(string $search): string
+    {
+        $terms = preg_split('/[^[:alnum:]]+/u', mb_strtolower($search), -1, PREG_SPLIT_NO_EMPTY);
+
+        return collect($terms)
+            ->filter(fn (string $term): bool => mb_strlen($term) >= 2)
+            ->map(fn (string $term): string => str_replace("'", "''", $term).':*')
+            ->implode(' & ');
     }
 
     public static function getRelations(): array
