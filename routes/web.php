@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\AccommodationController;
+use App\Http\Controllers\AdminMediaPreviewController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\HomeController;
@@ -46,6 +47,10 @@ Route::get('/blog/{post}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('/request-quote', RequestQuoteController::class)->name('request-quote');
 Route::post('/inquiries', [InquiryController::class, 'store'])->middleware('throttle:5,1')->name('inquiries.store');
 Route::post('/social-share/track', SocialShareTrackingController::class)->middleware('throttle:60,1')->name('social-share.track');
+Route::get('/admin/media-preview/{path}', AdminMediaPreviewController::class)
+    ->where('path', '.*')
+    ->middleware('auth')
+    ->name('admin.media-preview');
 Route::get('/admin/operations/documents/{document}/download', OperationsDocumentDownloadController::class)->name('operations.documents.download');
 Route::get('/admin/operations/import-templates/{type}', OperationsImportTemplateController::class)->name('operations.import-template');
 Route::get('/admin/quotations/{quotation}/print', QuotationPrintController::class)->middleware('auth')->name('quotations.print');
