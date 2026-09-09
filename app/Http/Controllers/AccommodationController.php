@@ -126,7 +126,7 @@ class AccommodationController extends Controller
 
     public function legacyShow(Accommodation $accommodation): RedirectResponse
     {
-        abort_unless($accommodation->published, 404);
+        abort_unless($accommodation->isCurrentlyPublished(), 404);
 
         $query = request()->getQueryString();
 
@@ -138,7 +138,7 @@ class AccommodationController extends Controller
 
     protected function renderShow(Accommodation $accommodation): View
     {
-        abort_unless($accommodation->published, 404);
+        abort_unless($accommodation->isCurrentlyPublished(), 404);
 
         $accommodation->load([
             'facilities',

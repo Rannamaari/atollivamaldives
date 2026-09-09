@@ -102,13 +102,27 @@
                         </div>
                         <div class="search-card__pricing">
                             <span>From</span>
-                            <strong>{{ $product->currency }} {{ number_format($product->price_from ?? 0) }}</strong>
+                            <strong>{{ $product->currentDisplayCurrency() }} {{ number_format($product->currentDisplayPrice() ?? 0) }}</strong>
                             <small>{{ $product->price_unit === 'trip' ? 'per trip' : ($product->price_unit === 'person' ? 'per person' : 'per night') }}</small>
                         </div>
                     </div>
 
                     @if($product->summary)
                         <p class="search-card__summary">{{ $product->summary }}</p>
+                    @endif
+
+                    @if($product->type === \App\Enums\AccommodationType::Package)
+                        <div class="package-offer-meta">
+                            @if($product->offer_starts_on || $product->offer_ends_on)
+                                <span>
+                                    Valid {{ $product->offer_starts_on?->format('d M Y') ?? 'now' }}
+                                    @if($product->offer_ends_on) to {{ $product->offer_ends_on->format('d M Y') }} @endif
+                                </span>
+                            @endif
+                            @foreach($product->packageAudienceLabels() as $audience)
+                                <span>{{ $audience }}</span>
+                            @endforeach
+                        </div>
                     @endif
 
                     <div class="search-card__meta">

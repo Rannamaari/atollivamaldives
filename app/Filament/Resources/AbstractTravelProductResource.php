@@ -37,7 +37,7 @@ abstract class AbstractTravelProductResource extends Resource
 
     public static function form(Form $form): Form
     {
-        return $form->schema([
+        $schema = [
             Forms\Components\Hidden::make('type')->default(static::getTravelProductType()->value),
             Forms\Components\Section::make(static::getNavigationLabel().' details')->columns(2)->schema([
                 Forms\Components\Select::make('status')->options([
@@ -207,23 +207,97 @@ abstract class AbstractTravelProductResource extends Resource
                         );
                     }),
             ]),
-        ]);
+        ];
+
+        if (static::getTravelProductType() === AccommodationType::Package) {
+            array_splice($schema, 2, 0, [
+                Forms\Components\Section::make('Package offer availability')
+                    ->description('An expired offer is automatically hidden from the public website. Update its dates to make it visible again.')
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\DatePicker::make('offer_starts_on')
+                            ->label('Offer starts on'),
+                        Forms\Components\DatePicker::make('offer_ends_on')
+                            ->label('Offer ends on')
+                            ->afterOrEqual('offer_starts_on')
+                            ->helperText('Leave blank only for an offer with no expiry date.'),
+                        Forms\Components\CheckboxList::make('eligible_audiences')
+                            ->label('Who can book this package?')
+                            ->options([
+                                'international' => 'International guests',
+                                'locals' => 'Maldives locals',
+                                'expats' => 'Maldives expatriates',
+                            ])
+                            ->default(['international'])
+                            ->columns(3)
+                            ->required()
+                            ->columnSpanFull(),
+                    ]),
+                Forms\Components\Section::make('Scheduled package prices')
+                    ->description('Add future price periods when the package price changes. The active period automatically replaces the standard “Price from” amount on the website.')
+                    ->schema([
+                        Forms\Components\Repeater::make('package_price_periods')
+                            ->label('Price periods')
+                            ->schema([
+                                Forms\Components\TextInput::make('label')
+                                    ->placeholder('e.g. Festive season'),
+                                Forms\Components\DatePicker::make('starts_on')
+                                    ->label('Starts on')
+                                    ->required(),
+                                Forms\Components\DatePicker::make('ends_on')
+                                    ->label('Ends on')
+                                    ->afterOrEqual('starts_on'),
+                                Forms\Components\TextInput::make('price')
+                                    ->numeric()
+                                    ->prefix('$')
+                                    ->required(),
+                                Forms\Components\TextInput::make('currency')
+                                    ->default('USD')
+                                    ->maxLength(3),
+                            ])
+                            ->columns(5)
+                            ->addActionLabel('Add price period')
+                            ->defaultItems(0)
+                            ->columnSpanFull(),
+                    ]),
+            ]);
+        }
+
+        return $form->schema($schema);
     }
 
     public static function table(Table $table): Table
     {
+        $columns = [
+            Tables\Columns\ImageColumn::make('featured_image')->label('Image'),
+            Tables\Columns\TextColumn::make('name')->searchable()->sortable(),
+            Tables\Columns\TextColumn::make('atoll')->searchable(),
+            Tables\Columns\TextColumn::make('status')->badge(),
+            Tables\Columns\TextColumn::make('price_from')->money(fn ($record) => $record->currency),
+        ];
+
+        if (static::getTravelProductType() === AccommodationType::Package) {
+            $columns[] = Tables\Columns\TextColumn::make('offer_ends_on')
+                ->label('Valid until')
+                ->date('d M Y')
+                ->placeholder('No expiry')
+                ->color(fn (Accommodation $record): string => $record->isCurrentlyPublished() ? 'success' : 'danger');
+            $columns[] = Tables\Columns\TextColumn::make('eligible_audiences')
+                ->label('Available to')
+                ->formatStateUsing(fn (Accommodation $record): string => implode(', ', $record->packageAudienceLabels()))
+                ->wrap();
+        }
+
+        $columns = [
+            ...$columns,
+            Tables\Columns\IconColumn::make('verified')->boolean(),
+            Tables\Columns\IconColumn::make('featured')->boolean(),
+            Tables\Columns\IconColumn::make('published')->boolean(),
+        ];
+
         return $table
             ->defaultSort('sort_order')
-            ->columns([
-                Tables\Columns\ImageColumn::make('featured_image')->label('Image'),
-                Tables\Columns\TextColumn::make('name')->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('atoll')->searchable(),
-                Tables\Columns\TextColumn::make('status')->badge(),
-                Tables\Columns\TextColumn::make('price_from')->money(fn ($record) => $record->currency),
-                Tables\Columns\IconColumn::make('verified')->boolean(),
-                Tables\Columns\IconColumn::make('featured')->boolean(),
-                Tables\Columns\IconColumn::make('published')->boolean(),
-            ])
+            ->columns($columns)
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),

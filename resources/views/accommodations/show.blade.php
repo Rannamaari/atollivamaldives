@@ -45,6 +45,30 @@
             <p class="lead">{{ $accommodation->summary }}</p>
         @endif
 
+        @if($accommodation->type === \App\Enums\AccommodationType::Package)
+            @php
+                $activePricePeriod = $accommodation->activePackagePricePeriod();
+            @endphp
+            <section class="package-offer" aria-label="Package offer details">
+                <div>
+                    <p class="kicker">CURRENT PACKAGE OFFER</p>
+                    <strong>{{ $accommodation->currentDisplayCurrency() }} {{ number_format($accommodation->currentDisplayPrice() ?? 0) }}</strong>
+                    <span>{{ $accommodation->price_unit === 'person' ? 'per person' : ($accommodation->price_unit === 'night' ? 'per night' : 'per package') }}</span>
+                    @if(data_get($activePricePeriod, 'label'))
+                        <p>{{ data_get($activePricePeriod, 'label') }}</p>
+                    @endif
+                </div>
+                <div class="package-offer__details">
+                    @if($accommodation->offer_starts_on || $accommodation->offer_ends_on)
+                        <p><b>Travel period</b><span>{{ $accommodation->offer_starts_on?->format('d M Y') ?? 'Available now' }}@if($accommodation->offer_ends_on) to {{ $accommodation->offer_ends_on->format('d M Y') }}@endif</span></p>
+                    @endif
+                    @if($accommodation->packageAudienceLabels())
+                        <p><b>Available to</b><span>{{ implode(' · ', $accommodation->packageAudienceLabels()) }}</span></p>
+                    @endif
+                </div>
+            </section>
+        @endif
+
         <div class="detail-summary-bar">
             @if($accommodation->rating)
                 <span>{{ number_format($accommodation->rating, 1) }} star rating</span>
@@ -218,7 +242,7 @@
                         <div class="photo"><img src="{{ $image }}" alt="{{ $property->name }} in the Maldives" loading="lazy" decoding="async"></div>
                         <div class="meta"><span>{{ strtoupper($property->type->label()) }}</span><span>{{ $property->island }}</span></div>
                         <h3>{{ $property->name }}</h3>
-                        <div class="foot"><span>{{ $property->tagline }}</span><b>FROM {{ $property->currency }} {{ number_format($property->price_from ?? 0) }}</b></div>
+                        <div class="foot"><span>{{ $property->tagline }}</span><b>FROM {{ $property->currentDisplayCurrency() }} {{ number_format($property->currentDisplayPrice() ?? 0) }}</b></div>
                     </a>
                 </article>
             @endforeach
