@@ -52,8 +52,14 @@
             <section class="package-offer" aria-label="Package offer details">
                 <div>
                     <p class="kicker">CURRENT PACKAGE OFFER</p>
+                    @if($accommodation->package_best_seller)
+                        <span class="package-card-badge package-card-badge--inline">Best Seller</span>
+                    @endif
                     <strong>{{ $accommodation->currentDisplayCurrency() }} {{ number_format($accommodation->currentDisplayPrice() ?? 0) }}</strong>
                     <span>{{ $accommodation->price_unit === 'person' ? 'per person' : ($accommodation->price_unit === 'night' ? 'per night' : 'per package') }}</span>
+                    @if($accommodation->packageGuestInclusionLabel())
+                        <p class="package-offer__inclusion">{{ $accommodation->packageGuestInclusionLabel() }} included in this offer</p>
+                    @endif
                     @if(data_get($activePricePeriod, 'label'))
                         <p>{{ data_get($activePricePeriod, 'label') }}</p>
                     @endif

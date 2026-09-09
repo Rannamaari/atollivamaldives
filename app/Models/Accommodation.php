@@ -16,11 +16,11 @@ class Accommodation extends Model implements SocialShareable
 {
     use HasFactory;
 
-    protected $fillable = ['type', 'property_subtype', 'status', 'name', 'previous_name', 'aliases', 'slug', 'tagline', 'summary', 'description', 'island', 'island_id', 'atoll', 'atoll_id', 'city', 'country', 'address', 'official_website', 'source_url', 'latitude', 'longitude', 'price_from', 'currency', 'price_unit', 'offer_starts_on', 'offer_ends_on', 'eligible_audiences', 'package_price_periods', 'rating', 'images', 'featured_image', 'amenities', 'featured', 'verified', 'published', 'vessel_name', 'vessel_type', 'cabins', 'maximum_guests', 'length_meters', 'cruising_speed_knots', 'diving_available', 'surfing_available', 'snorkeling_available', 'nitrox_available', 'dhoni_available', 'jacuzzi', 'spa', 'restaurant', 'bar', 'wifi', 'departure_port', 'typical_route', 'typical_trip_length', 'minimum_nights', 'check_in_time', 'check_out_time', 'airport_distance', 'transfer_duration', 'transfer_notes', 'house_rules', 'cancellation_policy', 'sort_order', 'seo_title', 'seo_description', 'social_title', 'social_description', 'social_caption', 'social_hashtags', 'social_image', 'generated_social_image'];
+    protected $fillable = ['type', 'property_subtype', 'status', 'name', 'previous_name', 'aliases', 'slug', 'tagline', 'summary', 'description', 'island', 'island_id', 'atoll', 'atoll_id', 'city', 'country', 'address', 'official_website', 'source_url', 'latitude', 'longitude', 'price_from', 'currency', 'price_unit', 'offer_starts_on', 'offer_ends_on', 'eligible_audiences', 'package_price_periods', 'package_included_adults', 'package_included_children', 'package_children_free', 'package_best_seller', 'rating', 'images', 'featured_image', 'amenities', 'featured', 'verified', 'published', 'vessel_name', 'vessel_type', 'cabins', 'maximum_guests', 'length_meters', 'cruising_speed_knots', 'diving_available', 'surfing_available', 'snorkeling_available', 'nitrox_available', 'dhoni_available', 'jacuzzi', 'spa', 'restaurant', 'bar', 'wifi', 'departure_port', 'typical_route', 'typical_trip_length', 'minimum_nights', 'check_in_time', 'check_out_time', 'airport_distance', 'transfer_duration', 'transfer_notes', 'house_rules', 'cancellation_policy', 'sort_order', 'seo_title', 'seo_description', 'social_title', 'social_description', 'social_caption', 'social_hashtags', 'social_image', 'generated_social_image'];
 
     protected function casts(): array
     {
-        return ['type' => AccommodationType::class, 'aliases' => 'array', 'images' => 'array', 'amenities' => 'array', 'eligible_audiences' => 'array', 'package_price_periods' => 'array', 'offer_starts_on' => 'date', 'offer_ends_on' => 'date', 'featured' => 'boolean', 'verified' => 'boolean', 'published' => 'boolean', 'price_from' => 'decimal:2', 'rating' => 'decimal:1', 'latitude' => 'decimal:7', 'longitude' => 'decimal:7', 'length_meters' => 'decimal:2', 'cruising_speed_knots' => 'decimal:2', 'diving_available' => 'boolean', 'surfing_available' => 'boolean', 'snorkeling_available' => 'boolean', 'nitrox_available' => 'boolean', 'dhoni_available' => 'boolean', 'jacuzzi' => 'boolean', 'spa' => 'boolean', 'restaurant' => 'boolean', 'bar' => 'boolean', 'wifi' => 'boolean', 'check_in_time' => 'datetime:H:i', 'check_out_time' => 'datetime:H:i'];
+        return ['type' => AccommodationType::class, 'aliases' => 'array', 'images' => 'array', 'amenities' => 'array', 'eligible_audiences' => 'array', 'package_price_periods' => 'array', 'offer_starts_on' => 'date', 'offer_ends_on' => 'date', 'package_children_free' => 'boolean', 'package_best_seller' => 'boolean', 'featured' => 'boolean', 'verified' => 'boolean', 'published' => 'boolean', 'price_from' => 'decimal:2', 'rating' => 'decimal:1', 'latitude' => 'decimal:7', 'longitude' => 'decimal:7', 'length_meters' => 'decimal:2', 'cruising_speed_knots' => 'decimal:2', 'diving_available' => 'boolean', 'surfing_available' => 'boolean', 'snorkeling_available' => 'boolean', 'nitrox_available' => 'boolean', 'dhoni_available' => 'boolean', 'jacuzzi' => 'boolean', 'spa' => 'boolean', 'restaurant' => 'boolean', 'bar' => 'boolean', 'wifi' => 'boolean', 'check_in_time' => 'datetime:H:i', 'check_out_time' => 'datetime:H:i'];
     }
 
     public function scopePublished(Builder $query): Builder
@@ -94,7 +94,7 @@ class Accommodation extends Model implements SocialShareable
         $labels = [
             'international' => 'International guests',
             'locals' => 'Maldives locals',
-            'expats' => 'Maldives expatriates',
+            'expats' => 'Work permit holders',
         ];
 
         return collect($this->eligible_audiences ?? ['international'])
@@ -102,6 +102,26 @@ class Accommodation extends Model implements SocialShareable
             ->filter()
             ->values()
             ->all();
+    }
+
+    public function packageGuestInclusionLabel(): ?string
+    {
+        if ($this->type !== AccommodationType::Package) {
+            return null;
+        }
+
+        $parts = [];
+
+        if ($this->package_included_adults) {
+            $parts[] = $this->package_included_adults.' Pax';
+        }
+
+        if ($this->package_included_children) {
+            $childLabel = $this->package_included_children === 1 ? '1 Child' : $this->package_included_children.' Children';
+            $parts[] = $childLabel.($this->package_children_free ? ' Free' : '');
+        }
+
+        return $parts === [] ? null : implode(' + ', $parts);
     }
 
     public function getRouteKeyName(): string

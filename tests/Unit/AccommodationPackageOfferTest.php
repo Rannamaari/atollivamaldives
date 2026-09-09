@@ -45,6 +45,21 @@ class AccommodationPackageOfferTest extends TestCase
         $this->assertSame('USD', $package->currentDisplayCurrency());
     }
 
+    #[Test]
+    public function package_guest_inclusions_and_work_permit_audiences_are_human_readable(): void
+    {
+        $package = new Accommodation([
+            'type' => AccommodationType::Package,
+            'package_included_adults' => 2,
+            'package_included_children' => 1,
+            'package_children_free' => true,
+            'eligible_audiences' => ['locals', 'expats'],
+        ]);
+
+        $this->assertSame('2 Pax + 1 Child Free', $package->packageGuestInclusionLabel());
+        $this->assertSame(['Maldives locals', 'Work permit holders'], $package->packageAudienceLabels());
+    }
+
     protected function tearDown(): void
     {
         Carbon::setTestNow();

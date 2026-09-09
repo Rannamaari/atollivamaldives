@@ -87,9 +87,12 @@
                 $primaryTransfer = $product->transfers->first();
                 $propertyUrl = $product->publicUrl(request()->query());
             @endphp
-            <article class="search-card">
+            <article @class(['search-card', 'search-card--package' => $product->type === \App\Enums\AccommodationType::Package])>
                 <a class="search-card__media" href="{{ $propertyUrl }}">
                     <img src="{{ $image }}" alt="{{ $product->name }}" loading="lazy" decoding="async">
+                    @if($product->type === \App\Enums\AccommodationType::Package && $product->package_best_seller)
+                        <span class="package-card-badge">Best Seller</span>
+                    @endif
                 </a>
                 <div class="search-card__content">
                     <div class="search-card__head">
@@ -122,6 +125,9 @@
                             @foreach($product->packageAudienceLabels() as $audience)
                                 <span>{{ $audience }}</span>
                             @endforeach
+                            @if($product->packageGuestInclusionLabel())
+                                <span>{{ $product->packageGuestInclusionLabel() }} included</span>
+                            @endif
                         </div>
                     @endif
 

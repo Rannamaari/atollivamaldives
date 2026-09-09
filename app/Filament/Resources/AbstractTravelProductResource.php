@@ -226,12 +226,29 @@ abstract class AbstractTravelProductResource extends Resource
                             ->options([
                                 'international' => 'International guests',
                                 'locals' => 'Maldives locals',
-                                'expats' => 'Maldives expatriates',
+                                'expats' => 'Work permit holders',
                             ])
                             ->default(['international'])
                             ->columns(3)
                             ->required()
                             ->columnSpanFull(),
+                        Forms\Components\TextInput::make('package_included_adults')
+                            ->label('Guests included')
+                            ->numeric()
+                            ->minValue(1)
+                            ->suffix('pax')
+                            ->helperText('Example: enter 2 for “2 Pax”.'),
+                        Forms\Components\TextInput::make('package_included_children')
+                            ->label('Children included')
+                            ->numeric()
+                            ->minValue(0)
+                            ->suffix('children'),
+                        Forms\Components\Toggle::make('package_children_free')
+                            ->label('Included children stay free')
+                            ->helperText('Shows “Child Free” on the package card.'),
+                        Forms\Components\Toggle::make('package_best_seller')
+                            ->label('Show Best Seller badge')
+                            ->helperText('Highlights this offer on the website and social preview.'),
                     ]),
                 Forms\Components\Section::make('Scheduled package prices')
                     ->description('Add future price periods when the package price changes. The active period automatically replaces the standard “Price from” amount on the website.')

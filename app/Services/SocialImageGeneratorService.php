@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Contracts\SocialShareable;
+use App\Enums\AccommodationType;
+use App\Models\Accommodation;
 use App\Models\SiteSetting;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -155,6 +157,14 @@ class SocialImageGeneratorService
         $share = $this->socialShareService->for($model);
         $title = $this->wrapText($share->title, 28, 3);
         $subtitle = $model->socialShareLocationLabel() ?: ($model->socialShareCategoryLabel() ?: 'Explore with Atolliva Maldives');
+
+        if ($model instanceof Accommodation && $model->type === AccommodationType::Package) {
+            $subtitle = collect([
+                $model->package_best_seller ? 'Best Seller' : null,
+                $model->packageGuestInclusionLabel(),
+                $subtitle,
+            ])->filter()->implode(' | ');
+        }
         $subtitle = Str::limit($subtitle, 54, '');
         $font = $this->fontPath();
 
