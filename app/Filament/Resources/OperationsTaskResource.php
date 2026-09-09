@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class OperationsTaskResource extends Resource
 {
@@ -55,10 +56,45 @@ class OperationsTaskResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query) => $query->with([
+                'supplier:id,legal_name',
+                'agencyPartner:id,legal_company_name',
+                'rateRequest:id,request_title',
+                'communication:id,subject,recipient',
+                'assignedUser:id,name',
+            ]))
             ->defaultSort('due_at')
             ->columns([
-                Tables\Columns\TextColumn::make('title')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('title')
+                    ->label('Task')
+                    ->description(fn (OperationsTask $record): ?string => filled($record->description) ? $record->description : null)
+                    ->searchable()
+                    ->sortable()
+                    ->wrap(),
                 Tables\Columns\TextColumn::make('task_type')->badge()->formatStateUsing(fn ($state) => $state?->label() ?? TaskType::tryFrom((string) $state)?->label() ?? $state),
+                Tables\Columns\TextColumn::make('related_record')
+                    ->label('About')
+                    ->getStateUsing(function (OperationsTask $record): string {
+                        if ($record->rateRequest) {
+                            return 'Rate request: '.$record->rateRequest->request_title;
+                        }
+
+                        if ($record->supplier) {
+                            return 'Supplier: '.$record->supplier->legal_name;
+                        }
+
+                        if ($record->agencyPartner) {
+                            return 'Agency: '.$record->agencyPartner->legal_company_name;
+                        }
+
+                        if ($record->communication) {
+                            return 'Email: '.($record->communication->subject ?: $record->communication->recipient);
+                        }
+
+                        return 'General operations task';
+                    })
+                    ->wrap()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('priority')->badge()->formatStateUsing(fn ($state) => $state?->label() ?? TaskPriority::tryFrom((string) $state)?->label() ?? $state),
                 Tables\Columns\TextColumn::make('status')->badge()->formatStateUsing(fn ($state) => $state?->label() ?? TaskStatus::tryFrom((string) $state)?->label() ?? $state),
                 Tables\Columns\TextColumn::make('assignedUser.name')->label('Assigned'),

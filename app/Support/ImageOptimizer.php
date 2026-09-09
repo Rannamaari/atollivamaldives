@@ -8,6 +8,11 @@ use Illuminate\Support\Str;
 
 class ImageOptimizer
 {
+    /**
+     * Keep GD processing below a safe memory threshold on the production server.
+     */
+    private const MAX_OPTIMIZABLE_PIXELS = 16_000_000;
+
     public function store(
         UploadedFile $file,
         string $directory,
@@ -138,15 +143,20 @@ class ImageOptimizer
         }
 
         [$width, $height] = $imageInfo;
-        $mime = $imageInfo['mime'] ?? null;
-        $binary = @file_get_contents($realPath);
 
-        if ($binary === false) {
+        // Decoding very large camera originals with GD can exhaust PHP memory and
+        // turn an otherwise successful upload into a 500 response. In that case,
+        // keep the original file rather than interrupting the editor.
+        if (($width * $height) > self::MAX_OPTIMIZABLE_PIXELS) {
             return null;
         }
 
+        $mime = $imageInfo['mime'] ?? null;
+
         $source = match ($mime) {
-            'image/jpeg', 'image/png', 'image/webp' => @imagecreatefromstring($binary),
+            'image/jpeg' => @imagecreatefromjpeg($realPath),
+            'image/png' => @imagecreatefrompng($realPath),
+            'image/webp' => @imagecreatefromwebp($realPath),
             default => null,
         };
 

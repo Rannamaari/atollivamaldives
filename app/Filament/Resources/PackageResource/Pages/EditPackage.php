@@ -3,9 +3,9 @@
 namespace App\Filament\Resources\PackageResource\Pages;
 
 use App\Filament\Resources\PackageResource;
-use Filament\Resources\Pages\EditRecord;
+use App\Filament\Resources\Pages\EditTravelProduct;
 
-class EditPackage extends EditRecord
+class EditPackage extends EditTravelProduct
 {
     protected static string $resource = PackageResource::class;
 }

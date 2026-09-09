@@ -5,6 +5,7 @@ namespace App\Support;
 use Filament\Forms\Components\BaseFileUpload;
 use Filament\Forms\Components\FileUpload;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Throwable;
 
 class OptimizedImageUpload
 {
@@ -30,9 +31,20 @@ class OptimizedImageUpload
                     ? ($storedFileNames[$file] ?? null)
                     : $storedFileNames;
 
+                // FilePond needs a real size to finish its preview state. Reading the
+                // local optimized file avoids the slower storage metadata calls.
+                $size = 1;
+
+                try {
+                    $path = $component->getDisk()->path($file);
+                    $size = (is_file($path) ? filesize($path) : false) ?: 1;
+                } catch (Throwable) {
+                    // The saved image remains usable through its public URL below.
+                }
+
                 return [
                     'name' => $storedFileName ?? basename($file),
-                    'size' => 0,
+                    'size' => $size,
                     'type' => match ($extension) {
                         'jpg', 'jpeg' => 'image/jpeg',
                         'png' => 'image/png',
