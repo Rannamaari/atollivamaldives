@@ -10,6 +10,7 @@ class HomePage extends Model
     protected $fillable = [
         'name',
         'hero_image',
+        'experience_image',
         'resorts_card_image',
         'guesthouses_card_image',
         'city_hotels_card_image',
@@ -51,6 +52,12 @@ class HomePage extends Model
     public function getResortsCardImageUrlAttribute(): ?string
     {
         return $this->storageImageUrl($this->resorts_card_image);
+    }
+
+    public function getExperienceImageUrlAttribute(): string
+    {
+        return $this->storageImageUrl($this->experience_image)
+            ?: 'https://images.unsplash.com/photo-1544550285-f813152fb2fd?auto=format&fit=crop&w=1500&q=85';
     }
 
     public function getGuesthousesCardImageUrlAttribute(): ?string

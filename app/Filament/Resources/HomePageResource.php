@@ -73,7 +73,7 @@ class HomePageResource extends Resource
                         ->columns(1)
                         ->schema([
                             OptimizedImageUpload::make(
-                                Forms\Components\FileUpload::make('resorts_card_image')->label('Card image'),
+                                FileUpload::make('resorts_card_image')->label('Card image'),
                                 'home-pages/cards',
                                 maxWidth: 1400,
                                 maxHeight: 1000,
@@ -92,7 +92,7 @@ class HomePageResource extends Resource
                         ->columns(1)
                         ->schema([
                             OptimizedImageUpload::make(
-                                Forms\Components\FileUpload::make('guesthouses_card_image')->label('Card image'),
+                                FileUpload::make('guesthouses_card_image')->label('Card image'),
                                 'home-pages/cards',
                                 maxWidth: 1400,
                                 maxHeight: 1000,
@@ -111,7 +111,7 @@ class HomePageResource extends Resource
                         ->columns(1)
                         ->schema([
                             OptimizedImageUpload::make(
-                                Forms\Components\FileUpload::make('city_hotels_card_image')->label('Card image'),
+                                FileUpload::make('city_hotels_card_image')->label('Card image'),
                                 'home-pages/cards',
                                 maxWidth: 1400,
                                 maxHeight: 1000,
@@ -130,7 +130,7 @@ class HomePageResource extends Resource
                         ->columns(1)
                         ->schema([
                             OptimizedImageUpload::make(
-                                Forms\Components\FileUpload::make('liveaboards_card_image')->label('Card image'),
+                                FileUpload::make('liveaboards_card_image')->label('Card image'),
                                 'home-pages/cards',
                                 maxWidth: 1400,
                                 maxHeight: 1000,
@@ -148,7 +148,7 @@ class HomePageResource extends Resource
                 ]),
             Forms\Components\Section::make('Hero image')->schema([
                 OptimizedImageUpload::make(
-                    Forms\Components\FileUpload::make('hero_image'),
+                    FileUpload::make('hero_image'),
                     'home-pages',
                     maxWidth: 2200,
                     maxHeight: 1600,
@@ -161,6 +161,23 @@ class HomePageResource extends Resource
                     })
                     ->helperText('Upload a wide homepage banner image. It will be optimized automatically.'),
             ]),
+            Forms\Components\Section::make('Beyond the Blue image')
+                ->description('This image appears next to the “Come for the islands. Remember the feeling.” section on the homepage.')
+                ->schema([
+                    OptimizedImageUpload::make(
+                        FileUpload::make('experience_image')->label('Section image'),
+                        'home-pages/experiences',
+                        maxWidth: 1800,
+                        maxHeight: 1400,
+                        quality: 82,
+                    )
+                        ->afterStateHydrated(function (FileUpload $component, mixed $state): void {
+                            if (is_string($state) && (str_starts_with($state, 'http://') || str_starts_with($state, 'https://'))) {
+                                $component->state(null);
+                            }
+                        })
+                        ->helperText('Upload a landscape image. The current image remains in place until you choose a replacement.'),
+                ]),
         ]);
     }
 

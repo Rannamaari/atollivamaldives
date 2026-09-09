@@ -18,6 +18,7 @@ class EditHomePage extends EditRecord
     {
         return $this->nullifyLegacyRemoteImageFields($data, [
             'hero_image',
+            'experience_image',
             'resorts_card_image',
             'guesthouses_card_image',
             'city_hotels_card_image',
@@ -29,6 +30,7 @@ class EditHomePage extends EditRecord
     {
         return $this->restoreLegacyRemoteImageFields($data, $this->getRecord(), [
             'hero_image',
+            'experience_image',
             'resorts_card_image',
             'guesthouses_card_image',
             'city_hotels_card_image',
@@ -40,6 +42,7 @@ class EditHomePage extends EditRecord
     {
         return [
             'data.hero_image',
+            'data.experience_image',
             'data.resorts_card_image',
             'data.guesthouses_card_image',
             'data.city_hotels_card_image',
