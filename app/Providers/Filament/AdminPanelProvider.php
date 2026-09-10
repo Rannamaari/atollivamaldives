@@ -28,22 +28,62 @@ class AdminPanelProvider extends PanelProvider
         return $panel->default()->id('admin')->path('admin')->login()->brandName('Atolliva Maldives')->colors(['primary' => Color::Teal])
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): HtmlString => new HtmlString(<<<'HTML'
                 <style>
-                    /* Keep rich-editor controls available while writing a long article. */
-                    .fi-fo-rich-editor trix-toolbar {
-                        position: sticky;
-                        top: 5rem;
-                        z-index: 30;
-                        display: block;
-                        margin: -0.25rem -0.25rem 0.75rem;
-                        padding: 0.5rem;
-                        border-radius: 0.75rem;
-                        background: rgb(255 255 255 / 0.96);
-                        box-shadow: 0 8px 20px rgb(15 23 42 / 0.10);
-                        backdrop-filter: blur(10px);
-                    }
+                    /* A side toolbar stays reachable without covering the writing surface. */
+                    @media (min-width: 1024px) {
+                        .fi-fo-rich-editor {
+                            overflow: visible !important;
+                        }
 
-                    .dark .fi-fo-rich-editor trix-toolbar {
-                        background: rgb(31 41 55 / 0.96);
+                        .fi-fo-rich-editor [x-data^="richEditorFormComponent"] {
+                            display: grid;
+                            grid-template-columns: minmax(0, 1fr) 3.25rem;
+                            gap: 0.75rem;
+                            align-items: start;
+                        }
+
+                        .fi-fo-rich-editor trix-editor {
+                            grid-column: 1;
+                            grid-row: 1;
+                            min-width: 0;
+                        }
+
+                        .fi-fo-rich-editor trix-toolbar {
+                            position: sticky;
+                            top: 5rem;
+                            z-index: 20;
+                            grid-column: 2;
+                            grid-row: 1;
+                            margin: 0;
+                            padding: 0.45rem;
+                            border: 1px solid rgb(15 23 42 / 0.10);
+                            border-radius: 0.75rem;
+                            background: rgb(255 255 255 / 0.96);
+                            box-shadow: 0 8px 20px rgb(15 23 42 / 0.10);
+                            backdrop-filter: blur(10px);
+                        }
+
+                        .fi-fo-rich-editor trix-toolbar > .flex {
+                            flex-direction: column;
+                            gap: 0.45rem;
+                            overflow: visible;
+                        }
+
+                        .fi-fo-rich-editor trix-toolbar .trix-button-group {
+                            display: flex;
+                            width: 100%;
+                            flex-direction: column;
+                        }
+
+                        .fi-fo-rich-editor trix-toolbar .trix-button {
+                            display: flex;
+                            width: 100%;
+                            justify-content: center;
+                        }
+
+                        .dark .fi-fo-rich-editor trix-toolbar {
+                            border-color: rgb(255 255 255 / 0.12);
+                            background: rgb(31 41 55 / 0.96);
+                        }
                     }
                 </style>
                 HTML))
