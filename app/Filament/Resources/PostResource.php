@@ -8,6 +8,7 @@ use App\Models\BlogOffer;
 use App\Models\Post;
 use App\Services\SocialImageGeneratorService;
 use App\Services\SocialShareService;
+use App\Support\ImageOptimizer;
 use App\Support\OptimizedImageUpload;
 use Filament\Forms;
 use Filament\Forms\Components\Actions;
@@ -20,6 +21,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class PostResource extends Resource
 {
@@ -47,7 +49,23 @@ class PostResource extends Resource
                     ->preload()
                     ->helperText('Optional. Choose a specific offer for this post. If left blank, the website will try category-matched offers first, then general offers.'),
                 Forms\Components\Textarea::make('excerpt'),
-                Forms\Components\RichEditor::make('body')->required()->columnSpanFull(),
+                Forms\Components\RichEditor::make('body')
+                    ->required()
+                    ->fileAttachmentsDisk('public')
+                    ->fileAttachmentsDirectory('blog/inline')
+                    ->fileAttachmentsVisibility('public')
+                    ->saveUploadedFileAttachmentsUsing(
+                        fn (TemporaryUploadedFile $file): string => app(ImageOptimizer::class)->store(
+                            file: $file,
+                            directory: 'blog/inline',
+                            disk: 'public',
+                            maxWidth: 1800,
+                            maxHeight: 1800,
+                            quality: 82,
+                        )
+                    )
+                    ->helperText('Use the attachment button to add inline images. Images are resized and compressed automatically.')
+                    ->columnSpanFull(),
                 Forms\Components\Placeholder::make('legacy_featured_image_preview')
                     ->label('Current featured image')
                     ->content(function (?Post $record): ?HtmlString {
