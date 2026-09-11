@@ -8,10 +8,9 @@ header,
 /* Older homepage sections use physical left/right offsets. Contain their RTL
    overflow at the document edge without disabling intentional inner scrollers. */
 html[dir="rtl"],
-html[dir="rtl"] body,
-html[dir="rtl"] main {
+html[dir="rtl"] body {
     max-width: 100%;
-    overflow-x: clip;
+    overflow-x: hidden;
 }
 
 header {
@@ -443,12 +442,6 @@ header .logo,
 @media (max-width: 640px) {
     html,
     body {
-        width: 100%;
-        min-width: 0;
-        overflow-x: hidden;
-    }
-
-    main {
         width: 100%;
         min-width: 0;
         overflow-x: hidden;
