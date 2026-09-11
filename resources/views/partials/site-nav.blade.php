@@ -27,11 +27,11 @@
         <a href="{{ $route('blog.index') }}" @class(['is-active' => $isBlog])>{{ $isArabic ? 'المدونة' : 'Blog' }}</a>
         <a href="{{ $route('faq') }}" @class(['is-active' => $isFaq])>{{ $isArabic ? 'الأسئلة الشائعة' : 'FAQ' }}</a>
         <a href="{{ $route('about') }}" @class(['is-active' => $isAbout])>{{ $isArabic ? 'من نحن' : 'About us' }}</a>
-        <a class="nav-language--menu" href="{{ $isArabic ? route('home') : route('arabic.home') }}">{{ $isArabic ? 'English' : 'العربية' }}</a>
+        <a class="nav-language--menu" href="{{ $isArabic ? route('home') : route('arabic.home') }}" aria-label="{{ $isArabic ? 'Switch to English' : 'التبديل إلى العربية' }}">{{ $isArabic ? 'English' : 'العربية' }}</a>
     </nav>
 
     <div class="nav-actions">
-        <a class="nav-language" href="{{ $isArabic ? route('home') : route('arabic.home') }}">{{ $isArabic ? 'English' : 'العربية' }}</a>
+        <a class="nav-language" href="{{ $isArabic ? route('home') : route('arabic.home') }}" aria-label="{{ $isArabic ? 'Switch to English' : 'التبديل إلى العربية' }}">{{ $isArabic ? 'English' : 'العربية' }}</a>
         <a class="nav-cta" href="{{ $wa }}" target="_blank">{{ $isArabic ? 'خطط لرحلتك ↗' : 'Plan my trip ↗' }}</a>
     </div>
     <button class="menu" data-menu aria-label="Toggle menu" aria-expanded="false"><span></span><span></span></button>

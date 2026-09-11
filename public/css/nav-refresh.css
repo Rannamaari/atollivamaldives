@@ -535,7 +535,8 @@ header .logo,
         min-height: 58px;
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        justify-content: flex-start;
+        gap: 8px;
         transform: none;
         z-index: 100;
         padding: 8px 10px 8px 12px;
@@ -564,7 +565,27 @@ header .logo,
     }
 
     .nav-actions {
-        display: none;
+        display: inline-flex;
+        flex: 0 0 auto;
+        order: 2;
+        margin-left: auto;
+    }
+
+    .nav-actions .nav-language {
+        min-height: 36px;
+        padding: 0 10px;
+        font-size: 10px;
+        letter-spacing: 0.05em;
+    }
+
+    header .logo {
+        order: 1;
+        flex: 0 1 auto;
+    }
+
+    header .menu {
+        order: 3;
+        flex: 0 0 auto;
     }
 
     .nav-language--menu {
@@ -577,16 +598,24 @@ header .logo,
 
     html[lang="ar"] header {
         display: flex;
-        flex-direction: row-reverse;
-        justify-content: space-between;
+        flex-direction: row;
+        direction: ltr;
     }
 
     html[lang="ar"] header .logo {
+        order: 3;
+        margin-left: auto;
         justify-content: flex-end;
     }
 
     html[lang="ar"] header .menu {
+        order: 1;
         margin: 0;
+    }
+
+    html[lang="ar"] header .nav-actions {
+        order: 2;
+        margin-left: 0;
     }
 
     html[lang="ar"] header nav {
