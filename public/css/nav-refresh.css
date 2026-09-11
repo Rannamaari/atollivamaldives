@@ -5,12 +5,16 @@ header,
     -webkit-backdrop-filter: blur(18px);
 }
 
-/* Older homepage sections use physical left/right offsets. Contain their RTL
-   overflow at the document edge without disabling intentional inner scrollers. */
+/* Keep the browser viewport LTR. iOS Safari offsets a root RTL scroll canvas,
+   so Arabic direction is scoped to .site-shell instead. */
 html,
-body[dir="rtl"] {
+body {
     max-width: 100%;
     overflow-x: hidden;
+}
+
+.site-shell {
+    min-width: 0;
 }
 
 header {

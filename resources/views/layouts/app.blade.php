@@ -73,12 +73,14 @@
         @endif
     @endforeach
 </head>
-<body @if(($documentLocale ?? 'en') === 'ar') dir="rtl" @endif>
+<body>
 @if($tagManagerId)
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ $tagManagerId }}"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 @endif
-@yield('content')
+<div class="site-shell" @if(($documentLocale ?? 'en') === 'ar') dir="rtl" @endif>
+    @yield('content')
+</div>
 <script>
 const recaptchaSiteKey = @json($recaptchaEnabled ? config('services.recaptcha.site_key') : null);
 
