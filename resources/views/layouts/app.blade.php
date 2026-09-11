@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ $documentLocale ?? 'en' }}" @if(($documentLocale ?? 'en') === 'ar') dir="rtl" @endif>
 <head>
     @php
         $settings = $siteSettings ?? \App\Models\SiteSetting::current();
@@ -36,6 +36,9 @@
     <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <x-seo.social-meta :seo="$seoDefaults" :share="$socialShare ?? null" />
+    @foreach($alternateLanguages ?? [] as $language => $languageUrl)
+        <link rel="alternate" hreflang="{{ $language }}" href="{{ $languageUrl }}">
+    @endforeach
     <meta name="robots" content="{{ $robots }}">
     @if($searchConsoleVerification)
         <meta name="google-site-verification" content="{{ $searchConsoleVerification }}">
@@ -43,7 +46,7 @@
     <link rel="icon" type="image/png" href="{{ asset('logo/optimized/favicon.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('logo/optimized/favicon.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&family=Noto+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
     @php($cssVersion = fn (string $path) => asset($path).'?v='.filemtime(public_path($path)))
     @php($hasViteBuild = file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
     @php($recaptchaEnabled = config('services.recaptcha.enabled') && filled(config('services.recaptcha.site_key')))
@@ -111,6 +114,12 @@ document.querySelectorAll('.finder--premium').forEach((finder) => {
         if (!guestSummary) return;
         const adults = Number(guestInputs.adults?.value || 2);
         const children = Number(guestInputs.children?.value || 0);
+        if (document.documentElement.lang === 'ar') {
+            guestSummary.textContent = `${adults} بالغ · ${children} أطفال`;
+
+            return;
+        }
+
         guestSummary.textContent = `${adults} Adult${adults === 1 ? '' : 's'} · ${children} Child${children === 1 ? '' : 'ren'}`;
     };
 

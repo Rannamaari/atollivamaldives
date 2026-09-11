@@ -16,7 +16,7 @@ class EditHomePage extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        return $this->nullifyLegacyRemoteImageFields($data, [
+        $data = $this->nullifyLegacyRemoteImageFields($data, [
             'hero_image',
             'experience_image',
             'resorts_card_image',
@@ -24,6 +24,17 @@ class EditHomePage extends EditRecord
             'city_hotels_card_image',
             'liveaboards_card_image',
         ]);
+
+        $data['arabic_content'] = array_replace_recursive(
+            \App\Models\HomePage::arabicContentDefaults(),
+            $data['arabic_content'] ?? [],
+        );
+        foreach (['kicker', 'heading_line_one', 'heading_line_two', 'heading_emphasis', 'description'] as $field) {
+            $arabicField = 'arabic_'.$field;
+            $data[$arabicField] ??= data_get(\App\Models\HomePage::arabicContentDefaults(), 'hero.'.$field);
+        }
+
+        return $data;
     }
 
     protected function mutateFormDataBeforeSave(array $data): array

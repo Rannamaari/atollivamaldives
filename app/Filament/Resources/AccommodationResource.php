@@ -43,6 +43,18 @@ class AccommodationResource extends Resource
                 Forms\Components\Textarea::make('summary')->columnSpanFull(), Forms\Components\RichEditor::make('description')->columnSpanFull(),
                 Forms\Components\TextInput::make('island'), Forms\Components\TextInput::make('atoll'), Forms\Components\TextInput::make('city'), Forms\Components\TextInput::make('country')->default('Maldives'), Forms\Components\TextInput::make('property_subtype')->label('Subtype / classification'), Forms\Components\TextInput::make('official_website')->url(), Forms\Components\TextInput::make('source_url')->url()->label('Verification source URL'), Forms\Components\Textarea::make('address')->columnSpanFull(),
             ]),
+            Forms\Components\Section::make('Arabic translation')
+                ->description('Arabic content is optional until the Arabic public pages are enabled. Add or review the Arabic name, summary, and description here.')
+                ->collapsed()
+                ->columns(2)
+                ->schema([
+                    Forms\Components\TextInput::make('arabic_name')->label('Arabic name')->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                    Forms\Components\TextInput::make('arabic_tagline')->label('Arabic tagline')->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                    Forms\Components\Textarea::make('arabic_summary')->label('Arabic summary')->rows(3)->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar'])->columnSpanFull(),
+                    Forms\Components\RichEditor::make('arabic_description')->label('Arabic description')->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar'])->columnSpanFull(),
+                    Forms\Components\TextInput::make('arabic_seo_title')->label('Arabic SEO title')->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                    Forms\Components\Textarea::make('arabic_seo_description')->label('Arabic SEO description')->rows(3)->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                ]),
             Forms\Components\Section::make('Pricing & media')->columns(3)->schema([
                 Forms\Components\TextInput::make('price_from')->numeric()->prefix('$'), Forms\Components\TextInput::make('currency')->default('USD')->maxLength(3), Forms\Components\Select::make('price_unit')->options(['night' => 'Per night', 'trip' => 'Per trip', 'person' => 'Per person']),
                 OptimizedImageUpload::make(

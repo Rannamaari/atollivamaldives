@@ -11,7 +11,7 @@ class Post extends Model implements SocialShareable
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'slug', 'category', 'blog_offer_id', 'excerpt', 'body', 'featured_image', 'author', 'published', 'featured', 'published_at', 'seo_title', 'seo_description', 'social_title', 'social_description', 'social_caption', 'social_hashtags', 'social_image', 'generated_social_image'];
+    protected $fillable = ['title', 'slug', 'category', 'blog_offer_id', 'excerpt', 'body', 'arabic_title', 'arabic_excerpt', 'arabic_body', 'arabic_seo_title', 'arabic_seo_description', 'featured_image', 'author', 'published', 'featured', 'published_at', 'seo_title', 'seo_description', 'social_title', 'social_description', 'social_caption', 'social_hashtags', 'social_image', 'generated_social_image'];
 
     protected function casts(): array
     {
@@ -38,6 +38,16 @@ class Post extends Model implements SocialShareable
         return route('blog.show', ['post' => $slug ?? $this->slug], false);
     }
 
+    public function arabicPublicPath(): string
+    {
+        return route('blog.arabic.show', ['post' => $this->slug], false);
+    }
+
+    public function hasArabicTranslation(): bool
+    {
+        return filled($this->arabic_title) && filled($this->arabic_body);
+    }
+
     public function seoTitleFallback(): string
     {
         return $this->title.' | Atolliva Maldives';
@@ -46,6 +56,16 @@ class Post extends Model implements SocialShareable
     public function seoDescriptionFallback(): string
     {
         return (string) ($this->seo_description ?: $this->excerpt ?: str($this->body)->stripTags()->squish()->limit(160));
+    }
+
+    public function arabicSeoTitleFallback(): string
+    {
+        return trim((string) ($this->arabic_seo_title ?: $this->arabic_title.' | Atolliva Maldives'));
+    }
+
+    public function arabicSeoDescriptionFallback(): string
+    {
+        return (string) ($this->arabic_seo_description ?: $this->arabic_excerpt ?: str($this->arabic_body)->stripTags()->squish()->limit(160));
     }
 
     public function seoImageUrl(): string
@@ -65,6 +85,15 @@ class Post extends Model implements SocialShareable
             ['name' => 'Home', 'url' => route('home')],
             ['name' => 'Blog', 'url' => route('blog.index')],
             ['name' => $this->title, 'url' => url($this->publicPathForSlug())],
+        ];
+    }
+
+    public function arabicSeoBreadcrumbs(): array
+    {
+        return [
+            ['name' => 'الرئيسية', 'url' => route('home')],
+            ['name' => 'المدونة', 'url' => route('blog.index')],
+            ['name' => $this->arabic_title, 'url' => url($this->arabicPublicPath())],
         ];
     }
 

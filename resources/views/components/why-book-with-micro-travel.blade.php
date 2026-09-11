@@ -1,5 +1,7 @@
+@props(['heading' => 'WHY BOOK WITH ATOLLIVA MALDIVES?', 'benefits' => null])
+
 @php
-    $benefits = [
+    $defaultBenefits = [
         [
             'icon' => 'heroicon-o-map-pin',
             'title' => 'WE ARE MALDIVES-BASED',
@@ -37,13 +39,17 @@
             'featured' => true,
         ],
     ];
+
+    $benefits = collect($defaultBenefits)
+        ->map(fn (array $benefit, int $index): array => array_replace($benefit, $benefits[$index] ?? []))
+        ->all();
 @endphp
 
 <section aria-labelledby="why-book-with-micro-travel" class="why-book">
     <div class="why-book__inner">
         <div class="why-book__header">
             <h2 id="why-book-with-micro-travel" class="why-book__heading">
-                WHY BOOK WITH ATOLLIVA MALDIVES?
+                {{ $heading }}
             </h2>
         </div>
 

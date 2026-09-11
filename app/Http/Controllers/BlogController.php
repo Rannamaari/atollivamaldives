@@ -28,6 +28,19 @@ class BlogController extends Controller
 
     public function show(Post $post, SeoManager $seoManager, SocialShareService $socialShareService): View
     {
+        return $this->showPost($post, $seoManager, $socialShareService);
+    }
+
+    public function arabicShow(Post $post, SeoManager $seoManager, SocialShareService $socialShareService): View
+    {
+        abort_unless($post->hasArabicTranslation(), 404);
+        app()->setLocale('ar');
+
+        return $this->showPost($post, $seoManager, $socialShareService, true);
+    }
+
+    protected function showPost(Post $post, SeoManager $seoManager, SocialShareService $socialShareService, bool $arabic = false): View
+    {
         abort_unless($post->published, 404);
 
         $post->loadMissing('blogOffer');
@@ -72,8 +85,13 @@ class BlogController extends Controller
             'post' => $post,
             'offer' => $offer,
             'relatedPosts' => $relatedPosts,
-            'seo' => $seoManager->forPost($post)->toArray(),
-            'socialShare' => $socialShareService->for($post)->toArray(),
+            'isArabic' => $arabic,
+            'seo' => ($arabic ? $seoManager->forArabicPost($post) : $seoManager->forPost($post))->toArray(),
+            'socialShare' => $arabic ? null : $socialShareService->for($post)->toArray(),
+            'documentLocale' => $arabic ? 'ar' : 'en',
+            'alternateLanguages' => $arabic
+                ? ['en' => route('blog.show', $post), 'x-default' => route('blog.show', $post)]
+                : ($post->hasArabicTranslation() ? ['ar' => route('blog.arabic.show', $post), 'x-default' => route('blog.show', $post)] : []),
         ]);
     }
 }

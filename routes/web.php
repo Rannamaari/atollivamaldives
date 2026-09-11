@@ -16,6 +16,7 @@ use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SeoRedirectFallbackController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SocialShareTrackingController;
+use App\Http\Middleware\SetPublicLocale;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/robots.txt', RobotsController::class)->name('seo.robots');
@@ -43,7 +44,27 @@ Route::get('/stays/{accommodation:slug}', [AccommodationController::class, 'lega
 Route::redirect('/journal', '/blog', 301);
 Route::redirect('/journal/{post}', '/blog/{post}', 301);
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/ar/blog/{post}', [BlogController::class, 'arabicShow'])->name('blog.arabic.show');
 Route::get('/blog/{post}', [BlogController::class, 'show'])->name('blog.show');
+
+// Arabic URLs are deliberately separate from English URLs so each language can
+// be indexed, shared, and switched without affecting existing search traffic.
+Route::prefix('ar')->middleware(SetPublicLocale::class.':ar')->name('arabic.')->group(function (): void {
+    Route::get('/', HomeController::class)->name('home');
+    Route::get('/about-us', AboutController::class)->name('about');
+    Route::get('/faq', FaqController::class)->name('faq');
+    Route::get('/liveaboards', LiveaboardController::class)->name('liveaboards.index');
+    Route::get('/liveaboards/{accommodation:slug}', [AccommodationController::class, 'liveaboardShow'])->name('liveaboards.show');
+    Route::get('/resorts', [AccommodationController::class, 'index'])->defaults('type', 'resort')->name('resorts.index');
+    Route::get('/resorts/{accommodation:slug}', [AccommodationController::class, 'resortShow'])->name('resorts.show');
+    Route::get('/guesthouses', [AccommodationController::class, 'index'])->defaults('type', 'guesthouse')->name('guesthouses.index');
+    Route::get('/city-hotels', [AccommodationController::class, 'index'])->defaults('type', 'city_hotel')->name('cityhotels.index');
+    Route::get('/city-hotels/{accommodation:slug}', [AccommodationController::class, 'cityHotelShow'])->name('cityhotels.show');
+    Route::get('/packages', [AccommodationController::class, 'index'])->defaults('type', 'package')->name('packages.index');
+    Route::get('/packages/{category}/{accommodation:slug}', [AccommodationController::class, 'packageShow'])->name('packages.show');
+    Route::get('/travel-products', [AccommodationController::class, 'index'])->name('accommodations.index');
+    Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+});
 Route::get('/request-quote', RequestQuoteController::class)->name('request-quote');
 Route::post('/inquiries', [InquiryController::class, 'store'])->middleware('throttle:5,1')->name('inquiries.store');
 Route::post('/social-share/track', SocialShareTrackingController::class)->middleware('throttle:60,1')->name('social-share.track');

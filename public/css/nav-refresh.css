@@ -5,6 +5,15 @@ header,
     -webkit-backdrop-filter: blur(18px);
 }
 
+/* Older homepage sections use physical left/right offsets. Contain their RTL
+   overflow at the document edge without disabling intentional inner scrollers. */
+html[dir="rtl"],
+html[dir="rtl"] body,
+html[dir="rtl"] main {
+    max-width: 100%;
+    overflow-x: clip;
+}
+
 header {
     position: fixed;
     top: 18px;
@@ -40,6 +49,46 @@ header nav {
 }
 
 header nav::-webkit-scrollbar {
+    display: none;
+}
+
+.nav-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    min-width: 0;
+}
+
+.nav-language,
+.nav-language--menu {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 0 12px;
+    border: 1px solid rgba(171, 216, 213, 0.3);
+    border-radius: 999px;
+    color: rgba(238, 250, 250, 0.95);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    white-space: nowrap;
+    transition: background-color 0.22s ease, border-color 0.22s ease, color 0.22s ease;
+}
+
+.nav-language:hover,
+.nav-language:focus-visible,
+.nav-language--menu:hover,
+.nav-language--menu:focus-visible {
+    border-color: rgba(110, 213, 204, 0.68);
+    background: rgba(110, 213, 204, 0.13);
+    color: #ffffff;
+    outline: none;
+}
+
+.nav-language--menu {
     display: none;
 }
 
@@ -96,6 +145,92 @@ header .nav-cta,
         box-shadow 0.22s ease,
         border-color 0.22s ease,
         background-color 0.22s ease;
+}
+
+/* Keep Arabic navigation compact and intentional instead of inheriting English tracking. */
+html[lang="ar"] header {
+    direction: ltr;
+    grid-template-columns: auto minmax(0, 1fr) minmax(108px, 142px);
+    grid-template-areas: "actions nav brand";
+}
+
+html[lang="ar"] header .logo {
+    grid-area: brand;
+    justify-content: flex-end;
+}
+
+html[lang="ar"] header nav {
+    grid-area: nav;
+    direction: rtl;
+}
+
+html[lang="ar"] header .nav-actions {
+    grid-area: actions;
+    direction: ltr;
+    justify-content: flex-start;
+}
+
+html[lang="ar"] header nav a {
+    padding-inline: 11px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+html[lang="ar"] header .nav-cta {
+    letter-spacing: 0;
+}
+
+html[lang="ar"] .hero-copy {
+    width: min(760px, 60vw);
+    margin-right: 0;
+    margin-left: auto;
+    text-align: right;
+}
+
+html[lang="ar"] body {
+    font-family: 'Noto Sans Arabic', sans-serif;
+    font-size: 17px;
+    line-height: 1.9;
+}
+
+html[lang="ar"] h1,
+html[lang="ar"] h2,
+html[lang="ar"] h3,
+html[lang="ar"] h4 {
+    font-family: 'Cairo', 'Noto Sans Arabic', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0 !important;
+    line-height: 1.35;
+}
+
+html[lang="ar"] .hero-copy h1 {
+    max-width: 100%;
+    font-size: clamp(52px, 6.2vw, 90px);
+    font-weight: 700;
+}
+
+html[lang="ar"] .hero-copy h1 em {
+    font-style: normal;
+    font-weight: 600;
+}
+
+html[lang="ar"] .hero-copy > p:last-child,
+html[lang="ar"] .intro > div:last-child,
+html[lang="ar"] .section-title > p,
+html[lang="ar"] .exp-copy > p:not(.kicker),
+html[lang="ar"] .enquiry > div > p,
+html[lang="ar"] .why-book__description {
+    font-size: 1.06em;
+    line-height: 2;
+}
+
+html[lang="ar"] .kicker,
+html[lang="ar"] .finder__eyebrow,
+html[lang="ar"] .finder--premium small,
+html[lang="ar"] .tabs--search button {
+    letter-spacing: 0.04em;
 }
 
 header .nav-cta:hover,
@@ -249,7 +384,7 @@ header .logo,
     header {
         top: 12px;
         width: calc(100% - 24px);
-        grid-template-columns: minmax(112px, 132px) minmax(0, 1fr);
+        grid-template-columns: minmax(112px, 132px) minmax(0, 1fr) auto;
         min-height: 64px;
         padding: 10px 12px 10px 14px;
         border-radius: 18px;
@@ -284,6 +419,16 @@ header .logo,
     header .nav-cta,
     .menu {
         display: none;
+    }
+
+    html[lang="ar"] header {
+        grid-template-columns: auto minmax(0, 1fr) minmax(112px, 132px);
+        grid-template-areas: "actions nav brand";
+    }
+
+    html[lang="ar"] header nav a {
+        padding-inline: 8px;
+        font-size: 9px;
     }
 
     .logo {
@@ -402,6 +547,59 @@ header .logo,
 
     header .nav-cta {
         display: none;
+    }
+
+    .nav-actions {
+        display: none;
+    }
+
+    .nav-language--menu {
+        display: inline-flex;
+        justify-content: flex-start;
+        margin-top: 4px;
+        border-color: rgba(110, 213, 204, 0.32);
+        background: rgba(110, 213, 204, 0.08);
+    }
+
+    html[lang="ar"] header {
+        grid-template-columns: minmax(108px, 1fr) auto;
+        grid-template-areas: "brand menu";
+    }
+
+    html[lang="ar"] header .logo {
+        grid-area: brand;
+        justify-content: flex-end;
+    }
+
+    html[lang="ar"] header .menu {
+        grid-area: menu;
+    }
+
+    html[lang="ar"] header nav {
+        direction: rtl;
+    }
+
+    html[lang="ar"] header nav a {
+        justify-content: flex-start;
+        font-size: 13px;
+        letter-spacing: 0;
+    }
+
+    html[lang="ar"] .hero-copy h1 {
+        max-width: 100%;
+        width: 100%;
+        font-size: clamp(42px, 12.5vw, 60px);
+        line-height: 1.38;
+    }
+
+    html[lang="ar"] .hero-copy {
+        width: 100%;
+        margin: 0;
+        text-align: right;
+    }
+
+    html[lang="ar"] body {
+        font-size: 16px;
     }
 
     .menu {

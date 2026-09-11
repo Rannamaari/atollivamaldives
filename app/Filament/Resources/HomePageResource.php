@@ -146,6 +146,78 @@ class HomePageResource extends Resource
                                 ->placeholder('Ocean journeys designed around diving, surfing, and private charters.'),
                         ]),
                 ]),
+            Forms\Components\Section::make('Arabic homepage content')
+                ->description('This controls the Arabic version at /ar. Every field is editable here; the English homepage is not affected.')
+                ->collapsed()
+                ->schema([
+                    Forms\Components\Section::make('Hero and stay finder')->compact()->columns(2)->schema([
+                        Forms\Components\TextInput::make('arabic_kicker')->label('Hero kicker')->default(data_get(HomePage::arabicContentDefaults(), 'hero.kicker'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_heading_line_one')->label('Hero heading, line one')->default(data_get(HomePage::arabicContentDefaults(), 'hero.heading_line_one'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_heading_line_two')->label('Hero heading, line two')->default(data_get(HomePage::arabicContentDefaults(), 'hero.heading_line_two'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_heading_emphasis')->label('Hero heading emphasis')->default(data_get(HomePage::arabicContentDefaults(), 'hero.heading_emphasis'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\Textarea::make('arabic_description')->label('Hero description')->rows(3)->columnSpanFull()->default(data_get(HomePage::arabicContentDefaults(), 'hero.description'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.finder.eyebrow')->label('Finder eyebrow')->default(data_get(HomePage::arabicContentDefaults(), 'finder.eyebrow'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.finder.heading')->label('Finder heading')->default(data_get(HomePage::arabicContentDefaults(), 'finder.heading'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\Textarea::make('arabic_content.finder.description')->label('Finder description')->rows(2)->columnSpanFull()->default(data_get(HomePage::arabicContentDefaults(), 'finder.description'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.finder.destination_label')->label('Destination label')->default(data_get(HomePage::arabicContentDefaults(), 'finder.destination_label'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.finder.destination_placeholder')->label('Destination placeholder')->default(data_get(HomePage::arabicContentDefaults(), 'finder.destination_placeholder'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.finder.check_in')->label('Check-in label')->default(data_get(HomePage::arabicContentDefaults(), 'finder.check_in'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.finder.check_out')->label('Check-out label')->default(data_get(HomePage::arabicContentDefaults(), 'finder.check_out'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.finder.guests')->label('Guests label')->default(data_get(HomePage::arabicContentDefaults(), 'finder.guests'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.finder.search')->label('Search button')->default(data_get(HomePage::arabicContentDefaults(), 'finder.search'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                    ]),
+                    Forms\Components\Section::make('Explore cards and introduction')->compact()->columns(2)->schema([
+                        Forms\Components\TextInput::make('arabic_content.explore.kicker')->label('Explore kicker')->default(data_get(HomePage::arabicContentDefaults(), 'explore.kicker'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\ComponentsTextInput::make('arabic_content.explore.heading_line_one')->label('Explore heading')->default(data_get(HomePage::arabicContentDefaults(), 'explore.heading_line_one'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.explore.heading_emphasis')->label('Explore heading emphasis')->default(data_get(HomePage::arabicContentDefaults(), 'explore.heading_emphasis'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.intro.kicker')->label('Introduction kicker')->default(data_get(HomePage::arabicContentDefaults(), 'intro.kicker'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.intro.heading_line_one')->label('Introduction heading')->default(data_get(HomePage::arabicContentDefaults(), 'intro.heading_line_one'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.intro.heading_emphasis')->label('Introduction heading emphasis')->default(data_get(HomePage::arabicContentDefaults(), 'intro.heading_emphasis'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\Textarea::make('arabic_content.intro.description')->label('Introduction description')->rows(3)->columnSpanFull()->default(data_get(HomePage::arabicContentDefaults(), 'intro.description'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.intro.cta')->label('Introduction button')->default(data_get(HomePage::arabicContentDefaults(), 'intro.cta'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\Repeater::make('arabic_content.explore.labels')->label('Card labels')->default(data_get(HomePage::arabicContentDefaults(), 'explore.labels'))->simple()->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar'])->columnSpanFull(),
+                        Forms\Components\Repeater::make('arabic_content.explore.copies')->label('Card descriptions')->default(data_get(HomePage::arabicContentDefaults(), 'explore.copies'))->simple()->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar'])->columnSpanFull(),
+                    ]),
+                    Forms\Components\Section::make('Why book with Atolliva')->compact()->schema([
+                        Forms\Components\TextInput::make('arabic_content.benefits_heading')->label('Section heading')->default(data_get(HomePage::arabicContentDefaults(), 'benefits_heading'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\Repeater::make('arabic_content.benefits')
+                            ->label('Benefits')
+                            ->default(data_get(HomePage::arabicContentDefaults(), 'benefits'))
+                            ->schema([
+                                Forms\Components\TextInput::make('title')->label('Title')->required()->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                                Forms\Components\Textarea::make('description')->label('Description')->rows(3)->required()->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                            ])
+                            ->columns(2)
+                            ->columnSpanFull(),
+                    ]),
+                    Forms\Components\Section::make('Travel products, experiences, and blog')->compact()->columns(2)->schema([
+                        Forms\Components\TextInput::make('arabic_content.products.kicker')->label('Products kicker')->default(data_get(HomePage::arabicContentDefaults(), 'products.kicker'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.products.heading_line_one')->label('Products heading')->default(data_get(HomePage::arabicContentDefaults(), 'products.heading_line_one'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.products.heading_emphasis')->label('Products heading emphasis')->default(data_get(HomePage::arabicContentDefaults(), 'products.heading_emphasis'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.products.explore_cta')->label('Products button')->default(data_get(HomePage::arabicContentDefaults(), 'products.explore_cta'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\Textarea::make('arabic_content.products.description')->label('Products description')->rows(3)->columnSpanFull()->default(data_get(HomePage::arabicContentDefaults(), 'products.description'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.experience.kicker')->label('Experiences kicker')->default(data_get(HomePage::arabicContentDefaults(), 'experience.kicker'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.experience.heading_line_one')->label('Experiences heading')->default(data_get(HomePage::arabicContentDefaults(), 'experience.heading_line_one'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.experience.heading_emphasis')->label('Experiences heading emphasis')->default(data_get(HomePage::arabicContentDefaults(), 'experience.heading_emphasis'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.experience.cta')->label('Experiences button')->default(data_get(HomePage::arabicContentDefaults(), 'experience.cta'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\Textarea::make('arabic_content.experience.description')->label('Experiences description')->rows(3)->columnSpanFull()->default(data_get(HomePage::arabicContentDefaults(), 'experience.description'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.journal.kicker')->label('Blog kicker')->default(data_get(HomePage::arabicContentDefaults(), 'journal.kicker'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.journal.heading_line_one')->label('Blog heading')->default(data_get(HomePage::arabicContentDefaults(), 'journal.heading_line_one'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.journal.heading_emphasis')->label('Blog heading emphasis')->default(data_get(HomePage::arabicContentDefaults(), 'journal.heading_emphasis'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.journal.cta')->label('View blog button')->default(data_get(HomePage::arabicContentDefaults(), 'journal.cta'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                    ]),
+                    Forms\Components\Section::make('Inquiry and final call to action')->compact()->columns(2)->schema([
+                        Forms\Components\TextInput::make('arabic_content.inquiry.kicker')->label('Inquiry kicker')->default(data_get(HomePage::arabicContentDefaults(), 'inquiry.kicker'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.inquiry.heading_line_one')->label('Inquiry heading')->default(data_get(HomePage::arabicContentDefaults(), 'inquiry.heading_line_one'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.inquiry.heading_emphasis')->label('Inquiry heading emphasis')->default(data_get(HomePage::arabicContentDefaults(), 'inquiry.heading_emphasis'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.inquiry.submit')->label('Inquiry button')->default(data_get(HomePage::arabicContentDefaults(), 'inquiry.submit'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\Textarea::make('arabic_content.inquiry.description')->label('Inquiry description')->rows(3)->columnSpanFull()->default(data_get(HomePage::arabicContentDefaults(), 'inquiry.description'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.closing.kicker')->label('Final CTA kicker')->default(data_get(HomePage::arabicContentDefaults(), 'closing.kicker'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.closing.heading_line_one')->label('Final CTA heading')->default(data_get(HomePage::arabicContentDefaults(), 'closing.heading_line_one'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.closing.heading_emphasis')->label('Final CTA heading emphasis')->default(data_get(HomePage::arabicContentDefaults(), 'closing.heading_emphasis'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.closing.cta')->label('Final CTA button')->default(data_get(HomePage::arabicContentDefaults(), 'closing.cta'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                    ]),
+                ]),
             Forms\Components\Section::make('Hero image')->schema([
                 OptimizedImageUpload::make(
                     FileUpload::make('hero_image'),

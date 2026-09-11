@@ -8,6 +8,7 @@ use App\Models\BlogOffer;
 use App\Models\Post;
 use App\Services\SocialImageGeneratorService;
 use App\Services\SocialShareService;
+use App\Services\AutomaticTranslationService;
 use App\Support\ImageOptimizer;
 use App\Support\OptimizedImageUpload;
 use Filament\Forms;
@@ -100,6 +101,89 @@ class PostResource extends Resource
                     }),
                 Forms\Components\TextInput::make('author')->default('Atolliva Maldives'),
             ])->columns(2),
+            Forms\Components\Section::make('Arabic translation')
+                ->description('Arabic you write or edit here is always the approved version. You can generate only missing fields as a temporary Google Cloud draft, then review it before publishing.')
+                ->collapsed()
+                ->schema([
+                    Forms\Components\TextInput::make('arabic_title')
+                        ->label('Arabic title')
+                        ->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                    Forms\Components\Textarea::make('arabic_excerpt')
+                        ->label('Arabic excerpt')
+                        ->rows(3)
+                        ->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                    Forms\Components\RichEditor::make('arabic_body')
+                        ->label('Arabic article')
+                        ->fileAttachmentsDisk('public')
+                        ->fileAttachmentsDirectory('blog/inline')
+                        ->fileAttachmentsVisibility('public')
+                        ->saveUploadedFileAttachmentsUsing(
+                            fn (TemporaryUploadedFile $file): string => app(ImageOptimizer::class)->store(
+                                file: $file,
+                                directory: 'blog/inline',
+                                disk: 'public',
+                                maxWidth: 1800,
+                                maxHeight: 1800,
+                                quality: 82,
+                            )
+                        )
+                        ->helperText('You can add Arabic inline images here. They are resized and compressed automatically.')
+                        ->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar'])
+                        ->columnSpanFull(),
+                    Forms\Components\TextInput::make('arabic_seo_title')
+                        ->label('Arabic SEO title')
+                        ->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                    Forms\Components\Textarea::make('arabic_seo_description')
+                        ->label('Arabic SEO description')
+                        ->rows(3)
+                        ->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                    Actions::make([
+                        Action::make('generateMissingArabicDraft')
+                            ->label('Generate Missing Arabic Draft')
+                            ->icon('heroicon-o-language')
+                            ->requiresConfirmation()
+                            ->modalHeading('Generate an Arabic draft?')
+                            ->modalDescription('Only empty Arabic fields will be filled. Review and edit the result before you publish it.')
+                            ->visible(fn (?Post $record): bool => $record !== null)
+                            ->action(function (Post $record, Forms\Set $set): void {
+                                try {
+                                    $translator = app(AutomaticTranslationService::class);
+                                    $updates = [];
+
+                                    foreach ([
+                                        'arabic_title' => [$record->title, false],
+                                        'arabic_excerpt' => [$record->excerpt, false],
+                                        'arabic_body' => [$record->body, true],
+                                        'arabic_seo_title' => [$record->seo_title ?: $record->seoTitleFallback(), false],
+                                        'arabic_seo_description' => [$record->seo_description ?: $record->seoDescriptionFallback(), false],
+                                    ] as $field => [$source, $isHtml]) {
+                                        if (blank($record->{$field}) && filled($source)) {
+                                            $updates[$field] = $translator->translate((string) $source, 'ar', $isHtml);
+                                        }
+                                    }
+
+                                    if ($updates === []) {
+                                        Notification::make()->title('Arabic fields are already filled')->info()->send();
+
+                                        return;
+                                    }
+
+                                    $record->update($updates);
+
+                                    // The action saves directly to the record, so synchronise the
+                                    // Livewire form state to show the newly generated draft immediately.
+                                    foreach ($updates as $field => $value) {
+                                        $set($field, $value);
+                                    }
+
+                                    Notification::make()->title('Arabic draft generated')->body('Review the Arabic copy, then save any refinements.')->success()->send();
+                                } catch (\RuntimeException $exception) {
+                                    Notification::make()->title('Arabic draft was not generated')->body($exception->getMessage())->danger()->send();
+                                }
+                            }),
+                    ])->columnSpanFull(),
+                ])
+                ->columns(2),
             Forms\Components\Section::make('Publishing')->columns(3)->schema([Forms\Components\Toggle::make('published'), Forms\Components\Toggle::make('featured'), Forms\Components\DateTimePicker::make('published_at')]),
             Forms\Components\Section::make('SEO & Social')->collapsed()->schema([
                 Forms\Components\TextInput::make('seo_title'),

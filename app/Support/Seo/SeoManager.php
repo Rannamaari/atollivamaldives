@@ -114,6 +114,27 @@ class SeoManager
         ]);
     }
 
+    public function forArabicPost(Post $post): SeoData
+    {
+        $title = $post->arabicSeoTitleFallback();
+        $description = $post->arabicSeoDescriptionFallback();
+        $breadcrumbs = $post->arabicSeoBreadcrumbs();
+
+        return $this->forCurrentRequest([
+            'title' => $title,
+            'description' => $description,
+            'canonical' => url($post->arabicPublicPath()),
+            'og_title' => $title,
+            'og_description' => $description,
+            'og_image' => $post->seoImageUrl(),
+            'breadcrumbs' => $breadcrumbs,
+            'schema' => [
+                $this->breadcrumbSchema($breadcrumbs),
+                $this->articleSchema($post, true),
+            ],
+        ]);
+    }
+
     public function forListing(string $title, string $description, string $canonical, array $breadcrumbs, ?string $image = null): SeoData
     {
         return $this->forCurrentRequest([
@@ -220,13 +241,13 @@ class SeoManager
         ];
     }
 
-    protected function articleSchema(Post $post): array
+    protected function articleSchema(Post $post, bool $arabic = false): array
     {
         return array_filter([
             '@context' => 'https://schema.org',
             '@type' => 'Article',
-            'headline' => $post->title,
-            'description' => $post->seoDescriptionFallback(),
+            'headline' => $arabic ? $post->arabic_title : $post->title,
+            'description' => $arabic ? $post->arabicSeoDescriptionFallback() : $post->seoDescriptionFallback(),
             'image' => [$post->seoImageUrl()],
             'datePublished' => optional($post->published_at)->toIso8601String(),
             'dateModified' => optional($post->updated_at)->toIso8601String(),
@@ -242,8 +263,9 @@ class SeoManager
                     'url' => $this->siteSetting->current()->business_logo_url,
                 ],
             ],
-            'mainEntityOfPage' => url($post->publicPathForSlug()),
+            'mainEntityOfPage' => url($arabic ? $post->arabicPublicPath() : $post->publicPathForSlug()),
             'articleSection' => $post->category,
+            'inLanguage' => $arabic ? 'ar' : 'en',
         ], fn ($value) => filled($value) || is_array($value));
     }
 

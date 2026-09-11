@@ -13,6 +13,7 @@ class HomeController extends Controller
 {
     public function __invoke(SeoManager $seoManager): View
     {
+        $isArabic = app()->getLocale() === 'ar';
         $hero = HomePage::active()->inRandomOrder()->first()
             ?? new HomePage([
                 'kicker' => 'YOUR MALDIVES, THOUGHTFULLY PLANNED',
@@ -29,6 +30,11 @@ class HomeController extends Controller
                 'liveaboards_card_copy' => 'Ocean journeys designed around diving, surfing, and private charters.',
             ]);
 
+        $homeCopy = $isArabic
+            ? array_replace_recursive(HomePage::arabicContentDefaults(), $hero->arabic_content ?? [])
+            : [];
+        $routePrefix = $isArabic ? 'arabic.' : '';
+
         $resortCount = Accommodation::query()->where('type', AccommodationType::Resort->value)->where('status', '!=', 'inactive')->count();
         $guesthouseCount = Accommodation::query()->where('type', AccommodationType::Guesthouse->value)->where('status', '!=', 'inactive')->count();
         $cityHotelCount = Accommodation::query()->where('type', AccommodationType::CityHotel->value)->where('status', '!=', 'inactive')->count();
@@ -39,39 +45,41 @@ class HomeController extends Controller
             'posts' => Post::published()->latest('published_at')->take(3)->get(),
             'hero' => $hero,
             'seo' => $seoManager->forSimplePage(
-                title: 'Maldives Travel Agency | Resorts, Guesthouses & Holiday Packages | Atolliva Maldives',
-                description: 'Discover Maldives resorts, guesthouses, liveaboards, honeymoon escapes and holiday packages with Atolliva Maldives, your Maldives travel agency for thoughtfully planned journeys.',
-                canonical: route('home'),
-                breadcrumbs: [['name' => 'Home', 'url' => route('home')]],
+                title: $isArabic ? 'أتوليفا المالديف | منتجعات وباقات وعطلات في المالديف' : 'Maldives Travel Agency | Resorts, Guesthouses & Holiday Packages | Atolliva Maldives',
+                description: $isArabic ? 'اكتشف منتجعات المالديف وبيوت الضيافة ورحلات القوارب وباقات العطلات مع أتوليفا المالديف، لوكالة سفر تساعدك على تخطيط رحلتك بعناية.' : 'Discover Maldives resorts, guesthouses, liveaboards, honeymoon escapes and holiday packages with Atolliva Maldives, your Maldives travel agency for thoughtfully planned journeys.',
+                canonical: route($routePrefix.'home'),
+                breadcrumbs: [['name' => $isArabic ? 'الرئيسية' : 'Home', 'url' => route($routePrefix.'home')]],
                 image: $hero->hero_image_url,
             )->toArray(),
+            'isArabic' => $isArabic,
+            'homeCopy' => $homeCopy,
             'exploreCards' => [
                 [
-                    'href' => route('resorts.index'),
+                    'href' => route($routePrefix.'resorts.index'),
                     'count' => $resortCount,
-                    'label' => 'Resorts',
-                    'description' => $hero->resorts_card_copy ?: 'Private island escapes, overwater villas, and handpicked luxury stays.',
+                    'label' => $isArabic ? data_get($homeCopy, 'explore.labels.0') : 'Resorts',
+                    'description' => $isArabic ? data_get($homeCopy, 'explore.copies.0') : ($hero->resorts_card_copy ?: 'Private island escapes, overwater villas, and handpicked luxury stays.'),
                     'image' => $hero->resorts_card_image_url ?: $this->fallbackCategoryImage(AccommodationType::Resort),
                 ],
                 [
-                    'href' => route('guesthouses.index'),
+                    'href' => route($routePrefix.'guesthouses.index'),
                     'count' => $guesthouseCount,
-                    'label' => 'Guesthouses',
-                    'description' => $hero->guesthouses_card_copy ?: 'Local island stays for travellers seeking culture, value, and beach life.',
+                    'label' => $isArabic ? data_get($homeCopy, 'explore.labels.1') : 'Guesthouses',
+                    'description' => $isArabic ? data_get($homeCopy, 'explore.copies.1') : ($hero->guesthouses_card_copy ?: 'Local island stays for travellers seeking culture, value, and beach life.'),
                     'image' => $hero->guesthouses_card_image_url ?: $this->fallbackCategoryImage(AccommodationType::Guesthouse),
                 ],
                 [
-                    'href' => route('cityhotels.index'),
+                    'href' => route($routePrefix.'cityhotels.index'),
                     'count' => $cityHotelCount,
-                    'label' => 'City Hotels',
-                    'description' => $hero->city_hotels_card_copy ?: 'Convenient Malé and airport-area stays for stopovers and short visits.',
+                    'label' => $isArabic ? data_get($homeCopy, 'explore.labels.2') : 'City Hotels',
+                    'description' => $isArabic ? data_get($homeCopy, 'explore.copies.2') : ($hero->city_hotels_card_copy ?: 'Convenient Malé and airport-area stays for stopovers and short visits.'),
                     'image' => $hero->city_hotels_card_image_url ?: $this->fallbackCategoryImage(AccommodationType::CityHotel),
                 ],
                 [
-                    'href' => route('liveaboards.index'),
+                    'href' => route($routePrefix.'liveaboards.index'),
                     'count' => $liveaboardCount,
-                    'label' => 'Liveaboards',
-                    'description' => $hero->liveaboards_card_copy ?: 'Ocean journeys designed around diving, surfing, and private charters.',
+                    'label' => $isArabic ? data_get($homeCopy, 'explore.labels.3') : 'Liveaboards',
+                    'description' => $isArabic ? data_get($homeCopy, 'explore.copies.3') : ($hero->liveaboards_card_copy ?: 'Ocean journeys designed around diving, surfing, and private charters.'),
                     'image' => $hero->liveaboards_card_image_url ?: $this->fallbackCategoryImage(AccommodationType::Liveaboard),
                 ],
             ],

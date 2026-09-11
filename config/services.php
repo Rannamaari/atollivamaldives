@@ -12,4 +12,8 @@ return [
         'google_tag_manager_id' => env('GOOGLE_TAG_MANAGER_ID'),
         'search_console_verification' => env('GOOGLE_SEARCH_CONSOLE_VERIFICATION'),
     ],
+    'google_translate' => [
+        'api_key' => env('GOOGLE_TRANSLATE_API_KEY'),
+        'timeout' => env('GOOGLE_TRANSLATE_TIMEOUT', 15),
+    ],
 ];

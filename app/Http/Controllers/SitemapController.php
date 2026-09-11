@@ -123,6 +123,18 @@ class SitemapController extends Controller
                     'changefreq' => 'monthly',
                     'priority' => '0.6',
                 ])
+        )->merge(
+            Post::published()
+                ->whereNotNull('arabic_title')
+                ->whereNotNull('arabic_body')
+                ->orderByDesc('published_at')
+                ->get()
+                ->map(fn (Post $post) => [
+                    'loc' => url($post->arabicPublicPath()),
+                    'lastmod' => optional($post->updated_at)->toDateString(),
+                    'changefreq' => 'monthly',
+                    'priority' => '0.6',
+                ])
         )->unique('loc')->values();
 
         return response()
