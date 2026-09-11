@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ $documentLocale ?? 'en' }}" @if(($documentLocale ?? 'en') === 'ar') dir="rtl" @endif>
+<html lang="{{ $documentLocale ?? 'en' }}">
 <head>
     @php
         $settings = $siteSettings ?? \App\Models\SiteSetting::current();
@@ -73,7 +73,7 @@
         @endif
     @endforeach
 </head>
-<body>
+<body @if(($documentLocale ?? 'en') === 'ar') dir="rtl" @endif>
 @if($tagManagerId)
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ $tagManagerId }}"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>

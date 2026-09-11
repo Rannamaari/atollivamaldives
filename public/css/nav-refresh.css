@@ -7,8 +7,8 @@ header,
 
 /* Older homepage sections use physical left/right offsets. Contain their RTL
    overflow at the document edge without disabling intentional inner scrollers. */
-html[dir="rtl"],
-html[dir="rtl"] body {
+html,
+body[dir="rtl"] {
     max-width: 100%;
     overflow-x: hidden;
 }
