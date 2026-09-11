@@ -441,6 +441,19 @@ header .logo,
 }
 
 @media (max-width: 640px) {
+    html,
+    body {
+        width: 100%;
+        min-width: 0;
+        overflow-x: hidden;
+    }
+
+    main {
+        width: 100%;
+        min-width: 0;
+        overflow-x: hidden;
+    }
+
     header {
         top: 12px;
         width: calc(100% - 20px);
@@ -523,11 +536,15 @@ header .logo,
 
     header {
         top: 8px;
-        width: calc(100% - 16px);
+        right: 8px;
+        left: 8px;
+        width: auto;
         min-height: 58px;
         display: flex;
         align-items: center;
         justify-content: space-between;
+        transform: none;
+        z-index: 100;
         padding: 8px 10px 8px 12px;
         border-radius: 16px;
     }
@@ -536,6 +553,8 @@ header .logo,
         top: 72px;
         left: 8px;
         right: 8px;
+        width: auto;
+        max-width: none;
         padding: 14px;
         border-radius: 18px;
     }
