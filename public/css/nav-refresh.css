@@ -525,7 +525,9 @@ header .logo,
         top: 8px;
         width: calc(100% - 16px);
         min-height: 58px;
-        grid-template-columns: minmax(108px, 1fr) auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         padding: 8px 10px 8px 12px;
         border-radius: 16px;
     }
@@ -562,20 +564,21 @@ header .logo,
     }
 
     html[lang="ar"] header {
-        grid-template-columns: minmax(108px, 1fr) auto;
-        grid-template-areas: "brand menu";
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: space-between;
     }
 
     html[lang="ar"] header .logo {
-        grid-area: brand;
         justify-content: flex-end;
     }
 
     html[lang="ar"] header .menu {
-        grid-area: menu;
+        margin: 0;
     }
 
     html[lang="ar"] header nav {
+        grid-area: auto;
         direction: rtl;
     }
 
