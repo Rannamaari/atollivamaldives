@@ -3,6 +3,22 @@
 @php
     $isArabic = $isArabic ?? app()->getLocale() === 'ar';
     $arabicTypeLabels = ['resort' => 'المنتجعات', 'guesthouse' => 'بيوت الضيافة', 'liveaboard' => 'رحلات القوارب', 'city_hotel' => 'فنادق المدينة', 'package' => 'الباقات'];
+    $listingCopy = $isArabic ? [
+        'destination' => 'الوجهة / مكان الإقامة', 'destination_placeholder' => 'منتجع، جزيرة، جزيرة مرجانية، ماليه...', 'check_in' => 'تاريخ الوصول', 'check_out' => 'تاريخ المغادرة',
+        'adults' => 'البالغون', 'children' => 'الأطفال', 'type' => 'نوع الإقامة', 'all' => 'كل خيارات السفر', 'search' => 'ابحث',
+        'best_seller' => 'الأكثر طلباً', 'from' => 'ابتداءً من', 'per_trip' => 'للرحلة', 'per_person' => 'للشخص', 'per_night' => 'لليلة',
+        'valid' => 'صالحة من', 'now' => 'الآن', 'to' => 'إلى', 'included' => 'مشمول', 'rating' => 'تقييم نجوم', 'room_types' => 'أنواع غرف',
+        'transfer' => 'انتقال', 'view' => 'عرض الإقامة', 'availability' => 'اطلب التوفر',
+    ] : [
+        'destination' => 'Destination / Property', 'destination_placeholder' => 'Resort, island, atoll, Malé...', 'check_in' => 'Check-in', 'check_out' => 'Check-out',
+        'adults' => 'Adults', 'children' => 'Children', 'type' => 'Property Type', 'all' => 'All travel products', 'search' => 'SEARCH',
+        'best_seller' => 'Best Seller', 'from' => 'From', 'per_trip' => 'per trip', 'per_person' => 'per person', 'per_night' => 'per night',
+        'valid' => 'Valid', 'now' => 'now', 'to' => 'to', 'included' => 'included', 'rating' => 'star rating', 'room_types' => 'room types',
+        'transfer' => 'transfer', 'view' => 'View Property', 'availability' => 'Request Availability',
+    ];
+    $audienceLabels = $isArabic
+        ? ['international' => 'الضيوف الدوليون', 'locals' => 'المقيمون في المالديف', 'expats' => 'حاملو تصريح العمل']
+        : ['international' => 'International guests', 'locals' => 'Maldives locals', 'expats' => 'Work permit holders'];
     $pageTitle = $isArabic
         ? (($selectedType ? ($arabicTypeLabels[$selectedType->value] ?? $selectedType->label()) : 'خيارات السفر').' — أتوليفا المالديف')
         : ($selectedType ? $selectedType->label().' — Atolliva Maldives' : 'Travel Products — Atolliva Maldives');
@@ -16,21 +32,13 @@
         default => 'Explore resorts, guest houses, city hotels, packages, and liveaboards across the Maldives.',
     };
     $searchSummary = collect([
-        $searchState['destination'] ? 'Destination: '.$searchState['destination'] : null,
-        $searchState['check_in'] ? 'Check-in: '.\Carbon\Carbon::parse($searchState['check_in'])->format('d M Y') : null,
-        $searchState['check_out'] ? 'Check-out: '.\Carbon\Carbon::parse($searchState['check_out'])->format('d M Y') : null,
-        ($searchState['adults'] ?? 0) ? $searchState['adults'].' adults' : null,
-        isset($searchState['children']) ? $searchState['children'].' children' : null,
+        $searchState['destination'] ? $listingCopy['destination'].': '.$searchState['destination'] : null,
+        $searchState['check_in'] ? $listingCopy['check_in'].': '.\Carbon\Carbon::parse($searchState['check_in'])->format('d M Y') : null,
+        $searchState['check_out'] ? $listingCopy['check_out'].': '.\Carbon\Carbon::parse($searchState['check_out'])->format('d M Y') : null,
+        ($searchState['adults'] ?? 0) ? $searchState['adults'].' '.$listingCopy['adults'] : null,
+        isset($searchState['children']) ? $searchState['children'].' '.$listingCopy['children'] : null,
     ])->filter()->implode(' · ');
-    $searchAction = match (true) {
-        request()->routeIs('resorts.index') => route('resorts.index'),
-        request()->routeIs('guesthouses.atoll') && $selectedAtoll => route('guesthouses.atoll', $selectedAtoll),
-        request()->routeIs('guesthouses.island') && $selectedAtoll && $selectedIsland => route('guesthouses.island', [$selectedAtoll, $selectedIsland]),
-        request()->routeIs('guesthouses.index') => route('guesthouses.index'),
-        request()->routeIs('cityhotels.index') => route('cityhotels.index'),
-        request()->routeIs('packages.index') => route('packages.index'),
-        default => route('accommodations.index'),
-    };
+    $searchAction = url()->current();
 @endphp
 
 @section('title', $pageTitle)
@@ -45,37 +53,37 @@
 
     <form class="search-panel" method="get" action="{{ $searchAction }}">
         <label>
-            <small>Destination / Property</small>
-            <input name="destination" value="{{ $searchState['destination'] }}" placeholder="Resort, island, atoll, Malé...">
+            <small>{{ $listingCopy['destination'] }}</small>
+            <input name="destination" value="{{ $searchState['destination'] }}" placeholder="{{ $listingCopy['destination_placeholder'] }}">
         </label>
         <label>
-            <small>Check-in</small>
+            <small>{{ $listingCopy['check_in'] }}</small>
             <input type="date" name="check_in" value="{{ $searchState['check_in'] }}" min="{{ now()->toDateString() }}">
         </label>
         <label>
-            <small>Check-out</small>
+            <small>{{ $listingCopy['check_out'] }}</small>
             <input type="date" name="check_out" value="{{ $searchState['check_out'] }}" min="{{ now()->toDateString() }}">
         </label>
         <label>
-            <small>Adults</small>
+            <small>{{ $listingCopy['adults'] }}</small>
             <input type="number" name="adults" min="1" value="{{ $searchState['adults'] }}">
         </label>
         <label>
-            <small>Children</small>
+            <small>{{ $listingCopy['children'] }}</small>
             <input type="number" name="children" min="0" value="{{ $searchState['children'] }}">
         </label>
         <label>
-            <small>Property Type</small>
+            <small>{{ $listingCopy['type'] }}</small>
             <select name="type">
-                <option value="">All travel products</option>
-                <option value="resort" @selected(request('type') === 'resort' || request()->routeIs('resorts.index'))>Resorts</option>
-                <option value="guesthouse" @selected(request('type') === 'guesthouse' || request()->routeIs('guesthouses.index'))>Guest Houses</option>
-                <option value="liveaboard" @selected(request('type') === 'liveaboard' || request()->routeIs('liveaboards.index'))>Liveaboards</option>
-                <option value="city_hotel" @selected(request('type') === 'city_hotel' || request()->routeIs('cityhotels.index'))>City Hotels</option>
-                <option value="package" @selected(request('type') === 'package' || request()->routeIs('packages.index'))>Packages</option>
+                <option value="">{{ $listingCopy['all'] }}</option>
+                <option value="resort" @selected(request('type') === 'resort' || request()->routeIs('resorts.index', 'arabic.resorts.index'))>{{ $isArabic ? $arabicTypeLabels['resort'] : 'Resorts' }}</option>
+                <option value="guesthouse" @selected(request('type') === 'guesthouse' || request()->routeIs('guesthouses.index', 'arabic.guesthouses.index'))>{{ $isArabic ? $arabicTypeLabels['guesthouse'] : 'Guest Houses' }}</option>
+                <option value="liveaboard" @selected(request('type') === 'liveaboard' || request()->routeIs('liveaboards.index', 'arabic.liveaboards.index'))>{{ $isArabic ? $arabicTypeLabels['liveaboard'] : 'Liveaboards' }}</option>
+                <option value="city_hotel" @selected(request('type') === 'city_hotel' || request()->routeIs('cityhotels.index', 'arabic.cityhotels.index'))>{{ $isArabic ? $arabicTypeLabels['city_hotel'] : 'City Hotels' }}</option>
+                <option value="package" @selected(request('type') === 'package' || request()->routeIs('packages.index', 'arabic.packages.index'))>{{ $isArabic ? $arabicTypeLabels['package'] : 'Packages' }}</option>
             </select>
         </label>
-        <button type="submit">SEARCH</button>
+        <button type="submit">{{ $listingCopy['search'] }}</button>
     </form>
 
     @if($searchSummary)
@@ -97,22 +105,22 @@
                 <a class="search-card__media" href="{{ $propertyUrl }}">
                     <img src="{{ $image }}" alt="{{ $productName }}" loading="lazy" decoding="async">
                     @if($product->type === \App\Enums\AccommodationType::Package && $product->package_best_seller)
-                        <span class="package-card-badge">Best Seller</span>
+                        <span class="package-card-badge">{{ $listingCopy['best_seller'] }}</span>
                     @endif
                 </a>
                 <div class="search-card__content">
                     <div class="search-card__head">
                         <div>
-                            <p class="kicker">{{ strtoupper($product->type->label()) }}</p>
+                            <p class="kicker">{{ strtoupper($isArabic ? ($arabicTypeLabels[$product->type->value] ?? $product->type->label()) : $product->type->label()) }}</p>
                             <h3><a href="{{ $propertyUrl }}">{{ $productName }}</a></h3>
                             @if($location)
                                 <p class="search-card__location">{{ $location }}</p>
                             @endif
                         </div>
                         <div class="search-card__pricing">
-                            <span>From</span>
+                            <span>{{ $listingCopy['from'] }}</span>
                             <strong>{{ $product->currentDisplayCurrency() }} {{ number_format($product->currentDisplayPrice() ?? 0) }}</strong>
-                            <small>{{ $product->price_unit === 'trip' ? 'per trip' : ($product->price_unit === 'person' ? 'per person' : 'per night') }}</small>
+                            <small>{{ $product->price_unit === 'trip' ? $listingCopy['per_trip'] : ($product->price_unit === 'person' ? $listingCopy['per_person'] : $listingCopy['per_night']) }}</small>
                         </div>
                     </div>
 
@@ -124,28 +132,28 @@
                         <div class="package-offer-meta">
                             @if($product->offer_starts_on || $product->offer_ends_on)
                                 <span>
-                                    Valid {{ $product->offer_starts_on?->format('d M Y') ?? 'now' }}
-                                    @if($product->offer_ends_on) to {{ $product->offer_ends_on->format('d M Y') }} @endif
+                                    {{ $listingCopy['valid'] }} {{ $product->offer_starts_on?->format('d M Y') ?? $listingCopy['now'] }}
+                                    @if($product->offer_ends_on) {{ $listingCopy['to'] }} {{ $product->offer_ends_on->format('d M Y') }} @endif
                                 </span>
                             @endif
-                            @foreach($product->packageAudienceLabels() as $audience)
-                                <span>{{ $audience }}</span>
+                            @foreach($product->eligible_audiences ?? ['international'] as $audience)
+                                <span>{{ $audienceLabels[$audience] ?? $audience }}</span>
                             @endforeach
                             @if($product->packageGuestInclusionLabel())
-                                <span>{{ $product->packageGuestInclusionLabel() }} included</span>
+                                <span>{{ $product->packageGuestInclusionLabel() }} {{ $listingCopy['included'] }}</span>
                             @endif
                         </div>
                     @endif
 
                     <div class="search-card__meta">
                         @if($product->rating)
-                            <span>{{ number_format($product->rating, 1) }} star rating</span>
+                            <span>{{ number_format($product->rating, 1) }} {{ $listingCopy['rating'] }}</span>
                         @endif
                         @if($product->published_rooms_count)
-                            <span>{{ $product->published_rooms_count }} room types</span>
+                            <span>{{ $product->published_rooms_count }} {{ $listingCopy['room_types'] }}</span>
                         @endif
                         @if($primaryTransfer)
-                            <span>{{ \Illuminate\Support\Str::headline(str_replace('_', ' ', $primaryTransfer->transfer_type)) }} transfer</span>
+                            <span>{{ $isArabic ? 'انتقال' : \Illuminate\Support\Str::headline(str_replace('_', ' ', $primaryTransfer->transfer_type)).' '.$listingCopy['transfer'] }}</span>
                         @endif
                     </div>
 
@@ -159,7 +167,7 @@
 
                     @if($primaryTransfer)
                         <p class="search-card__transfer">
-                            Transfer: {{ $primaryTransfer->name }}
+                            {{ $isArabic ? 'الانتقال:' : 'Transfer:' }} {{ $primaryTransfer->name }}
                             @if($primaryTransfer->duration)
                                 · {{ $primaryTransfer->duration }}
                             @endif
@@ -167,8 +175,8 @@
                     @endif
 
                     <div class="search-card__actions">
-                        <a class="search-card__link" href="{{ $propertyUrl }}">View Property</a>
-                        <a class="search-card__button" href="{{ $propertyUrl }}">Request Availability</a>
+                        <a class="search-card__link" href="{{ $propertyUrl }}">{{ $listingCopy['view'] }}</a>
+                        <a class="search-card__button" href="{{ $propertyUrl }}">{{ $listingCopy['availability'] }}</a>
                     </div>
                 </div>
             </article>

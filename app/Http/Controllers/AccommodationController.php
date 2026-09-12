@@ -148,6 +148,7 @@ class AccommodationController extends Controller
     protected function renderShow(Accommodation $accommodation): View
     {
         abort_unless($accommodation->isCurrentlyPublished(), 404);
+        $isArabic = app()->getLocale() === 'ar';
 
         $accommodation->load([
             'facilities',
@@ -164,6 +165,11 @@ class AccommodationController extends Controller
         $similarProperties = Accommodation::published()
             ->with(['facilities'])
             ->whereKeyNot($accommodation->getKey())
+            ->when($isArabic, fn ($query) => $query
+                ->whereNotNull('arabic_name')
+                ->where(fn ($translated) => $translated
+                    ->whereNotNull('arabic_summary')
+                    ->orWhereNotNull('arabic_description')))
             ->where(function ($query) use ($accommodation) {
                 $query
                     ->where('type', $accommodation->type->value)
@@ -175,6 +181,11 @@ class AccommodationController extends Controller
             ->get();
 
         $relatedPosts = Post::published()
+            ->when($isArabic, fn ($query) => $query
+                ->whereNotNull('arabic_title')
+                ->where(fn ($translated) => $translated
+                    ->whereNotNull('arabic_excerpt')
+                    ->orWhereNotNull('arabic_body')))
             ->latest('published_at')
             ->take(3)
             ->get();
@@ -185,8 +196,8 @@ class AccommodationController extends Controller
             'relatedPosts' => $relatedPosts,
             'seo' => app(SeoManager::class)->forAccommodation($accommodation)->toArray(),
             'socialShare' => app(SocialShareService::class)->for($accommodation)->toArray(),
-            'isArabic' => app()->getLocale() === 'ar',
-            'alternateLanguages' => app()->getLocale() === 'ar'
+            'isArabic' => $isArabic,
+            'alternateLanguages' => $isArabic
                 ? ['en' => $this->englishEquivalentUrl(), 'x-default' => $this->englishEquivalentUrl()]
                 : ($accommodation->hasArabicTranslation() ? ['ar' => $this->arabicEquivalentUrl(), 'x-default' => $accommodation->publicUrl()] : []),
         ]);
