@@ -646,6 +646,15 @@ header .logo,
         text-align: right;
     }
 
+    /* Arabic headlines need more vertical room before the absolute booking panel. */
+    html[lang="ar"] .finder--premium {
+        bottom: -300px;
+    }
+
+    html[lang="ar"] .home-categories {
+        padding-top: 310px;
+    }
+
     html[lang="ar"] body {
         font-size: 16px;
     }
