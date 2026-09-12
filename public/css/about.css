@@ -175,6 +175,36 @@
     outline: none;
 }
 
+html[lang="ar"] .about-hero__inner,
+html[lang="ar"] .about-story__heading,
+html[lang="ar"] .about-story__content,
+html[lang="ar"] .about-card,
+html[lang="ar"] .about-contact__copy,
+html[lang="ar"] .about-contact__card {
+    text-align: right;
+}
+
+html[lang="ar"] .about-story__inner {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+}
+
+html[lang="ar"] .about-contact__inner {
+    grid-template-columns: 380px minmax(0, 1fr);
+}
+
+html[lang="ar"] .about-story__content p,
+html[lang="ar"] .about-card p,
+html[lang="ar"] .about-contact__copy p,
+html[lang="ar"] .about-contact__card p {
+    font-family: 'Noto Sans Arabic', sans-serif;
+    line-height: 2;
+}
+
+html[lang="ar"] .about-contact__address {
+    direction: ltr;
+    text-align: right;
+}
+
 @media (max-width: 1024px) {
     .about-story__inner,
     .about-contact__inner {
@@ -183,6 +213,11 @@
     }
 
     .about-highlights__inner {
+        grid-template-columns: 1fr;
+    }
+
+    html[lang="ar"] .about-story__inner,
+    html[lang="ar"] .about-contact__inner {
         grid-template-columns: 1fr;
     }
 }

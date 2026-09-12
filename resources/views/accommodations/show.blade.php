@@ -2,6 +2,16 @@
 
 @section('content')
 @php
+    $isArabic = $isArabic ?? app()->getLocale() === 'ar';
+    if ($isArabic && $accommodation->hasArabicTranslation()) {
+        // Keep relations, pricing, and route data intact while presenting the
+        // reviewed Arabic fields on the Arabic URL.
+        $accommodation = clone $accommodation;
+        $accommodation->name = $accommodation->arabic_name ?: $accommodation->name;
+        $accommodation->tagline = $accommodation->arabic_tagline ?: $accommodation->tagline;
+        $accommodation->summary = $accommodation->arabic_summary ?: $accommodation->summary;
+        $accommodation->description = $accommodation->arabic_description ?: $accommodation->description;
+    }
     $waMessage = "Hello Atolliva Maldives,\n\nI would like to check availability for:\n\nProperty: {$accommodation->name}";
     $wa = 'https://wa.me/'.env('MICRO_TRAVEL_WHATSAPP', '9609996210').'?text='.urlencode($waMessage);
     $galleryImages = $accommodation->galleryImages->pluck('image_path')->filter()->map(fn ($image) => str_starts_with($image, 'http') ? $image : asset('storage/'.$image))->values();

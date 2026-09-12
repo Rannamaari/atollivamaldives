@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Enums\AccommodationType;
 use App\Models\Accommodation;
 use App\Models\Facility;
+use App\Services\AutomaticTranslationService;
 use App\Services\SocialImageGeneratorService;
 use App\Services\SocialShareService;
 use App\Support\OptimizedImageUpload;
@@ -64,6 +65,64 @@ abstract class AbstractTravelProductResource extends Resource
                 Forms\Components\RichEditor::make('description')->columnSpanFull(),
                 Forms\Components\Textarea::make('address')->columnSpanFull(),
             ]),
+            Forms\Components\Section::make('Arabic translation')
+                ->description('Generate a Google Cloud Arabic draft for empty fields, then review or refine it before sharing the Arabic page.')
+                ->collapsed()
+                ->columns(2)
+                ->schema([
+                    Forms\Components\TextInput::make('arabic_name')
+                        ->label('Arabic name')
+                        ->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                    Forms\Components\TextInput::make('arabic_tagline')
+                        ->label('Arabic tagline')
+                        ->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                    Forms\Components\Textarea::make('arabic_summary')
+                        ->label('Arabic summary')
+                        ->rows(3)
+                        ->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar'])
+                        ->columnSpanFull(),
+                    Forms\Components\RichEditor::make('arabic_description')
+                        ->label('Arabic description')
+                        ->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar'])
+                        ->columnSpanFull(),
+                    Forms\Components\TextInput::make('arabic_seo_title')
+                        ->label('Arabic SEO title')
+                        ->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                    Forms\Components\Textarea::make('arabic_seo_description')
+                        ->label('Arabic SEO description')
+                        ->rows(3)
+                        ->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                    Actions::make([
+                        Action::make('generateMissingArabicDraft')
+                            ->label('Generate Missing Arabic Draft')
+                            ->icon('heroicon-o-language')
+                            ->requiresConfirmation()
+                            ->modalHeading('Generate an Arabic draft?')
+                            ->modalDescription('Only empty Arabic fields will be filled. Existing Arabic content is never overwritten, so you can safely review and edit it afterwards.')
+                            ->visible(fn (?Accommodation $record): bool => $record !== null)
+                            ->action(function (Accommodation $record, Forms\Set $set): void {
+                                try {
+                                    $updates = static::generateMissingArabicDraft($record);
+
+                                    if ($updates === []) {
+                                        Notification::make()->title('Arabic fields are already filled')->info()->send();
+
+                                        return;
+                                    }
+
+                                    $record->update($updates);
+
+                                    foreach ($updates as $field => $value) {
+                                        $set($field, $value);
+                                    }
+
+                                    Notification::make()->title('Arabic draft generated')->body('Review the Arabic copy, then save any refinements.')->success()->send();
+                                } catch (\RuntimeException $exception) {
+                                    Notification::make()->title('Arabic draft was not generated')->body($exception->getMessage())->danger()->send();
+                                }
+                            }),
+                    ])->columnSpanFull(),
+                ]),
             Forms\Components\Section::make('Pricing, media & highlights')->columns(3)->schema([
                 Forms\Components\TextInput::make('price_from')->numeric()->prefix('$'),
                 Forms\Components\TextInput::make('currency')->default('USD')->maxLength(3),
@@ -321,6 +380,38 @@ abstract class AbstractTravelProductResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('generateMissingArabicDrafts')
+                        ->label('Generate Missing Arabic Drafts')
+                        ->icon('heroicon-o-language')
+                        ->requiresConfirmation()
+                        ->modalHeading('Generate Arabic drafts for selected products?')
+                        ->modalDescription('Only empty Arabic fields are filled. Existing approved Arabic content is preserved.')
+                        ->action(function ($records): void {
+                            $translated = 0;
+                            $skipped = 0;
+
+                            foreach ($records as $record) {
+                                try {
+                                    $updates = static::generateMissingArabicDraft($record);
+
+                                    if ($updates === []) {
+                                        $skipped++;
+                                        continue;
+                                    }
+
+                                    $record->update($updates);
+                                    $translated++;
+                                } catch (\RuntimeException $exception) {
+                                    report($exception);
+                                }
+                            }
+
+                            Notification::make()
+                                ->title('Arabic draft generation finished')
+                                ->body("Generated drafts for {$translated} product(s). {$skipped} already had Arabic content. Review every draft before publishing.")
+                                ->success()
+                                ->send();
+                        }),
                     Tables\Actions\BulkAction::make('generateSocialImages')
                         ->label('Generate Social Images')
                         ->action(function ($records): void {
@@ -338,5 +429,30 @@ abstract class AbstractTravelProductResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    /**
+     * Google output is a starting point only. The action intentionally leaves
+     * existing Arabic copy untouched so editorial changes are never lost.
+     */
+    protected static function generateMissingArabicDraft(Accommodation $record): array
+    {
+        $translator = app(AutomaticTranslationService::class);
+        $updates = [];
+
+        foreach ([
+            'arabic_name' => [$record->name, false],
+            'arabic_tagline' => [$record->tagline, false],
+            'arabic_summary' => [$record->summary, false],
+            'arabic_description' => [$record->description, true],
+            'arabic_seo_title' => [$record->seo_title ?: $record->seoTitleFallback(), false],
+            'arabic_seo_description' => [$record->seo_description ?: $record->seoDescriptionFallback(), false],
+        ] as $field => [$source, $isHtml]) {
+            if (blank($record->{$field}) && filled($source)) {
+                $updates[$field] = $translator->translate((string) $source, 'ar', $isHtml);
+            }
+        }
+
+        return $updates;
     }
 }

@@ -1,11 +1,15 @@
 @extends('layouts.app')
 
 @php
-    $pageTitle = $selectedType ? $selectedType->label().' — Atolliva Maldives' : 'Travel Products — Atolliva Maldives';
+    $isArabic = $isArabic ?? app()->getLocale() === 'ar';
+    $arabicTypeLabels = ['resort' => 'المنتجعات', 'guesthouse' => 'بيوت الضيافة', 'liveaboard' => 'رحلات القوارب', 'city_hotel' => 'فنادق المدينة', 'package' => 'الباقات'];
+    $pageTitle = $isArabic
+        ? (($selectedType ? ($arabicTypeLabels[$selectedType->value] ?? $selectedType->label()) : 'خيارات السفر').' — أتوليفا المالديف')
+        : ($selectedType ? $selectedType->label().' — Atolliva Maldives' : 'Travel Products — Atolliva Maldives');
     $pageHeading = $selectedIsland?->name
         ?? $selectedAtoll?->name
-        ?? ($selectedType ? $selectedType->label() : 'Travel Products');
-    $pageIntro = match (true) {
+        ?? ($selectedType ? ($isArabic ? ($arabicTypeLabels[$selectedType->value] ?? $selectedType->label()) : $selectedType->label()) : ($isArabic ? 'خيارات السفر' : 'Travel Products'));
+    $pageIntro = $isArabic ? 'اكتشف الإقامات والباقات المختارة بعناية في المالديف، واعثر على الخيار المناسب لرحلتك.' : match (true) {
         (bool) $selectedIsland => 'Explore guest houses in '.$selectedIsland->name.', '.($selectedAtoll?->name ?? 'Maldives').' for your Maldives journey.',
         (bool) $selectedAtoll => 'Explore guest houses across '.$selectedAtoll->name.' for your Maldives journey.',
         (bool) $selectedType => 'Explore handpicked '.$selectedType->label().' for your Maldives journey.',
@@ -35,8 +39,8 @@
 @include('partials.site-nav', ['whatsAppText' => 'Hello Atolliva Maldives, I would like help planning a Maldives holiday.'])
 
 <section class="listing-page listing-page--travel">
-    <p class="kicker">EXPLORE THE MALDIVES</p>
-    <h1>{{ $pageHeading }}<br><em>curated for you.</em></h1>
+    <p class="kicker">{{ $isArabic ? 'اكتشف المالديف' : 'EXPLORE THE MALDIVES' }}</p>
+    <h1>{{ $pageHeading }}<br><em>{{ $isArabic ? 'مختارة لأجلك.' : 'curated for you.' }}</em></h1>
     <p class="listing-page__intro">{{ $pageIntro }}</p>
 
     <form class="search-panel" method="get" action="{{ $searchAction }}">
@@ -81,6 +85,8 @@
     <div class="search-results">
         @forelse($items as $product)
             @php
+                $productName = $isArabic && $product->hasArabicTranslation() ? $product->arabic_name : $product->name;
+                $productSummary = $isArabic && $product->hasArabicTranslation() ? $product->arabic_summary : $product->summary;
                 $image = str_starts_with($product->cover_image, 'http') ? $product->cover_image : asset('storage/'.$product->cover_image);
                 $location = collect([$product->islandRelation?->name ?: $product->island, $product->atollRelation?->name ?: $product->atoll, $product->city])->filter()->implode(', ');
                 $facilities = $product->facilities->take(4);
@@ -89,7 +95,7 @@
             @endphp
             <article @class(['search-card', 'search-card--package' => $product->type === \App\Enums\AccommodationType::Package])>
                 <a class="search-card__media" href="{{ $propertyUrl }}">
-                    <img src="{{ $image }}" alt="{{ $product->name }}" loading="lazy" decoding="async">
+                    <img src="{{ $image }}" alt="{{ $productName }}" loading="lazy" decoding="async">
                     @if($product->type === \App\Enums\AccommodationType::Package && $product->package_best_seller)
                         <span class="package-card-badge">Best Seller</span>
                     @endif
@@ -98,7 +104,7 @@
                     <div class="search-card__head">
                         <div>
                             <p class="kicker">{{ strtoupper($product->type->label()) }}</p>
-                            <h3><a href="{{ $propertyUrl }}">{{ $product->name }}</a></h3>
+                            <h3><a href="{{ $propertyUrl }}">{{ $productName }}</a></h3>
                             @if($location)
                                 <p class="search-card__location">{{ $location }}</p>
                             @endif
@@ -110,8 +116,8 @@
                         </div>
                     </div>
 
-                    @if($product->summary)
-                        <p class="search-card__summary">{{ $product->summary }}</p>
+                    @if($productSummary)
+                        <p class="search-card__summary">{{ $productSummary }}</p>
                     @endif
 
                     @if($product->type === \App\Enums\AccommodationType::Package)
@@ -168,8 +174,8 @@
             </article>
         @empty
             <div class="search-empty">
-                <h3>No matching properties yet.</h3>
-                <p>Try broadening your destination or travel product filters, or contact Atolliva Maldives for a custom recommendation.</p>
+                <h3>{{ $isArabic ? 'لا توجد خيارات مطابقة حالياً.' : 'No matching properties yet.' }}</h3>
+                <p>{{ $isArabic ? 'جرّب توسيع وجهتك أو خيارات نوع الإقامة، أو تواصل مع أتوليفا المالديف لنقترح عليك خيارات تناسب رحلتك.' : 'Try broadening your destination or travel product filters, or contact Atolliva Maldives for a custom recommendation.' }}</p>
             </div>
         @endforelse
     </div>

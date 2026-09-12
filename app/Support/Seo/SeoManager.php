@@ -74,9 +74,14 @@ class SeoManager
 
     public function forAccommodation(Accommodation $accommodation): SeoData
     {
-        $title = $accommodation->seo_title ?: $accommodation->seoTitleFallback();
-        $description = $accommodation->seoDescriptionFallback();
-        $breadcrumbs = $accommodation->seoBreadcrumbs();
+        $isArabic = app()->getLocale() === 'ar' && $accommodation->hasArabicTranslation();
+        $title = $isArabic
+            ? $accommodation->arabicSeoTitleFallback()
+            : ($accommodation->seo_title ?: $accommodation->seoTitleFallback());
+        $description = $isArabic
+            ? $accommodation->arabicSeoDescriptionFallback()
+            : $accommodation->seoDescriptionFallback();
+        $breadcrumbs = $isArabic ? $accommodation->arabicSeoBreadcrumbs() : $accommodation->seoBreadcrumbs();
 
         return $this->forCurrentRequest([
             'title' => $title,
@@ -88,7 +93,7 @@ class SeoManager
             'breadcrumbs' => $breadcrumbs,
             'schema' => [
                 $this->breadcrumbSchema($breadcrumbs),
-                $this->accommodationSchema($accommodation),
+                $this->accommodationSchema($accommodation, $isArabic),
             ],
         ]);
     }
@@ -170,16 +175,21 @@ class SeoManager
 
     public function forLiveaboardLanding(LiveaboardPage $page): SeoData
     {
-        $title = 'Maldives Liveaboards | Diving Cruises & Private Charters | Atolliva Maldives';
-        $description = trim(strip_tags($page->intro ?: 'Discover liveaboard charters and voyages across the Maldives with Atolliva Maldives.'));
+        $isArabic = app()->getLocale() === 'ar';
+        $title = $isArabic
+            ? 'رحلات القوارب في المالديف | أتوليفا المالديف'
+            : 'Maldives Liveaboards | Diving Cruises & Private Charters | Atolliva Maldives';
+        $description = trim(strip_tags($isArabic
+            ? ($page->arabic_intro ?: 'اكتشف رحلات القوارب والمواثيق الخاصة في جزر المالديف مع أتوليفا المالديف.')
+            : ($page->intro ?: 'Discover liveaboard charters and voyages across the Maldives with Atolliva Maldives.')));
 
         return $this->forSimplePage(
             title: $title,
             description: $description,
-            canonical: route('liveaboards.index'),
+            canonical: route($isArabic ? 'arabic.liveaboards.index' : 'liveaboards.index'),
             breadcrumbs: [
-                ['name' => 'Home', 'url' => route('home')],
-                ['name' => 'Liveaboards', 'url' => route('liveaboards.index')],
+                ['name' => $isArabic ? 'الرئيسية' : 'Home', 'url' => route($isArabic ? 'arabic.home' : 'home')],
+                ['name' => $isArabic ? 'رحلات القوارب' : 'Liveaboards', 'url' => route($isArabic ? 'arabic.liveaboards.index' : 'liveaboards.index')],
             ],
             image: $page->hero_image_url,
         );
@@ -269,7 +279,7 @@ class SeoManager
         ], fn ($value) => filled($value) || is_array($value));
     }
 
-    protected function accommodationSchema(Accommodation $accommodation): array
+    protected function accommodationSchema(Accommodation $accommodation, bool $arabic = false): array
     {
         $type = match ($accommodation->type->value) {
             'resort', 'guesthouse', 'city_hotel' => 'LodgingBusiness',
@@ -281,8 +291,8 @@ class SeoManager
         return array_filter([
             '@context' => 'https://schema.org',
             '@type' => $type,
-            'name' => $accommodation->name,
-            'description' => $accommodation->seoDescriptionFallback(),
+            'name' => $arabic ? $accommodation->arabic_name : $accommodation->name,
+            'description' => $arabic ? $accommodation->arabicSeoDescriptionFallback() : $accommodation->seoDescriptionFallback(),
             'image' => [$accommodation->seoImageUrl()],
             'url' => $accommodation->publicUrl(),
             'address' => filled($accommodation->address) ? [

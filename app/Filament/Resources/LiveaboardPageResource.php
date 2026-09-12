@@ -4,10 +4,14 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\LiveaboardPageResource\Pages;
 use App\Models\LiveaboardPage;
+use App\Services\AutomaticTranslationService;
 use App\Support\OptimizedImageUpload;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Actions;
+use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -41,6 +45,62 @@ class LiveaboardPageResource extends Resource
                 Forms\Components\Textarea::make('intro')->rows(3)->columnSpanFull(),
                 Forms\Components\RichEditor::make('body')->columnSpanFull(),
             ]),
+            Forms\Components\Section::make('Arabic translation')
+                ->description('Generate a Google Cloud Arabic draft, then review and edit it before it appears on /ar/liveaboards.')
+                ->collapsed()
+                ->columns(2)
+                ->schema([
+                    Forms\Components\TextInput::make('arabic_eyebrow')->label('Arabic eyebrow')->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                    Forms\Components\TextInput::make('arabic_title')->label('Arabic title')->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                    Forms\Components\Textarea::make('arabic_intro')->label('Arabic introduction')->rows(3)->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar'])->columnSpanFull(),
+                    Forms\Components\RichEditor::make('arabic_body')->label('Arabic story')->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar'])->columnSpanFull(),
+                    Forms\Components\TextInput::make('arabic_contact_heading')->label('Arabic contact heading')->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                    Forms\Components\Textarea::make('arabic_contact_text')->label('Arabic contact text')->rows(3)->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                    Actions::make([
+                        Action::make('generateMissingArabicDraft')
+                            ->label('Generate Missing Arabic Draft')
+                            ->icon('heroicon-o-language')
+                            ->requiresConfirmation()
+                            ->modalHeading('Generate the Arabic liveaboard page draft?')
+                            ->modalDescription('Only empty Arabic fields will be filled. Existing Arabic edits will not be replaced.')
+                            ->visible(fn (?LiveaboardPage $record): bool => $record !== null)
+                            ->action(function (LiveaboardPage $record, Forms\Set $set): void {
+                                try {
+                                    $translator = app(AutomaticTranslationService::class);
+                                    $updates = [];
+
+                                    foreach ([
+                                        'arabic_eyebrow' => [$record->eyebrow, false],
+                                        'arabic_title' => [$record->title, false],
+                                        'arabic_intro' => [$record->intro, false],
+                                        'arabic_body' => [$record->body, true],
+                                        'arabic_contact_heading' => [$record->contact_heading, false],
+                                        'arabic_contact_text' => [$record->contact_text, false],
+                                    ] as $field => [$source, $isHtml]) {
+                                        if (blank($record->{$field}) && filled($source)) {
+                                            $updates[$field] = $translator->translate((string) $source, 'ar', $isHtml);
+                                        }
+                                    }
+
+                                    if ($updates === []) {
+                                        Notification::make()->title('Arabic fields are already filled')->info()->send();
+
+                                        return;
+                                    }
+
+                                    $record->update($updates);
+
+                                    foreach ($updates as $field => $value) {
+                                        $set($field, $value);
+                                    }
+
+                                    Notification::make()->title('Arabic liveaboard draft generated')->body('Review the draft, then save any refinements.')->success()->send();
+                                } catch (\RuntimeException $exception) {
+                                    Notification::make()->title('Arabic draft was not generated')->body($exception->getMessage())->danger()->send();
+                                }
+                            }),
+                    ])->columnSpanFull(),
+                ]),
             Forms\Components\Section::make('Gallery')->schema([
                 OptimizedImageUpload::make(
                     Forms\Components\FileUpload::make('gallery_images'),

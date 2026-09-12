@@ -11,6 +11,7 @@ class LiveaboardController extends Controller
 {
     public function __invoke(SeoManager $seoManager): View
     {
+        $isArabic = app()->getLocale() === 'ar';
         $page = LiveaboardPage::current();
 
         $liveaboards = Accommodation::published()
@@ -22,6 +23,10 @@ class LiveaboardController extends Controller
             'page' => $page,
             'liveaboards' => $liveaboards,
             'seo' => $seoManager->forLiveaboardLanding($page)->toArray(),
+            'isArabic' => $isArabic,
+            'alternateLanguages' => $isArabic
+                ? ['en' => route('liveaboards.index'), 'x-default' => route('liveaboards.index')]
+                : ['ar' => route('arabic.liveaboards.index'), 'x-default' => route('liveaboards.index')],
         ]);
     }
 }

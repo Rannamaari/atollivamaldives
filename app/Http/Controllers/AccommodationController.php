@@ -17,6 +17,7 @@ class AccommodationController extends Controller
 {
     public function index(Request $request, SeoManager $seoManager): View
     {
+        $isArabic = app()->getLocale() === 'ar';
         $type = $request->route('type') ?: $request->string('type')->toString();
         $atoll = $request->route('atoll');
         $island = $request->route('island');
@@ -56,8 +57,12 @@ class AccommodationController extends Controller
             'selectedAtoll' => $atoll instanceof Atoll ? $atoll : null,
             'selectedIsland' => $island instanceof Island ? $island : null,
             'seo' => array_merge($seoManager->forListing(
-                title: $this->listingSeoTitle($selectedType, $atoll instanceof Atoll ? $atoll : null, $island instanceof Island ? $island : null),
-                description: $this->listingSeoDescription($selectedType, $atoll instanceof Atoll ? $atoll : null, $island instanceof Island ? $island : null),
+                title: $isArabic
+                    ? $this->arabicListingSeoTitle($selectedType)
+                    : $this->listingSeoTitle($selectedType, $atoll instanceof Atoll ? $atoll : null, $island instanceof Island ? $island : null),
+                description: $isArabic
+                    ? $this->arabicListingSeoDescription($selectedType)
+                    : $this->listingSeoDescription($selectedType, $atoll instanceof Atoll ? $atoll : null, $island instanceof Island ? $island : null),
                 canonical: $this->listingCanonicalUrl($selectedType, $atoll instanceof Atoll ? $atoll : null, $island instanceof Island ? $island : null),
                 breadcrumbs: $this->listingBreadcrumbs($selectedType, $atoll instanceof Atoll ? $atoll : null, $island instanceof Island ? $island : null),
             )->toArray(), [
@@ -70,6 +75,10 @@ class AccommodationController extends Controller
                 'adults' => $adults,
                 'children' => $children,
             ],
+            'isArabic' => $isArabic,
+            'alternateLanguages' => $isArabic
+                ? ['en' => $this->englishEquivalentUrl(), 'x-default' => $this->englishEquivalentUrl()]
+                : ['ar' => $this->arabicEquivalentUrl(), 'x-default' => url()->current()],
         ]);
     }
 
@@ -176,7 +185,45 @@ class AccommodationController extends Controller
             'relatedPosts' => $relatedPosts,
             'seo' => app(SeoManager::class)->forAccommodation($accommodation)->toArray(),
             'socialShare' => app(SocialShareService::class)->for($accommodation)->toArray(),
+            'isArabic' => app()->getLocale() === 'ar',
+            'alternateLanguages' => app()->getLocale() === 'ar'
+                ? ['en' => $this->englishEquivalentUrl(), 'x-default' => $this->englishEquivalentUrl()]
+                : ($accommodation->hasArabicTranslation() ? ['ar' => $this->arabicEquivalentUrl(), 'x-default' => $accommodation->publicUrl()] : []),
         ]);
+    }
+
+    protected function arabicListingSeoTitle(?AccommodationType $selectedType): string
+    {
+        return match ($selectedType?->value) {
+            'resort' => 'منتجعات المالديف | أتوليفا المالديف',
+            'guesthouse' => 'بيوت ضيافة المالديف | أتوليفا المالديف',
+            'liveaboard' => 'رحلات القوارب في المالديف | أتوليفا المالديف',
+            'city_hotel' => 'فنادق مدينة ماليه | أتوليفا المالديف',
+            'package' => 'باقات عطلات المالديف | أتوليفا المالديف',
+            default => 'الإقامات وباقات السفر في المالديف | أتوليفا المالديف',
+        };
+    }
+
+    protected function arabicListingSeoDescription(?AccommodationType $selectedType): string
+    {
+        return match ($selectedType?->value) {
+            'resort' => 'اكتشف منتجعات مختارة بعناية في المالديف مع أتوليفا المالديف.',
+            'guesthouse' => 'اكتشف بيوت الضيافة وتجارب الجزر المحلية في المالديف مع أتوليفا المالديف.',
+            'liveaboard' => 'اكتشف رحلات القوارب والرحلات البحرية في المالديف مع أتوليفا المالديف.',
+            'city_hotel' => 'اكتشف فنادق مدينة ماليه والإقامات القريبة من المطار مع أتوليفا المالديف.',
+            'package' => 'اكتشف باقات عطلات المالديف المصممة بعناية مع أتوليفا المالديف.',
+            default => 'اكتشف المنتجعات وبيوت الضيافة والفنادق وباقات السفر ورحلات القوارب في المالديف.',
+        };
+    }
+
+    protected function arabicEquivalentUrl(): string
+    {
+        return url('/ar/'.ltrim(request()->path(), '/')).(request()->getQueryString() ? '?'.request()->getQueryString() : '');
+    }
+
+    protected function englishEquivalentUrl(): string
+    {
+        return url('/'.preg_replace('#^ar/?#', '', request()->path())).(request()->getQueryString() ? '?'.request()->getQueryString() : '');
     }
 
     protected function listingSeoTitle(?AccommodationType $selectedType, ?Atoll $atoll, ?Island $island): string
@@ -221,37 +268,44 @@ class AccommodationController extends Controller
 
     protected function listingCanonicalUrl(?AccommodationType $selectedType, ?Atoll $atoll, ?Island $island): string
     {
+        $routePrefix = app()->getLocale() === 'ar' ? 'arabic.' : '';
+
         if ($island && $atoll) {
-            return route('guesthouses.island', [$atoll, $island]);
+            return route($routePrefix.'guesthouses.island', [$atoll, $island]);
         }
 
         if ($atoll) {
-            return route('guesthouses.atoll', $atoll);
+            return route($routePrefix.'guesthouses.atoll', $atoll);
         }
 
         return match ($selectedType?->value) {
-            'resort' => route('resorts.index'),
-            'guesthouse' => route('guesthouses.index'),
-            'liveaboard' => route('liveaboards.index'),
-            'city_hotel' => route('cityhotels.index'),
-            'package' => route('packages.index'),
-            default => route('accommodations.index'),
+            'resort' => route($routePrefix.'resorts.index'),
+            'guesthouse' => route($routePrefix.'guesthouses.index'),
+            'liveaboard' => route($routePrefix.'liveaboards.index'),
+            'city_hotel' => route($routePrefix.'cityhotels.index'),
+            'package' => route($routePrefix.'packages.index'),
+            default => route($routePrefix.'accommodations.index'),
         };
     }
 
     protected function listingBreadcrumbs(?AccommodationType $selectedType, ?Atoll $atoll, ?Island $island): array
     {
-        $breadcrumbs = [['name' => 'Home', 'url' => route('home')]];
+        $isArabic = app()->getLocale() === 'ar';
+        $routePrefix = $isArabic ? 'arabic.' : '';
+        $typeLabels = $isArabic
+            ? ['resort' => 'المنتجعات', 'guesthouse' => 'بيوت الضيافة', 'liveaboard' => 'رحلات القوارب', 'city_hotel' => 'فنادق المدينة', 'package' => 'الباقات']
+            : [];
+        $breadcrumbs = [['name' => $isArabic ? 'الرئيسية' : 'Home', 'url' => route($routePrefix.'home')]];
 
         if ($selectedType?->value === 'guesthouse') {
-            $breadcrumbs[] = ['name' => 'Guesthouses', 'url' => route('guesthouses.index')];
+            $breadcrumbs[] = ['name' => $isArabic ? 'بيوت الضيافة' : 'Guesthouses', 'url' => route($routePrefix.'guesthouses.index')];
 
             if ($atoll) {
-                $breadcrumbs[] = ['name' => $atoll->name, 'url' => route('guesthouses.atoll', $atoll)];
+                $breadcrumbs[] = ['name' => $atoll->name, 'url' => route($routePrefix.'guesthouses.atoll', $atoll)];
             }
 
             if ($atoll && $island) {
-                $breadcrumbs[] = ['name' => $island->name, 'url' => route('guesthouses.island', [$atoll, $island])];
+                $breadcrumbs[] = ['name' => $island->name, 'url' => route($routePrefix.'guesthouses.island', [$atoll, $island])];
             }
 
             return $breadcrumbs;
@@ -259,19 +313,19 @@ class AccommodationController extends Controller
 
         if ($selectedType) {
             $route = match ($selectedType->value) {
-                'resort' => route('resorts.index'),
-                'liveaboard' => route('liveaboards.index'),
-                'city_hotel' => route('cityhotels.index'),
-                'package' => route('packages.index'),
-                default => route('accommodations.index'),
+                'resort' => route($routePrefix.'resorts.index'),
+                'liveaboard' => route($routePrefix.'liveaboards.index'),
+                'city_hotel' => route($routePrefix.'cityhotels.index'),
+                'package' => route($routePrefix.'packages.index'),
+                default => route($routePrefix.'accommodations.index'),
             };
 
-            $breadcrumbs[] = ['name' => $selectedType->label(), 'url' => $route];
+            $breadcrumbs[] = ['name' => $typeLabels[$selectedType->value] ?? $selectedType->label(), 'url' => $route];
 
             return $breadcrumbs;
         }
 
-        $breadcrumbs[] = ['name' => 'Travel Products', 'url' => route('accommodations.index')];
+        $breadcrumbs[] = ['name' => $isArabic ? 'خيارات السفر' : 'Travel Products', 'url' => route($routePrefix.'accommodations.index')];
 
         return $breadcrumbs;
     }

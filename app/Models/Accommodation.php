@@ -139,17 +139,18 @@ class Accommodation extends Model implements SocialShareable
     public function publicPathForSlug(?string $slug = null): string
     {
         $slug ??= $this->slug;
+        $routePrefix = app()->getLocale() === 'ar' ? 'arabic.' : '';
 
         return match ($this->type) {
-            AccommodationType::Resort => route('resorts.show', ['accommodation' => $slug], false),
-            AccommodationType::Guesthouse => route('guesthouses.show', [
+            AccommodationType::Resort => route($routePrefix.'resorts.show', ['accommodation' => $slug], false),
+            AccommodationType::Guesthouse => route($routePrefix.'guesthouses.show', [
                 'atoll' => $this->atollRelation?->slug ?? Str::slug((string) $this->atoll),
                 'island' => $this->islandRelation?->slug ?? Str::slug((string) $this->island),
                 'accommodation' => $slug,
             ], false),
-            AccommodationType::Liveaboard => route('liveaboards.show', ['accommodation' => $slug], false),
-            AccommodationType::CityHotel => route('cityhotels.show', ['accommodation' => $slug], false),
-            AccommodationType::Package => route('packages.show', [
+            AccommodationType::Liveaboard => route($routePrefix.'liveaboards.show', ['accommodation' => $slug], false),
+            AccommodationType::CityHotel => route($routePrefix.'cityhotels.show', ['accommodation' => $slug], false),
+            AccommodationType::Package => route($routePrefix.'packages.show', [
                 'category' => $this->packageCategorySlug(),
                 'accommodation' => $slug,
             ], false),
@@ -208,6 +209,23 @@ class Accommodation extends Model implements SocialShareable
         };
     }
 
+    public function hasArabicTranslation(): bool
+    {
+        return filled($this->arabic_name) && (filled($this->arabic_summary) || filled($this->arabic_description));
+    }
+
+    public function arabicSeoTitleFallback(): string
+    {
+        return trim((string) ($this->arabic_seo_title ?: $this->arabic_name.' | أتوليفا المالديف'));
+    }
+
+    public function arabicSeoDescriptionFallback(): string
+    {
+        return (string) ($this->arabic_seo_description
+            ?: $this->arabic_summary
+            ?: str($this->arabic_description)->stripTags()->squish()->limit(160));
+    }
+
     public function seoImageUrl(): string
     {
         $image = $this->cover_image;
@@ -251,6 +269,31 @@ class Accommodation extends Model implements SocialShareable
                 ['name' => $this->name, 'url' => url($this->publicPathForSlug())],
             ],
         };
+    }
+
+    public function arabicSeoBreadcrumbs(): array
+    {
+        $routePrefix = 'arabic.';
+        $labels = [
+            AccommodationType::Resort->value => 'المنتجعات',
+            AccommodationType::Guesthouse->value => 'بيوت الضيافة',
+            AccommodationType::Liveaboard->value => 'رحلات القوارب',
+            AccommodationType::CityHotel->value => 'فنادق المدينة',
+            AccommodationType::Package->value => 'الباقات',
+        ];
+        $indexRoute = match ($this->type) {
+            AccommodationType::Resort => 'resorts.index',
+            AccommodationType::Guesthouse => 'guesthouses.index',
+            AccommodationType::Liveaboard => 'liveaboards.index',
+            AccommodationType::CityHotel => 'cityhotels.index',
+            AccommodationType::Package => 'packages.index',
+        };
+
+        return [
+            ['name' => 'الرئيسية', 'url' => route($routePrefix.'home')],
+            ['name' => $labels[$this->type->value], 'url' => route($routePrefix.$indexRoute)],
+            ['name' => $this->arabic_name ?: $this->name, 'url' => $this->publicUrl()],
+        ];
     }
 
     public function socialShareType(): string

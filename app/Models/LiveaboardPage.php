@@ -9,12 +9,18 @@ class LiveaboardPage extends Model
     protected $fillable = [
         'hero_image',
         'eyebrow',
+        'arabic_eyebrow',
         'title',
+        'arabic_title',
         'intro',
+        'arabic_intro',
         'body',
+        'arabic_body',
         'gallery_images',
         'contact_heading',
+        'arabic_contact_heading',
         'contact_text',
+        'arabic_contact_text',
     ];
 
     protected function casts(): array
