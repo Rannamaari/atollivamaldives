@@ -58,6 +58,9 @@ Route::prefix('ar')->middleware(SetPublicLocale::class.':ar')->name('arabic.')->
     Route::get('/resorts', [AccommodationController::class, 'index'])->defaults('type', 'resort')->name('resorts.index');
     Route::get('/resorts/{accommodation:slug}', [AccommodationController::class, 'resortShow'])->name('resorts.show');
     Route::get('/guesthouses', [AccommodationController::class, 'index'])->defaults('type', 'guesthouse')->name('guesthouses.index');
+    Route::get('/guesthouses/{atoll:slug}', [AccommodationController::class, 'index'])->defaults('type', 'guesthouse')->name('guesthouses.atoll');
+    Route::get('/guesthouses/{atoll:slug}/{island:slug}', [AccommodationController::class, 'index'])->defaults('type', 'guesthouse')->name('guesthouses.island');
+    Route::get('/guesthouses/{atoll:slug}/{island:slug}/{accommodation:slug}', [AccommodationController::class, 'guesthouseShow'])->name('guesthouses.show');
     Route::get('/city-hotels', [AccommodationController::class, 'index'])->defaults('type', 'city_hotel')->name('cityhotels.index');
     Route::get('/city-hotels/{accommodation:slug}', [AccommodationController::class, 'cityHotelShow'])->name('cityhotels.show');
     Route::get('/packages', [AccommodationController::class, 'index'])->defaults('type', 'package')->name('packages.index');

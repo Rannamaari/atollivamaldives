@@ -12,17 +12,24 @@ class BlogController extends Controller
 {
     public function index(SeoManager $seoManager): View
     {
+        $isArabic = app()->getLocale() === 'ar';
+        $blogRoute = $isArabic ? 'arabic.blog.index' : 'blog.index';
+
         return view('blog.index', [
             'posts' => Post::published()->latest('published_at')->paginate(12),
+            'isArabic' => $isArabic,
             'seo' => $seoManager->forListing(
-                title: 'Maldives Travel Blog & Guides | Atolliva Maldives',
-                description: 'Read Maldives travel guides, resort advice, local island ideas, liveaboard inspiration and holiday planning tips from Atolliva Maldives.',
-                canonical: route('blog.index'),
+                title: $isArabic ? 'مدونة المالديف ودليل السفر | أتوليفا المالديف' : 'Maldives Travel Blog & Guides | Atolliva Maldives',
+                description: $isArabic ? 'اقرأ أدلة السفر إلى المالديف وأفكار الجزر ونصائح المنتجعات ورحلات القوارب من أتوليفا المالديف.' : 'Read Maldives travel guides, resort advice, local island ideas, liveaboard inspiration and holiday planning tips from Atolliva Maldives.',
+                canonical: route($blogRoute),
                 breadcrumbs: [
-                    ['name' => 'Home', 'url' => route('home')],
-                    ['name' => 'Blog', 'url' => route('blog.index')],
+                    ['name' => $isArabic ? 'الرئيسية' : 'Home', 'url' => route($isArabic ? 'arabic.home' : 'home')],
+                    ['name' => $isArabic ? 'المدونة' : 'Blog', 'url' => route($blogRoute)],
                 ],
             )->toArray(),
+            'alternateLanguages' => $isArabic
+                ? ['en' => route('blog.index'), 'x-default' => route('blog.index')]
+                : ['ar' => route('arabic.blog.index'), 'x-default' => route('blog.index')],
         ]);
     }
 
