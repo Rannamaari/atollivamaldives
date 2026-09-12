@@ -86,7 +86,7 @@
         <button type="submit">{{ $listingCopy['search'] }}</button>
     </form>
 
-    @if($searchSummary)
+    @if(($hasSearchFilters ?? false) && $searchSummary)
         <p class="listing-page__summary">{{ $searchSummary }}</p>
     @endif
 

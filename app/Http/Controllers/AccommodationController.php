@@ -75,6 +75,7 @@ class AccommodationController extends Controller
                 'adults' => $adults,
                 'children' => $children,
             ],
+            'hasSearchFilters' => $hasSearchFilters,
             'isArabic' => $isArabic,
             'alternateLanguages' => $isArabic
                 ? ['en' => $this->englishEquivalentUrl(), 'x-default' => $this->englishEquivalentUrl()]

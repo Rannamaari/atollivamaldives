@@ -138,8 +138,18 @@ class Accommodation extends Model implements SocialShareable
 
     public function publicPathForSlug(?string $slug = null): string
     {
+        return $this->publicPathForLocale(app()->getLocale(), $slug);
+    }
+
+    public function arabicPublicPath(): string
+    {
+        return $this->publicPathForLocale('ar');
+    }
+
+    public function publicPathForLocale(string $locale, ?string $slug = null): string
+    {
         $slug ??= $this->slug;
-        $routePrefix = app()->getLocale() === 'ar' ? 'arabic.' : '';
+        $routePrefix = $locale === 'ar' ? 'arabic.' : '';
 
         return match ($this->type) {
             AccommodationType::Resort => route($routePrefix.'resorts.show', ['accommodation' => $slug], false),

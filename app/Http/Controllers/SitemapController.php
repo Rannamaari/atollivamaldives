@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Accommodation;
 use App\Models\Atoll;
 use App\Models\Island;
+use App\Models\LiveaboardPage;
 use App\Models\Post;
 use Illuminate\Http\Response;
 
@@ -12,6 +13,28 @@ class SitemapController extends Controller
 {
     public function __invoke(): Response
     {
+        $arabicCoreUrls = collect([
+            ['loc' => route('arabic.home'), 'lastmod' => null, 'changefreq' => 'weekly', 'priority' => '1.0'],
+            ['loc' => route('arabic.about'), 'lastmod' => null, 'changefreq' => 'monthly', 'priority' => '0.6'],
+            ['loc' => route('arabic.faq'), 'lastmod' => null, 'changefreq' => 'monthly', 'priority' => '0.6'],
+            ['loc' => route('arabic.blog.index'), 'lastmod' => null, 'changefreq' => 'weekly', 'priority' => '0.7'],
+            ['loc' => route('arabic.resorts.index'), 'lastmod' => null, 'changefreq' => 'daily', 'priority' => '0.9'],
+            ['loc' => route('arabic.guesthouses.index'), 'lastmod' => null, 'changefreq' => 'daily', 'priority' => '0.9'],
+            ['loc' => route('arabic.cityhotels.index'), 'lastmod' => null, 'changefreq' => 'weekly', 'priority' => '0.7'],
+            ['loc' => route('arabic.packages.index'), 'lastmod' => null, 'changefreq' => 'weekly', 'priority' => '0.8'],
+        ]);
+
+        $arabicLiveaboardPage = LiveaboardPage::query()->first();
+
+        if ($arabicLiveaboardPage?->hasArabicTranslation()) {
+            $arabicCoreUrls->push([
+                'loc' => route('arabic.liveaboards.index'),
+                'lastmod' => optional($arabicLiveaboardPage->updated_at)->toDateString(),
+                'changefreq' => 'weekly',
+                'priority' => '0.8',
+            ]);
+        }
+
         $urls = collect([
             [
                 'loc' => route('home'),
@@ -67,7 +90,7 @@ class SitemapController extends Controller
                 'changefreq' => 'weekly',
                 'priority' => '0.8',
             ],
-        ])->merge(
+        ])->merge($arabicCoreUrls)->merge(
             Atoll::query()
                 ->where('status', 'published')
                 ->orderBy('name')
@@ -98,6 +121,29 @@ class SitemapController extends Controller
                 ->get()
                 ->map(fn (Accommodation $accommodation) => [
                     'loc' => $accommodation->publicUrl(),
+                    'lastmod' => optional($accommodation->updated_at)->toDateString(),
+                    'changefreq' => match ($accommodation->type->value) {
+                        'resort', 'guesthouse' => 'weekly',
+                        'liveaboard', 'package', 'city_hotel' => 'monthly',
+                        default => 'monthly',
+                    },
+                    'priority' => match ($accommodation->type->value) {
+                        'resort' => '0.8',
+                        'guesthouse' => '0.8',
+                        'liveaboard' => '0.7',
+                        'package' => '0.7',
+                        'city_hotel' => '0.6',
+                        default => '0.5',
+                    },
+                ])
+        )->merge(
+            Accommodation::published()
+                ->with(['atollRelation', 'islandRelation'])
+                ->orderBy('updated_at', 'desc')
+                ->get()
+                ->filter(fn (Accommodation $accommodation) => $accommodation->hasArabicTranslation())
+                ->map(fn (Accommodation $accommodation) => [
+                    'loc' => url($accommodation->arabicPublicPath()),
                     'lastmod' => optional($accommodation->updated_at)->toDateString(),
                     'changefreq' => match ($accommodation->type->value) {
                         'resort', 'guesthouse' => 'weekly',

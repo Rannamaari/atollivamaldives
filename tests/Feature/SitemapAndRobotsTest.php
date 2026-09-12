@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Accommodation;
 use App\Models\Atoll;
 use App\Models\Island;
+use App\Models\LiveaboardPage;
 use App\Models\Post;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -45,6 +46,8 @@ class SitemapAndRobotsTest extends TestCase
             'status' => 'published',
             'name' => 'Baros Maldives',
             'slug' => 'baros-maldives',
+            'arabic_name' => 'باروس المالديف',
+            'arabic_summary' => 'ملخص عربي للمنتجع.',
             'published' => true,
         ]);
 
@@ -67,16 +70,27 @@ class SitemapAndRobotsTest extends TestCase
             'published' => true,
         ]);
 
+        LiveaboardPage::query()->firstOrFail()->update([
+            'arabic_title' => 'رحلات القوارب في المالديف',
+            'arabic_intro' => 'مقدمة عربية لرحلات القوارب.',
+        ]);
+
         $response = $this->get(route('seo.sitemap'));
 
         $response->assertOk();
         $response->assertHeader('Content-Type', 'application/xml; charset=UTF-8');
         $response->assertSee('<?xml version="1.0" encoding="UTF-8"?>', false);
         $response->assertSee('<loc>'.route('home').'</loc>', false);
+        $response->assertSee('<loc>'.route('arabic.home').'</loc>', false);
+        $response->assertSee('<loc>'.route('arabic.about').'</loc>', false);
+        $response->assertSee('<loc>'.route('arabic.faq').'</loc>', false);
+        $response->assertSee('<loc>'.route('arabic.resorts.index').'</loc>', false);
+        $response->assertSee('<loc>'.route('arabic.liveaboards.index').'</loc>', false);
         $response->assertSee('<loc>'.route('resorts.index').'</loc>', false);
         $response->assertSee('<loc>'.route('guesthouses.atoll', $atoll).'</loc>', false);
         $response->assertSee('<loc>'.route('guesthouses.island', [$atoll, $island]).'</loc>', false);
         $response->assertSee('<loc>'.$resort->publicUrl().'</loc>', false);
+        $response->assertSee('<loc>'.url($resort->arabicPublicPath()).'</loc>', false);
         $response->assertSee('<loc>'.$guesthouse->publicUrl().'</loc>', false);
         $response->assertSee('<loc>'.route('blog.show', $post).'</loc>', false);
         $response->assertDontSee('<loc>'.route('request-quote').'</loc>', false);

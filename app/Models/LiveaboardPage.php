@@ -50,4 +50,9 @@ class LiveaboardPage extends Model
                 : asset('storage/'.ltrim((string) $this->hero_image, '/')))
             : 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1800&q=85';
     }
+
+    public function hasArabicTranslation(): bool
+    {
+        return filled($this->arabic_title) && (filled($this->arabic_intro) || filled($this->arabic_body));
+    }
 }

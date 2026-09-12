@@ -75,4 +75,15 @@ class ArabicAccommodationTest extends TestCase
             ->assertSee('لا توجد خيارات مطابقة حالياً.')
             ->assertSee('جرّب توسيع وجهتك أو خيارات نوع الإقامة');
     }
+
+    public function test_listing_does_not_show_the_default_guest_count_as_a_search_summary(): void
+    {
+        $this->get(route('packages.index'))
+            ->assertOk()
+            ->assertDontSee('2 Adults · 0 Children');
+
+        $this->get(route('packages.index', ['adults' => 2, 'children' => 0]))
+            ->assertOk()
+            ->assertSee('2 Adults · 0 Children');
+    }
 }
