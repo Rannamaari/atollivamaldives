@@ -168,7 +168,7 @@ class HomePageResource extends Resource
                     ]),
                     Forms\Components\Section::make('Explore cards and introduction')->compact()->columns(2)->schema([
                         Forms\Components\TextInput::make('arabic_content.explore.kicker')->label('Explore kicker')->default(data_get(HomePage::arabicContentDefaults(), 'explore.kicker'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
-                        Forms\ComponentsTextInput::make('arabic_content.explore.heading_line_one')->label('Explore heading')->default(data_get(HomePage::arabicContentDefaults(), 'explore.heading_line_one'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                        Forms\Components\TextInput::make('arabic_content.explore.heading_line_one')->label('Explore heading')->default(data_get(HomePage::arabicContentDefaults(), 'explore.heading_line_one'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
                         Forms\Components\TextInput::make('arabic_content.explore.heading_emphasis')->label('Explore heading emphasis')->default(data_get(HomePage::arabicContentDefaults(), 'explore.heading_emphasis'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
                         Forms\Components\TextInput::make('arabic_content.intro.kicker')->label('Introduction kicker')->default(data_get(HomePage::arabicContentDefaults(), 'intro.kicker'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
                         Forms\Components\TextInput::make('arabic_content.intro.heading_line_one')->label('Introduction heading')->default(data_get(HomePage::arabicContentDefaults(), 'intro.heading_line_one'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
