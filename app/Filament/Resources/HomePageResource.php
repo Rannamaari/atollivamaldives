@@ -175,8 +175,25 @@ class HomePageResource extends Resource
                         Forms\Components\TextInput::make('arabic_content.intro.heading_emphasis')->label('Introduction heading emphasis')->default(data_get(HomePage::arabicContentDefaults(), 'intro.heading_emphasis'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
                         Forms\Components\Textarea::make('arabic_content.intro.description')->label('Introduction description')->rows(3)->columnSpanFull()->default(data_get(HomePage::arabicContentDefaults(), 'intro.description'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
                         Forms\Components\TextInput::make('arabic_content.intro.cta')->label('Introduction button')->default(data_get(HomePage::arabicContentDefaults(), 'intro.cta'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
-                        Forms\Components\Repeater::make('arabic_content.explore.labels')->label('Card labels')->default(data_get(HomePage::arabicContentDefaults(), 'explore.labels'))->simple()->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar'])->columnSpanFull(),
-                        Forms\Components\Repeater::make('arabic_content.explore.copies')->label('Card descriptions')->default(data_get(HomePage::arabicContentDefaults(), 'explore.copies'))->simple()->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar'])->columnSpanFull(),
+                        Forms\Components\Repeater::make('arabic_content.explore.labels')
+                            ->label('Card labels')
+                            ->default(data_get(HomePage::arabicContentDefaults(), 'explore.labels'))
+                            ->simple(
+                                Forms\Components\TextInput::make('label')
+                                    ->required()
+                                    ->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                            )
+                            ->columnSpanFull(),
+                        Forms\Components\Repeater::make('arabic_content.explore.copies')
+                            ->label('Card descriptions')
+                            ->default(data_get(HomePage::arabicContentDefaults(), 'explore.copies'))
+                            ->simple(
+                                Forms\Components\Textarea::make('description')
+                                    ->rows(3)
+                                    ->required()
+                                    ->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
+                            )
+                            ->columnSpanFull(),
                     ]),
                     Forms\Components\Section::make('Why book with Atolliva')->compact()->schema([
                         Forms\Components\TextInput::make('arabic_content.benefits_heading')->label('Section heading')->default(data_get(HomePage::arabicContentDefaults(), 'benefits_heading'))->extraInputAttributes(['dir' => 'rtl', 'lang' => 'ar']),
