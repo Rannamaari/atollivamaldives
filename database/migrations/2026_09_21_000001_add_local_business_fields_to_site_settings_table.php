@@ -36,6 +36,7 @@ return new class extends Migration
             'business_price_range' => '$$',
             'facebook_url' => DB::raw("COALESCE(facebook_url, 'https://www.facebook.com/atollivamaldives')"),
             'instagram_url' => DB::raw("COALESCE(instagram_url, 'https://www.instagram.com/atollivamaldives/')"),
+            'x_url' => DB::raw("COALESCE(x_url, 'https://x.com/myatolliva')"),
             'tiktok_url' => DB::raw("COALESCE(tiktok_url, 'https://www.tiktok.com/@atollivamaldives')"),
         ]);
     }

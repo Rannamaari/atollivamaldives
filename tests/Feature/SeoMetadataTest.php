@@ -34,6 +34,7 @@ class SeoMetadataTest extends TestCase
         $response->assertSee('"@type":"OpeningHoursSpecification"', false);
         $response->assertSee('"hasOfferCatalog"', false);
         $response->assertSee('https://www.facebook.com/atollivamaldives', false);
+        $response->assertSee('https://x.com/myatolliva', false);
     }
 
     public function test_resort_page_uses_canonical_metadata_and_breadcrumb_schema(): void

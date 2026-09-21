@@ -264,7 +264,7 @@ class SeoManager
             'sameAs' => array_values(array_filter([
                 $settings->facebook_url ?: 'https://www.facebook.com/atollivamaldives',
                 $settings->instagram_url ?: 'https://www.instagram.com/atollivamaldives/',
-                $settings->x_url,
+                $settings->x_url ?: 'https://x.com/myatolliva',
                 $settings->tiktok_url ?: 'https://www.tiktok.com/@atollivamaldives',
             ])),
         ], fn ($value) => filled($value) || is_array($value));

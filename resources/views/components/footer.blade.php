@@ -31,7 +31,7 @@
     $routePrefix = $isArabic ? 'arabic.' : '';
     $socialLinks = array_values(array_filter([
         ['label' => 'Facebook', 'href' => $settings->facebook_url ?: 'https://www.facebook.com/atollivamaldives', 'icon' => 'facebook'],
-        ['label' => 'X', 'href' => $settings->x_url, 'icon' => 'x'],
+        ['label' => 'X', 'href' => $settings->x_url ?: 'https://x.com/myatolliva', 'icon' => 'x'],
         ['label' => 'Instagram', 'href' => $settings->instagram_url ?: 'https://www.instagram.com/atollivamaldives/', 'icon' => 'instagram'],
         ['label' => 'TikTok', 'href' => $settings->tiktok_url ?: 'https://www.tiktok.com/@atollivamaldives', 'icon' => 'tiktok'],
     ], fn (array $social): bool => filled($social['href'])));
