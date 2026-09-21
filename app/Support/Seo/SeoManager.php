@@ -86,7 +86,7 @@ class SeoManager
         return $this->forCurrentRequest([
             'title' => $title,
             'description' => $description,
-            'canonical' => $accommodation->publicUrl(),
+            'canonical' => $isArabic ? url($accommodation->arabicPublicPath()) : $accommodation->publicUrl(),
             'og_title' => $title,
             'og_description' => $description,
             'og_image' => $accommodation->seoImageUrl(),
@@ -197,35 +197,87 @@ class SeoManager
 
     protected function defaultSchema(SiteSetting $settings, string $canonical, string $siteName): array
     {
+        $organizationId = url('/').'#travel-agency';
+        $openingDays = collect($settings->business_opening_days ?: [
+            'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
+        ])->map(fn (string $day): string => 'https://schema.org/'.$day)->values()->all();
+        $openingTime = $settings->business_opening_time ?: '09:00';
+        $closingTime = $settings->business_closing_time ?: '18:00';
+
         $organization = array_filter([
             '@context' => 'https://schema.org',
             '@type' => 'TravelAgency',
+            '@id' => $organizationId,
             'name' => $siteName,
             'url' => url('/'),
             'description' => $settings->company_description ?: $settings->default_meta_description,
             'logo' => $settings->business_logo_url ?: asset('logo/optimized/atolliva-share.png'),
+            'image' => $settings->default_og_image_url,
             'email' => $settings->business_email ?: 'hello@atollivamaldives.com',
             'telephone' => $settings->business_phone ?: '+960 9996210',
-            'address' => filled($settings->business_address) ? [
+            'priceRange' => $settings->business_price_range ?: '$$',
+            'currenciesAccepted' => 'USD',
+            'address' => [
                 '@type' => 'PostalAddress',
-                'streetAddress' => $settings->business_address,
-                'addressCountry' => 'MV',
-            ] : null,
+                'streetAddress' => $settings->business_address ?: 'M. Ithaamuiyge 1, Alimasmagu',
+                'addressLocality' => $settings->business_address_locality ?: 'Male City',
+                'addressCountry' => $settings->business_address_country_code ?: 'MV',
+            ],
+            'openingHoursSpecification' => filled($openingTime) && filled($closingTime) && $openingDays !== [] ? [[
+                '@type' => 'OpeningHoursSpecification',
+                'dayOfWeek' => $openingDays,
+                'opens' => substr((string) $openingTime, 0, 5),
+                'closes' => substr((string) $closingTime, 0, 5),
+            ]] : null,
+            'areaServed' => [
+                '@type' => 'Country',
+                'name' => 'Maldives',
+            ],
+            'knowsLanguage' => ['en', 'ar', 'dv'],
+            'contactPoint' => [[
+                '@type' => 'ContactPoint',
+                'contactType' => 'customer service',
+                'telephone' => $settings->business_phone ?: '+960 9996210',
+                'email' => $settings->business_email ?: 'hello@atollivamaldives.com',
+                'availableLanguage' => ['English', 'Arabic', 'Dhivehi'],
+            ]],
+            'hasOfferCatalog' => [
+                '@type' => 'OfferCatalog',
+                'name' => 'Maldives travel services',
+                'itemListElement' => collect([
+                    'Maldives resort holidays',
+                    'Maldives guesthouse holidays',
+                    'Maldives liveaboard journeys',
+                    'Male city hotel stays',
+                    'Maldives holiday packages',
+                    'Personalised Maldives travel planning',
+                ])->map(fn (string $service): array => [
+                    '@type' => 'Offer',
+                    'itemOffered' => [
+                        '@type' => 'Service',
+                        'name' => $service,
+                        'provider' => ['@id' => $organizationId],
+                        'areaServed' => ['@type' => 'Country', 'name' => 'Maldives'],
+                    ],
+                ])->all(),
+            ],
             'sameAs' => array_values(array_filter([
-                $settings->facebook_url,
-                $settings->instagram_url,
+                $settings->facebook_url ?: 'https://www.facebook.com/atollivamaldives',
+                $settings->instagram_url ?: 'https://www.instagram.com/atollivamaldives/',
                 $settings->x_url,
-                $settings->tiktok_url,
+                $settings->tiktok_url ?: 'https://www.tiktok.com/@atollivamaldives',
             ])),
         ], fn ($value) => filled($value) || is_array($value));
 
         $website = [
             '@context' => 'https://schema.org',
             '@type' => 'WebSite',
+            '@id' => url('/').'#website',
             'name' => $siteName,
             'url' => url('/'),
             'description' => $settings->default_meta_description ?: $settings->company_description,
             'inLanguage' => app()->getLocale(),
+            'publisher' => ['@id' => $organizationId],
             'potentialAction' => [
                 '@type' => 'SearchAction',
                 'target' => url('/resorts').'?destination={search_term_string}',
@@ -266,12 +318,7 @@ class SeoManager
                 'name' => $post->author ?: 'Atolliva Maldives',
             ],
             'publisher' => [
-                '@type' => 'Organization',
-                'name' => $this->siteSetting->current()->site_name ?: 'Atolliva Maldives',
-                'logo' => [
-                    '@type' => 'ImageObject',
-                    'url' => $this->siteSetting->current()->business_logo_url,
-                ],
+                '@id' => url('/').'#travel-agency',
             ],
             'mainEntityOfPage' => url($arabic ? $post->arabicPublicPath() : $post->publicPathForSlug()),
             'articleSection' => $post->category,
@@ -288,13 +335,16 @@ class SeoManager
             default => 'Thing',
         };
 
+        $publicUrl = $arabic ? url($accommodation->arabicPublicPath()) : $accommodation->publicUrl();
+
         return array_filter([
             '@context' => 'https://schema.org',
             '@type' => $type,
             'name' => $arabic ? $accommodation->arabic_name : $accommodation->name,
             'description' => $arabic ? $accommodation->arabicSeoDescriptionFallback() : $accommodation->seoDescriptionFallback(),
             'image' => [$accommodation->seoImageUrl()],
-            'url' => $accommodation->publicUrl(),
+            'url' => $publicUrl,
+            'provider' => ['@id' => url('/').'#travel-agency'],
             'address' => filled($accommodation->address) ? [
                 '@type' => 'PostalAddress',
                 'addressLocality' => $accommodation->islandRelation?->name ?: $accommodation->island,
@@ -306,7 +356,7 @@ class SeoManager
                 '@type' => 'Offer',
                 'priceCurrency' => $accommodation->currency ?: 'USD',
                 'price' => (float) $accommodation->price_from,
-                'url' => $accommodation->publicUrl(),
+                'url' => $publicUrl,
                 'availability' => 'https://schema.org/InStock',
             ] : null,
         ], fn ($value) => filled($value) || is_array($value));

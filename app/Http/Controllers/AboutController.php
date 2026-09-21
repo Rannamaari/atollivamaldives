@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SiteSetting;
 use App\Support\Seo\SeoManager;
 use Illuminate\View\View;
 
@@ -10,9 +11,15 @@ class AboutController extends Controller
     public function __invoke(SeoManager $seoManager): View
     {
         $isArabic = app()->getLocale() === 'ar';
+        $settings = SiteSetting::current();
+        $officeAddress = implode(', ', array_filter([
+            $settings->business_address ?: 'M. Ithaamuiyge 1, Alimasmagu',
+            $settings->business_address_locality ?: 'Male City',
+            'Maldives',
+        ]));
 
         return view('about', [
-            'officeAddress' => 'M. Ithaamuiyge 1, Aliasmagu, Maldives',
+            'officeAddress' => $officeAddress,
             'isArabic' => $isArabic,
             'seo' => $seoManager->forSimplePage(
                 title: $isArabic ? 'عن أتوليفا المالديف | عطلتك في المالديف مخططة بعناية' : 'About Atolliva Maldives | Your Maldives, Thoughtfully Planned',

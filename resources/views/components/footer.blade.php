@@ -1,5 +1,6 @@
 @php
     $isArabic = app()->getLocale() === 'ar';
+    $settings = \App\Models\SiteSetting::current();
     $whatsAppNumber = env('MICRO_TRAVEL_WHATSAPP', '9609996210');
     $whatsAppUrl = 'https://wa.me/'.$whatsAppNumber.'?text='.urlencode($isArabic ? 'مرحباً أتوليفا المالديف، أود المساعدة في التخطيط لعطلة في المالديف.' : 'Hello Atolliva Maldives, I would like help planning a Maldives holiday.');
     $contactEmail = env('MICRO_TRAVEL_CONTACT_EMAIL', 'hello@atollivamaldives.com');
@@ -10,7 +11,7 @@
         'products' => 'خيارات السفر', 'resorts' => 'المنتجعات', 'guesthouses' => 'بيوت الضيافة', 'liveaboards' => 'رحلات القوارب', 'city_hotels' => 'فنادق المدينة', 'packages' => 'الباقات',
         'explore' => 'استكشف', 'all_products' => 'كل خيارات السفر', 'quote' => 'اطلب عرض سعر', 'blog' => 'المدونة', 'faq' => 'الأسئلة الشائعة', 'about' => 'من نحن', 'experiences' => 'التجارب',
         'discover' => 'اكتشف', 'seaplane' => 'جولات الطائرات المائية', 'island_hopping' => 'التنقل بين الجزر', 'water_sports' => 'الرياضات والأنشطة المائية', 'diving' => 'الغوص',
-        'assistance' => 'مساعدة مباشرة', 'assistance_copy' => 'هل تحتاج مساعدة لاختيار الجزيرة أو المسار أو الباقة المناسبة؟ تواصل معنا مباشرةً للحصول على دعم سريع في التخطيط.', 'daily' => 'المساعدة يومياً: 9:00 صباحاً إلى 10:00 مساءً بتوقيت المالديف',
+        'assistance' => 'مساعدة مباشرة', 'assistance_copy' => 'هل تحتاج مساعدة لاختيار الجزيرة أو المسار أو الباقة المناسبة؟ تواصل معنا مباشرةً للحصول على دعم سريع في التخطيط.', 'daily' => 'ساعات العمل يومياً: 9:00 صباحاً إلى 6:00 مساءً بتوقيت المالديف',
         'copyright' => '© 2026 أتوليفا المالديف. جميع الحقوق محفوظة.', 'privacy' => 'سياسة الخصوصية', 'terms' => 'شروط الخدمة', 'cookies' => 'إعدادات ملفات تعريف الارتباط',
     ] : [
         'tagline' => 'Your Maldives, Thoughtfully Planned',
@@ -19,16 +20,21 @@
         'products' => 'Travel Products', 'resorts' => 'Resorts', 'guesthouses' => 'Guest Houses', 'liveaboards' => 'Liveaboards', 'city_hotels' => 'City Hotels', 'packages' => 'Packages',
         'explore' => 'Explore', 'all_products' => 'All Travel Products', 'quote' => 'Request Quote', 'blog' => 'Blog', 'faq' => 'FAQ', 'about' => 'About Us', 'experiences' => 'Experiences',
         'discover' => 'Discover', 'seaplane' => 'Seaplane Tours', 'island_hopping' => 'Island Hopping', 'water_sports' => 'Water Sports & Activities', 'diving' => 'Diving',
-        'assistance' => 'Direct Assistance', 'assistance_copy' => 'Need help choosing the right island, route, or package? Speak with us directly for quick planning support.', 'daily' => 'Daily assistance: 9:00 AM to 10:00 PM MVT',
+        'assistance' => 'Direct Assistance', 'assistance_copy' => 'Need help choosing the right island, route, or package? Speak with us directly for quick planning support.', 'daily' => 'Office hours: 9:00 AM to 6:00 PM MVT',
         'copyright' => '© 2026 Atolliva Maldives. All rights reserved.', 'privacy' => 'Privacy Policy', 'terms' => 'Terms of Service', 'cookies' => 'Cookie Settings',
     ];
+    $openingTime = date('g:i A', strtotime((string) ($settings->business_opening_time ?: '09:00')));
+    $closingTime = date('g:i A', strtotime((string) ($settings->business_closing_time ?: '18:00')));
+    $copy['daily'] = $isArabic
+        ? "ساعات العمل يومياً: {$openingTime} إلى {$closingTime} بتوقيت المالديف"
+        : "Office hours: {$openingTime} to {$closingTime} MVT";
     $routePrefix = $isArabic ? 'arabic.' : '';
-    $socialLinks = [
-        ['label' => 'Facebook', 'href' => '#', 'icon' => 'facebook'],
-        ['label' => 'X', 'href' => '#', 'icon' => 'x'],
-        ['label' => 'Instagram', 'href' => '#', 'icon' => 'instagram'],
-        ['label' => 'TikTok', 'href' => '#', 'icon' => 'tiktok'],
-    ];
+    $socialLinks = array_values(array_filter([
+        ['label' => 'Facebook', 'href' => $settings->facebook_url ?: 'https://www.facebook.com/atollivamaldives', 'icon' => 'facebook'],
+        ['label' => 'X', 'href' => $settings->x_url, 'icon' => 'x'],
+        ['label' => 'Instagram', 'href' => $settings->instagram_url ?: 'https://www.instagram.com/atollivamaldives/', 'icon' => 'instagram'],
+        ['label' => 'TikTok', 'href' => $settings->tiktok_url ?: 'https://www.tiktok.com/@atollivamaldives', 'icon' => 'tiktok'],
+    ], fn (array $social): bool => filled($social['href'])));
 @endphp
 
 <footer class="site-footer" aria-labelledby="site-footer-title">
@@ -54,7 +60,7 @@
 
             <div class="site-footer__socials" aria-label="Social media links">
                 @foreach($socialLinks as $social)
-                    <a class="site-footer__social-link" href="{{ $social['href'] }}" aria-label="{{ $social['label'] }}" title="{{ $social['label'] }}">
+                    <a class="site-footer__social-link" href="{{ $social['href'] }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $social['label'] }}" title="{{ $social['label'] }}">
                         @switch($social['icon'])
                             @case('facebook')
                                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">

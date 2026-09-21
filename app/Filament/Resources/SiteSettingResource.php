@@ -87,8 +87,37 @@ class SiteSettingResource extends Resource
                     ->default('+960 7779493'),
                 Forms\Components\Textarea::make('business_address')
                     ->rows(3)
-                    ->default("M. Ithaamuiyge 1\nAliasmagu\nMaldives")
+                    ->default('M. Ithaamuiyge 1, Alimasmagu')
                     ->columnSpanFull(),
+                Forms\Components\TextInput::make('business_address_locality')
+                    ->label('City')
+                    ->default('Male City'),
+                Forms\Components\TextInput::make('business_address_country_code')
+                    ->label('Country code')
+                    ->default('MV')
+                    ->minLength(2)
+                    ->maxLength(2),
+                Forms\Components\CheckboxList::make('business_opening_days')
+                    ->label('Office days')
+                    ->options(array_combine(
+                        ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+                        ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+                    ))
+                    ->default(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
+                    ->columns(4)
+                    ->columnSpanFull(),
+                Forms\Components\TimePicker::make('business_opening_time')
+                    ->label('Opens at')
+                    ->seconds(false)
+                    ->default('09:00'),
+                Forms\Components\TimePicker::make('business_closing_time')
+                    ->label('Closes at')
+                    ->seconds(false)
+                    ->default('18:00'),
+                Forms\Components\TextInput::make('business_price_range')
+                    ->label('Price range')
+                    ->default('$$')
+                    ->helperText('A broad public indicator such as $, $$, or $$$.'),
             ]),
             Forms\Components\Section::make('Social & verification')->columns(2)->schema([
                 Forms\Components\TextInput::make('facebook_url')->url(),

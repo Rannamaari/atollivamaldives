@@ -48,6 +48,7 @@ class SitemapAndRobotsTest extends TestCase
             'slug' => 'baros-maldives',
             'arabic_name' => 'باروس المالديف',
             'arabic_summary' => 'ملخص عربي للمنتجع.',
+            'featured_image' => 'accommodations/baros-maldives.webp',
             'published' => true,
         ]);
 
@@ -80,7 +81,10 @@ class SitemapAndRobotsTest extends TestCase
         $response->assertOk();
         $response->assertHeader('Content-Type', 'application/xml; charset=UTF-8');
         $response->assertSee('<?xml version="1.0" encoding="UTF-8"?>', false);
+        $response->assertSee('xmlns:xhtml="http://www.w3.org/1999/xhtml"', false);
+        $response->assertSee('xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"', false);
         $response->assertSee('<loc>'.route('home').'</loc>', false);
+        $response->assertSee('<xhtml:link rel="alternate" hreflang="ar" href="'.route('arabic.home').'" />', false);
         $response->assertSee('<loc>'.route('arabic.home').'</loc>', false);
         $response->assertSee('<loc>'.route('arabic.about').'</loc>', false);
         $response->assertSee('<loc>'.route('arabic.faq').'</loc>', false);
@@ -90,6 +94,8 @@ class SitemapAndRobotsTest extends TestCase
         $response->assertSee('<loc>'.route('guesthouses.atoll', $atoll).'</loc>', false);
         $response->assertSee('<loc>'.route('guesthouses.island', [$atoll, $island]).'</loc>', false);
         $response->assertSee('<loc>'.$resort->publicUrl().'</loc>', false);
+        $response->assertSee('<image:image>', false);
+        $response->assertSee('<image:title>Baros Maldives</image:title>', false);
         $response->assertSee('<loc>'.url($resort->arabicPublicPath()).'</loc>', false);
         $response->assertSee('<loc>'.$guesthouse->publicUrl().'</loc>', false);
         $response->assertSee('<loc>'.route('blog.show', $post).'</loc>', false);

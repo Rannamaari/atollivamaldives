@@ -20,7 +20,13 @@ class SiteSetting extends Model
         'business_phone',
         'business_secondary_phone',
         'business_address',
+        'business_address_locality',
+        'business_address_country_code',
         'company_description',
+        'business_opening_days',
+        'business_opening_time',
+        'business_closing_time',
+        'business_price_range',
         'facebook_url',
         'instagram_url',
         'x_url',
@@ -48,6 +54,7 @@ class SiteSetting extends Model
             'default_robots_follow' => 'boolean',
             'enable_share_tracking' => 'boolean',
             'enable_native_share' => 'boolean',
+            'business_opening_days' => 'array',
         ];
     }
 

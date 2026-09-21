@@ -4,12 +4,37 @@ namespace Tests\Feature;
 
 use App\Models\Accommodation;
 use App\Models\Post;
+use App\Models\SiteSetting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class SeoMetadataTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_homepage_exposes_complete_travel_agency_schema(): void
+    {
+        SiteSetting::current()->update([
+            'business_address' => 'M. Ithaamuiyge 1, Alimasmagu',
+            'business_address_locality' => 'Male City',
+            'business_address_country_code' => 'MV',
+            'business_opening_days' => ['Monday', 'Sunday'],
+            'business_opening_time' => '09:00',
+            'business_closing_time' => '18:00',
+            'facebook_url' => 'https://www.facebook.com/atollivamaldives',
+        ]);
+
+        $response = $this->get(route('home'));
+
+        $response->assertOk();
+        $response->assertSee('"@type":"TravelAgency"', false);
+        $response->assertSee('"@id":"'.url('/').'#travel-agency"', false);
+        $response->assertSee('"streetAddress":"M. Ithaamuiyge 1, Alimasmagu"', false);
+        $response->assertSee('"addressLocality":"Male City"', false);
+        $response->assertSee('"@type":"OpeningHoursSpecification"', false);
+        $response->assertSee('"hasOfferCatalog"', false);
+        $response->assertSee('https://www.facebook.com/atollivamaldives', false);
+    }
 
     public function test_resort_page_uses_canonical_metadata_and_breadcrumb_schema(): void
     {
