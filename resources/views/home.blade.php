@@ -148,5 +148,5 @@
 @unless($isArabic)
 <section class="home-trade-promo"><div class="home-trade-promo__inner"><div><p class="kicker pale">FOR TRAVEL PROFESSIONALS</p><h2>Are you a travel professional?</h2><p>Looking for a reliable Maldives partner? Work with Atolliva for accommodation, transfers, experiences and tailor-made Maldives itineraries.</p></div><a href="{{ route('partners.index') }}">Partner With Atolliva →</a></div></section>
 @endunless
-@include('partials.site-footer')<a class="mobile-cta" href="{{ $wa }}" target="_blank">PLAN ON WHATSAPP <span>↗</span></a>
+<a class="mobile-cta" href="{{ $wa }}" target="_blank">PLAN ON WHATSAPP <span>↗</span></a>
 </main>@endsection

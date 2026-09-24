@@ -266,6 +266,7 @@ class SeoManager
                 $settings->instagram_url ?: 'https://www.instagram.com/atollivamaldives/',
                 $settings->x_url ?: 'https://x.com/myatolliva',
                 $settings->tiktok_url ?: 'https://www.tiktok.com/@atollivamaldives',
+                'https://www.linkedin.com/company/atolliva-maldives',
             ])),
         ], fn ($value) => filled($value) || is_array($value));
 

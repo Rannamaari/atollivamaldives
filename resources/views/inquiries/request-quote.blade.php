@@ -112,7 +112,6 @@
     </div>
 </div>
 
-@include('partials.site-footer')
 <script>
 document.querySelectorAll('form[action="{{ route('inquiries.store') }}"]').forEach((form) => {
     const arrivalInput = form.querySelector('[data-trip-arrival]');

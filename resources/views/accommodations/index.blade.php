@@ -191,5 +191,4 @@
     {{ $items->links() }}
 </section>
 
-@include('partials.site-footer')
 @endsection

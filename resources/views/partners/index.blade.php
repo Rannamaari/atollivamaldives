@@ -138,7 +138,6 @@
     </section>
 </main>
 
-<x-footer />
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {

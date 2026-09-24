@@ -154,6 +154,5 @@
         </form>
     </section>
 
-    @include('partials.site-footer')
 </div>
 @endsection

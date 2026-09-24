@@ -79,5 +79,4 @@
     </section>
 </main>
 
-@include('partials.site-footer')
 @endsection

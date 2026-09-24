@@ -81,6 +81,7 @@
 @endif
 <div class="site-shell" @if(($documentLocale ?? 'en') === 'ar') dir="rtl" @endif>
     @yield('content')
+    <x-footer />
 </div>
 <script>
 const recaptchaSiteKey = @json($recaptchaEnabled ? config('services.recaptcha.site_key') : null);

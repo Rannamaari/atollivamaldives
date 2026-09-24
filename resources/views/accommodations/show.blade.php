@@ -341,5 +341,4 @@
     </section>
 @endif
 
-@include('partials.site-footer')
 @endsection

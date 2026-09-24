@@ -41,5 +41,4 @@
     {{ $posts->links() }}
 </section>
 
-@include('partials.site-footer')
 @endsection

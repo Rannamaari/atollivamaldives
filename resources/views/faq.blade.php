@@ -96,7 +96,6 @@
     </div>
 </div>
 
-@include('partials.site-footer')
 <script>
 (() => {
     const prompt = document.querySelector('[data-faq-whatsapp-prompt]');

@@ -12,7 +12,7 @@
         'explore' => 'استكشف', 'all_products' => 'كل خيارات السفر', 'quote' => 'اطلب عرض سعر', 'blog' => 'المدونة', 'faq' => 'الأسئلة الشائعة', 'about' => 'من نحن', 'experiences' => 'التجارب',
         'discover' => 'اكتشف', 'seaplane' => 'جولات الطائرات المائية', 'island_hopping' => 'التنقل بين الجزر', 'water_sports' => 'الرياضات والأنشطة المائية', 'diving' => 'الغوص',
         'assistance' => 'مساعدة مباشرة', 'assistance_copy' => 'هل تحتاج مساعدة لاختيار الجزيرة أو المسار أو الباقة المناسبة؟ تواصل معنا مباشرةً للحصول على دعم سريع في التخطيط.', 'daily' => 'ساعات العمل يومياً: 9:00 صباحاً إلى 6:00 مساءً بتوقيت المالديف',
-        'trade' => 'قطاع السفر', 'partner' => 'كن شريكاً معنا', 'b2b_enquiry' => 'أرسل استفسار أعمال', 'contact' => 'تواصل معنا',
+        'trade' => 'قطاع السفر', 'partner' => 'كن شريكاً معنا', 'b2b_enquiry' => 'أرسل استفسار أعمال', 'contact' => 'تواصل معنا', 'himmafushi' => 'دليل جزيرة هيمفوشي ↗',
         'copyright' => '© 2026 أتوليفا المالديف. جميع الحقوق محفوظة.', 'privacy' => 'سياسة الخصوصية', 'terms' => 'شروط الخدمة', 'cookies' => 'إعدادات ملفات تعريف الارتباط',
     ] : [
         'tagline' => 'Your Maldives, Thoughtfully Planned',
@@ -22,7 +22,7 @@
         'explore' => 'Explore', 'all_products' => 'All Travel Products', 'quote' => 'Request Quote', 'blog' => 'Blog', 'faq' => 'FAQ', 'about' => 'About Us', 'experiences' => 'Experiences',
         'discover' => 'Discover', 'seaplane' => 'Seaplane Tours', 'island_hopping' => 'Island Hopping', 'water_sports' => 'Water Sports & Activities', 'diving' => 'Diving',
         'assistance' => 'Direct Assistance', 'assistance_copy' => 'Need help choosing the right island, route, or package? Speak with us directly for quick planning support.', 'daily' => 'Office hours: 9:00 AM to 6:00 PM MVT',
-        'trade' => 'Travel Trade', 'partner' => 'Partner With Us', 'b2b_enquiry' => 'Send B2B Enquiry', 'contact' => 'Contact',
+        'trade' => 'Travel Trade', 'partner' => 'Partner With Us', 'b2b_enquiry' => 'Send B2B Enquiry', 'contact' => 'Contact', 'himmafushi' => 'Himmafushi Island Guide ↗',
         'copyright' => '© 2026 Atolliva Maldives. All rights reserved.', 'privacy' => 'Privacy Policy', 'terms' => 'Terms of Service', 'cookies' => 'Cookie Settings',
     ];
     $openingTime = date('g:i A', strtotime((string) ($settings->business_opening_time ?: '09:00')));
@@ -36,6 +36,7 @@
         ['label' => 'X', 'href' => $settings->x_url ?: 'https://x.com/myatolliva', 'icon' => 'x'],
         ['label' => 'Instagram', 'href' => $settings->instagram_url ?: 'https://www.instagram.com/atollivamaldives/', 'icon' => 'instagram'],
         ['label' => 'TikTok', 'href' => $settings->tiktok_url ?: 'https://www.tiktok.com/@atollivamaldives', 'icon' => 'tiktok'],
+        ['label' => 'LinkedIn', 'href' => 'https://www.linkedin.com/company/atolliva-maldives', 'icon' => 'linkedin'],
     ], fn (array $social): bool => filled($social['href'])));
 @endphp
 
@@ -84,37 +85,52 @@
                                     <path d="M14.6 3c.3 2 1.5 3.6 3.4 4.5 1 .5 2 .7 3 .7V11c-1.4 0-2.8-.3-4.1-.9v5.8c0 3-2.4 5.4-5.4 5.4A5.5 5.5 0 0 1 6 15.9a5.5 5.5 0 0 1 7-5.2v2.9a2.7 2.7 0 0 0-1-.2c-1.5 0-2.7 1.2-2.7 2.7s1.2 2.7 2.7 2.7 2.7-1.2 2.7-2.7V3h2.6Z" fill="currentColor"/>
                                 </svg>
                             @break
+                            @case('linkedin')
+                                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                    <path d="M6.3 8.2H3.2V21h3.1V8.2ZM4.8 3A1.8 1.8 0 1 0 4.8 6.6 1.8 1.8 0 0 0 4.8 3ZM21 13.7c0-3.9-2.1-5.7-4.8-5.7-2.2 0-3.2 1.2-3.8 2.1V8.2H9.3V21h3.1v-6.3c0-1.7.3-3.3 2.4-3.3 2 0 2.1 1.9 2.1 3.4V21H20l1-7.3Z" fill="currentColor"/>
+                                </svg>
+                            @break
                         @endswitch
                     </a>
                 @endforeach
             </div>
         </div>
 
-        <div class="site-footer__group">
-            <p class="site-footer__heading">{{ $copy['products'] }}</p>
-            <a href="{{ route($routePrefix.'resorts.index') }}">{{ $copy['resorts'] }}</a>
-            <a href="{{ route($routePrefix.'guesthouses.index') }}">{{ $copy['guesthouses'] }}</a>
-            <a href="{{ route($routePrefix.'liveaboards.index') }}">{{ $copy['liveaboards'] }}</a>
-            <a href="{{ route($routePrefix.'cityhotels.index') }}">{{ $copy['city_hotels'] }}</a>
-            <a href="{{ route($routePrefix.'packages.index') }}">{{ $copy['packages'] }}</a>
-        </div>
+        <div class="site-footer__navigation" aria-label="Footer navigation">
+            <div class="site-footer__group">
+                <p class="site-footer__heading">{{ $copy['products'] }}</p>
+                <a href="{{ route($routePrefix.'resorts.index') }}">{{ $copy['resorts'] }}</a>
+                <a href="{{ route($routePrefix.'guesthouses.index') }}">{{ $copy['guesthouses'] }}</a>
+                <a href="{{ route($routePrefix.'liveaboards.index') }}">{{ $copy['liveaboards'] }}</a>
+                <a href="{{ route($routePrefix.'cityhotels.index') }}">{{ $copy['city_hotels'] }}</a>
+                <a href="{{ route($routePrefix.'packages.index') }}">{{ $copy['packages'] }}</a>
+            </div>
 
-        <div class="site-footer__group">
-            <p class="site-footer__heading">{{ $copy['explore'] }}</p>
-            <a href="{{ route($routePrefix.'accommodations.index') }}">{{ $copy['all_products'] }}</a>
-            <a href="{{ route('request-quote') }}">{{ $copy['quote'] }}</a>
-            <a href="{{ route($routePrefix.'blog.index') }}">{{ $copy['blog'] }}</a>
-            <a href="{{ route($routePrefix.'faq') }}">{{ $copy['faq'] }}</a>
-            <a href="{{ route($routePrefix.'about') }}">{{ $copy['about'] }}</a>
-            <a href="{{ route($routePrefix.'home') }}#experiences">{{ $copy['experiences'] }}</a>
-        </div>
+            <div class="site-footer__group">
+                <p class="site-footer__heading">{{ $copy['explore'] }}</p>
+                <a href="{{ route($routePrefix.'accommodations.index') }}">{{ $copy['all_products'] }}</a>
+                <a href="{{ route('request-quote') }}">{{ $copy['quote'] }}</a>
+                <a href="{{ route($routePrefix.'blog.index') }}">{{ $copy['blog'] }}</a>
+                <a href="{{ route($routePrefix.'faq') }}">{{ $copy['faq'] }}</a>
+                <a href="{{ route($routePrefix.'about') }}">{{ $copy['about'] }}</a>
+                <a href="{{ route($routePrefix.'home') }}#experiences">{{ $copy['experiences'] }}</a>
+            </div>
 
-        <div class="site-footer__group">
-            <p class="site-footer__heading">{{ $copy['discover'] }}</p>
-            <a href="{{ route('blog.show', 'seaplane-tours-in-maldives') }}">{{ $copy['seaplane'] }}</a>
-            <a href="{{ route('blog.show', 'island-hopping-in-maldives') }}">{{ $copy['island_hopping'] }}</a>
-            <a href="{{ route('blog.show', 'water-sports-and-activities-in-maldives') }}">{{ $copy['water_sports'] }}</a>
-            <a href="{{ route('blog.show', 'diving-in-maldives') }}">{{ $copy['diving'] }}</a>
+            <div class="site-footer__group">
+                <p class="site-footer__heading">{{ $copy['discover'] }}</p>
+                <a href="{{ route('blog.show', 'seaplane-tours-in-maldives') }}">{{ $copy['seaplane'] }}</a>
+                <a href="{{ route('blog.show', 'island-hopping-in-maldives') }}">{{ $copy['island_hopping'] }}</a>
+                <a href="{{ route('blog.show', 'water-sports-and-activities-in-maldives') }}">{{ $copy['water_sports'] }}</a>
+                <a href="{{ route('blog.show', 'diving-in-maldives') }}">{{ $copy['diving'] }}</a>
+            </div>
+
+            <div class="site-footer__group site-footer__trade">
+                <p class="site-footer__heading">{{ $copy['trade'] }}</p>
+                <a href="{{ route('partners.index') }}">{{ $copy['partner'] }}</a>
+                <a href="{{ route('partners.index') }}#partner-form">{{ $copy['b2b_enquiry'] }}</a>
+                <a href="https://himmafushi.net" target="_blank" rel="noopener noreferrer">{{ $copy['himmafushi'] }}</a>
+                <a href="mailto:{{ $contactEmail }}">{{ $copy['contact'] }}</a>
+            </div>
         </div>
 
         <div class="site-footer__contact-card">
@@ -122,18 +138,11 @@
             <p class="site-footer__contact-copy">{{ $copy['assistance_copy'] }}</p>
             <div class="site-footer__contact-list">
                 <a href="mailto:{{ $contactEmail }}">{{ $contactEmail }}</a>
-                <a href="{{ $whatsAppUrl }}" target="_blank" rel="noopener">واتساب: +{{ $whatsAppNumber }}</a>
+                <a href="{{ $whatsAppUrl }}" target="_blank" rel="noopener">{{ $isArabic ? 'واتساب' : 'WhatsApp' }}: +{{ $whatsAppNumber }}</a>
                 <p>{{ $copy['daily'] }}</p>
             </div>
         </div>
 
-        <div class="site-footer__trade">
-            <p class="site-footer__heading">{{ $copy['trade'] }}</p>
-            <a href="{{ route('partners.index') }}">{{ $copy['partner'] }}</a>
-            <a href="{{ route('partners.index') }}#partner-form">{{ $copy['b2b_enquiry'] }}</a>
-            <a href="{{ route($routePrefix.'about') }}">{{ $copy['about'] }}</a>
-            <a href="mailto:{{ $contactEmail }}">{{ $copy['contact'] }}</a>
-        </div>
     </div>
 
     <div class="site-footer__bar">
