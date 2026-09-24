@@ -63,6 +63,7 @@
     <link rel="stylesheet" href="{{ $cssVersion('css/about.css') }}">
     <link rel="stylesheet" href="{{ $cssVersion('css/forms.css') }}">
     <link rel="stylesheet" href="{{ $cssVersion('css/social-share.css') }}">
+    <link rel="stylesheet" href="{{ $cssVersion('css/partners.css') }}">
     @if($recaptchaEnabled)
         <script async src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
     @endif

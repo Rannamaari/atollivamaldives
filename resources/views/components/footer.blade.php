@@ -12,6 +12,7 @@
         'explore' => 'استكشف', 'all_products' => 'كل خيارات السفر', 'quote' => 'اطلب عرض سعر', 'blog' => 'المدونة', 'faq' => 'الأسئلة الشائعة', 'about' => 'من نحن', 'experiences' => 'التجارب',
         'discover' => 'اكتشف', 'seaplane' => 'جولات الطائرات المائية', 'island_hopping' => 'التنقل بين الجزر', 'water_sports' => 'الرياضات والأنشطة المائية', 'diving' => 'الغوص',
         'assistance' => 'مساعدة مباشرة', 'assistance_copy' => 'هل تحتاج مساعدة لاختيار الجزيرة أو المسار أو الباقة المناسبة؟ تواصل معنا مباشرةً للحصول على دعم سريع في التخطيط.', 'daily' => 'ساعات العمل يومياً: 9:00 صباحاً إلى 6:00 مساءً بتوقيت المالديف',
+        'trade' => 'قطاع السفر', 'partner' => 'كن شريكاً معنا', 'b2b_enquiry' => 'أرسل استفسار أعمال', 'contact' => 'تواصل معنا',
         'copyright' => '© 2026 أتوليفا المالديف. جميع الحقوق محفوظة.', 'privacy' => 'سياسة الخصوصية', 'terms' => 'شروط الخدمة', 'cookies' => 'إعدادات ملفات تعريف الارتباط',
     ] : [
         'tagline' => 'Your Maldives, Thoughtfully Planned',
@@ -21,6 +22,7 @@
         'explore' => 'Explore', 'all_products' => 'All Travel Products', 'quote' => 'Request Quote', 'blog' => 'Blog', 'faq' => 'FAQ', 'about' => 'About Us', 'experiences' => 'Experiences',
         'discover' => 'Discover', 'seaplane' => 'Seaplane Tours', 'island_hopping' => 'Island Hopping', 'water_sports' => 'Water Sports & Activities', 'diving' => 'Diving',
         'assistance' => 'Direct Assistance', 'assistance_copy' => 'Need help choosing the right island, route, or package? Speak with us directly for quick planning support.', 'daily' => 'Office hours: 9:00 AM to 6:00 PM MVT',
+        'trade' => 'Travel Trade', 'partner' => 'Partner With Us', 'b2b_enquiry' => 'Send B2B Enquiry', 'contact' => 'Contact',
         'copyright' => '© 2026 Atolliva Maldives. All rights reserved.', 'privacy' => 'Privacy Policy', 'terms' => 'Terms of Service', 'cookies' => 'Cookie Settings',
     ];
     $openingTime = date('g:i A', strtotime((string) ($settings->business_opening_time ?: '09:00')));
@@ -123,6 +125,14 @@
                 <a href="{{ $whatsAppUrl }}" target="_blank" rel="noopener">واتساب: +{{ $whatsAppNumber }}</a>
                 <p>{{ $copy['daily'] }}</p>
             </div>
+        </div>
+
+        <div class="site-footer__trade">
+            <p class="site-footer__heading">{{ $copy['trade'] }}</p>
+            <a href="{{ route('partners.index') }}">{{ $copy['partner'] }}</a>
+            <a href="{{ route('partners.index') }}#partner-form">{{ $copy['b2b_enquiry'] }}</a>
+            <a href="{{ route($routePrefix.'about') }}">{{ $copy['about'] }}</a>
+            <a href="mailto:{{ $contactEmail }}">{{ $copy['contact'] }}</a>
         </div>
     </div>
 

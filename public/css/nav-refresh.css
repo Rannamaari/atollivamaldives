@@ -63,8 +63,7 @@ header nav::-webkit-scrollbar {
     min-width: 0;
 }
 
-.nav-language,
-.nav-language--menu {
+.nav-language {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -82,17 +81,11 @@ header nav::-webkit-scrollbar {
 }
 
 .nav-language:hover,
-.nav-language:focus-visible,
-.nav-language--menu:hover,
-.nav-language--menu:focus-visible {
+.nav-language:focus-visible {
     border-color: rgba(110, 213, 204, 0.68);
     background: rgba(110, 213, 204, 0.13);
     color: #ffffff;
     outline: none;
-}
-
-.nav-language--menu {
-    display: none;
 }
 
 header nav a {
@@ -148,6 +141,38 @@ header .nav-cta,
         box-shadow 0.22s ease,
         border-color 0.22s ease,
         background-color 0.22s ease;
+}
+
+.nav-trade {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0 17px;
+    border: 1px solid rgba(110, 213, 204, 0.42);
+    border-radius: 999px;
+    color: #dff8f5;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.11em;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition: background-color .22s ease, border-color .22s ease, transform .22s ease;
+}
+
+.nav-trade:hover,
+.nav-trade:focus-visible,
+.nav-trade.is-active {
+    border-color: rgba(110, 213, 204, 0.78);
+    background: rgba(110, 213, 204, 0.13);
+    color: #fff;
+    transform: translateY(-1px);
+    outline: none;
+}
+
+header nav .nav-partner--menu {
+    display: none;
 }
 
 /* Keep Arabic navigation compact and intentional instead of inheriting English tracking. */
@@ -420,8 +445,13 @@ header .logo,
     }
 
     header .nav-cta,
+    header .nav-trade,
     .menu {
         display: none;
+    }
+
+    header nav .nav-partner--menu {
+        display: inline-flex;
     }
 
     html[lang="ar"] header {
@@ -564,8 +594,9 @@ header .logo,
         letter-spacing: 0.09em;
     }
 
-    header .nav-cta {
-        display: none;
+    header .nav-cta,
+    header .nav-trade {
+        display: none !important;
     }
 
     .nav-actions {
@@ -592,10 +623,9 @@ header .logo,
         flex: 0 0 auto;
     }
 
-    .nav-language--menu {
-        display: inline-flex;
+    header nav .nav-partner--menu {
+        display: inline-flex !important;
         justify-content: flex-start;
-        margin-top: 4px;
         border-color: rgba(110, 213, 204, 0.32);
         background: rgba(110, 213, 204, 0.08);
     }

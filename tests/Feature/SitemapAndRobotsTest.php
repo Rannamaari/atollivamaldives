@@ -84,6 +84,7 @@ class SitemapAndRobotsTest extends TestCase
         $response->assertSee('xmlns:xhtml="http://www.w3.org/1999/xhtml"', false);
         $response->assertSee('xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"', false);
         $response->assertSee('<loc>'.route('home').'</loc>', false);
+        $response->assertSee('<loc>'.route('partners.index').'</loc>', false);
         $response->assertSee('<xhtml:link rel="alternate" hreflang="ar" href="'.route('arabic.home').'" />', false);
         $response->assertSee('<loc>'.route('arabic.home').'</loc>', false);
         $response->assertSee('<loc>'.route('arabic.about').'</loc>', false);

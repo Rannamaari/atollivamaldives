@@ -79,6 +79,13 @@ class SitemapController extends Controller
                 'alternates' => $coreAlternates['faq'],
             ],
             [
+                'loc' => route('partners.index'),
+                'lastmod' => null,
+                'changefreq' => 'monthly',
+                'priority' => '0.7',
+                'alternates' => [],
+            ],
+            [
                 'loc' => route('blog.index'),
                 'lastmod' => null,
                 'changefreq' => 'weekly',

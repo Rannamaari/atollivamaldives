@@ -5,6 +5,7 @@
     $isBlog = request()->routeIs('blog.*') || request()->routeIs('arabic.blog.*');
     $isFaq = request()->routeIs('faq') || request()->routeIs('arabic.faq');
     $isAbout = request()->routeIs('about') || request()->routeIs('arabic.about');
+    $isPartners = request()->routeIs('partners.*');
     $currentAccommodation = request()->route('accommodation');
     $currentType = $currentAccommodation?->type?->value ?? request('type');
     $isResorts = request()->routeIs('resorts.*') || request()->routeIs('arabic.resorts.*') || (request()->routeIs('accommodations.*') && $currentType === 'resort');
@@ -51,14 +52,15 @@
         <a href="{{ $route('cityhotels.index') }}" @class(['is-active' => $isCityHotels])>{{ $isArabic ? 'فنادق المدينة' : 'City Hotels' }}</a>
         <a href="{{ $route('liveaboards.index') }}" @class(['is-active' => $isLiveaboards])>{{ $isArabic ? 'رحلات القوارب' : 'Liveaboards' }}</a>
         <a href="{{ $route('packages.index') }}" @class(['is-active' => $isPackages])>{{ $isArabic ? 'الباقات' : 'Packages' }}</a>
+        <a class="nav-partner--menu" href="{{ route('partners.index') }}" @class(['is-active' => $isPartners])>{{ $isArabic ? 'شركاء السفر' : 'Partner With Us' }}</a>
         <a href="{{ $route('blog.index') }}" @class(['is-active' => $isBlog])>{{ $isArabic ? 'المدونة' : 'Blog' }}</a>
         <a href="{{ $route('faq') }}" @class(['is-active' => $isFaq])>{{ $isArabic ? 'الأسئلة الشائعة' : 'FAQ' }}</a>
         <a href="{{ $route('about') }}" @class(['is-active' => $isAbout])>{{ $isArabic ? 'من نحن' : 'About us' }}</a>
-        <a class="nav-language--menu" href="{{ $languageUrl }}" aria-label="{{ $isArabic ? 'Switch to English' : 'التبديل إلى العربية' }}">{{ $isArabic ? 'English' : 'العربية' }}</a>
     </nav>
 
     <div class="nav-actions">
         <a class="nav-language" href="{{ $languageUrl }}" aria-label="{{ $isArabic ? 'Switch to English' : 'التبديل إلى العربية' }}">{{ $isArabic ? 'English' : 'العربية' }}</a>
+        <a class="nav-trade" href="{{ route('partners.index') }}">{{ $isArabic ? 'شركاء السفر' : 'Partner With Us' }}</a>
         <a class="nav-cta" href="{{ $wa }}" target="_blank">{{ $isArabic ? 'خطط لرحلتك ↗' : 'Plan my trip ↗' }}</a>
     </div>
     <button class="menu" data-menu aria-label="Toggle menu" aria-expanded="false"><span></span><span></span></button>

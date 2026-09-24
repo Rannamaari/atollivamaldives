@@ -3,7 +3,7 @@
 <div style="position:absolute;left:-9999px;opacity:0;pointer-events:none;" aria-hidden="true">
     <label>
         Leave this field empty
-        <input type="text" name="website" tabindex="-1" autocomplete="off">
+        <input type="text" name="{{ $honeypot ?? 'website' }}" tabindex="-1" autocomplete="off">
     </label>
 </div>
 @if(config('services.recaptcha.enabled') && filled(config('services.recaptcha.site_key')))
